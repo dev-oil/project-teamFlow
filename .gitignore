@@ -1,0 +1,22 @@
+# === OS / Editor ===
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# === Node ===
+node_modules/
+
+# === Env ===
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# === Cache / Build ===
+dist/
+build/
+*.tsbuildinfo
+.vite/
+coverage/
