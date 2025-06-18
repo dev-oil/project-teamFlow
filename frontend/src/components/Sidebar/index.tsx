@@ -78,6 +78,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
       <SidebarFooter>
+        {/* Dev용 임시 로그아웃 */}
+        <Button
+          variant='outline'
+          onClick={() => {
+            localStorage.removeItem('token'); // ✅ 토큰 제거
+            window.location.href = '/'; // 또는 window.location.reload() 해도 됨
+          }}
+        >
+          Logout
+        </Button>
         <Button variant='outline' asChild>
           <Link to='/settings'>워크스페이스 설정</Link>
         </Button>

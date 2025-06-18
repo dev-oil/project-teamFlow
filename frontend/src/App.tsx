@@ -1,10 +1,14 @@
 import { Home } from 'lucide-react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppSidebar } from '@/components/Sidebar/index';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 import { Header } from './components/Header';
+import { useAuth } from './hooks/useAuth';
+import { LoginPage } from './pages/Auth/LoginPage';
+import { RegisterPage } from './pages/Auth/RegisterPage';
+import { VerifyEmailPage } from './pages/Auth/VerifyEmailPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NotesPage } from './pages/NotesPage';
@@ -13,6 +17,19 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
+  const { isLoggedIn } = useAuth();
+  console.log(isLoggedIn);
+  if (!isLoggedIn) {
+    return (
+      <Routes>
+        <Route path='/login' element={<LoginPage />} />
+        <Route path='/register' element={<RegisterPage />} />
+        <Route path='/verify' element={<VerifyEmailPage />} />
+        <Route path='*' element={<Navigate to='/login' replace />} />
+      </Routes>
+    );
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
