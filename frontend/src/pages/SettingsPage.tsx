@@ -51,50 +51,65 @@ export const SettingsPage: React.FC = () => {
   );
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteMessage, setInviteMessage] = useState('');
+  const [inviteError, setInviteError] = useState(false);
+
   const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([]);
   const [members] = useState<Member[]>(exampleMembers as Member[]);
   const [isHost] = useState(true);
   //const [isHost] = useState(false); // 게스트 화면을 보기 위해 false로 설정
-
 
   const handleWorkspaceNameUpdate = () => {
     setWorkspaceName(newWorkspaceName);
     setIsEditing(false);
   };
 
+  // 이메일 정규식 함수 정의
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleInviteGuest = async () => {
     if (inviteEmail) {
+      // 정규식 검사 추가
+      if (!isValidEmail(inviteEmail)) {
+        setInviteMessage('유효한 이메일 주소를 입력해주세요.');
+        setInviteError(true);
+        return;
+      }
+
       try {
-       
+        // 토큰 API 호출로 변경
+        const response = await fetch('/api/invitations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: inviteEmail,
+            workspaceId: exampleWorkspace.id,
+          }),
+        });
 
-      // 토큰 API 호출로 변경
-      const response = await fetch('/api/invitations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: inviteEmail,
-          workspaceId: exampleWorkspace.id,
-        }),
-      });
+        if (!response.ok) throw new Error('초대 실패');
 
-      if (!response.ok) throw new Error('초대 실패');
+        // 백엔드에서 초대 정보(예: email, expiresAt 등)를 응답으로 내려주면 사용
+        const data = await response.json();
 
-      // 백엔드에서 초대 정보(예: email, expiresAt 등)를 응답으로 내려주면 사용
-      const data = await response.json();
-
-      // 예시: 대기 중인 게스트 목록 갱신
-      setPendingGuests([...pendingGuests, {
-        id: Date.now(),
-        email: inviteEmail,
-        invitedAt: new Date().toLocaleDateString(),
-        token: data.token, // 백엔드에서 내려준 값
-        expiresAt: new Date(data.expiresAt).toLocaleDateString("ko-KR") // 백엔드에서 내려준 값
-      }]);
-        //setPendingGuests([...pendingGuests, newPendingGuest]);
+        // 대기 중인 게스트 목록 갱신
+        setPendingGuests([
+          ...pendingGuests,
+          {
+            id: Date.now(),
+            email: inviteEmail,
+            invitedAt: new Date().toLocaleDateString(),
+            token: data.token, // 백엔드에서 내려준 값
+            expiresAt: new Date(data.expiresAt).toLocaleDateString('ko-KR'), // 백엔드에서 내려준 값
+          },
+        ]);
         setInviteMessage(`${inviteEmail}로 워크스페이스 초대장을 보냈습니다.`);
         setInviteEmail('');
+        setInviteError(false);
       } catch (error) {
         console.error('초대 처리 중 오류 발생:', error);
         setInviteMessage('초대 처리 중 오류가 발생했습니다.');
@@ -216,7 +231,11 @@ export const SettingsPage: React.FC = () => {
                     <Button onClick={handleInviteGuest}>초대</Button>
                   </div>
                   {inviteMessage && (
-                    <p className='text-sm text-green-600'>{inviteMessage}</p>
+                    <p
+                      className={`text-sm mt-2 ${inviteError ? 'text-red-500' : 'text-green-600'}`}
+                    >
+                      {inviteMessage}
+                    </p>
                   )}
                 </div>
               </TabsContent>
