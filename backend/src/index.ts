@@ -3,6 +3,9 @@ import cors from 'cors';
 
 import taskRouter from './routes/task';
 
+//초대 토큰
+import invitationRouter from './routes/invitation';
+
 const app = express();
 const PORT = 3001;
 
@@ -20,3 +23,7 @@ app.get('/api/ping', (_req, res) => {
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
+
+
+//초대 토큰
+app.use(invitationRouter);
