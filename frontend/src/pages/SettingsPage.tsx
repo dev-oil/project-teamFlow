@@ -15,6 +15,9 @@ import {
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+import { columns } from '@/components/Settings/columns';
+import { DataTable } from'@/components/Settings/data-table';
+
 import { exampleWorkspace, exampleMembers } from '../data/dummyData';
 
 interface User {
@@ -241,7 +244,8 @@ export const SettingsPage: React.FC = () => {
               </TabsContent>
               <TabsContent value='pending' className='flex-1 mt-4'>
                 <ScrollArea className='h-[300px]'>
-                  <Table>
+                  <DataTable columns={columns} data={pendingGuests}  />
+                  {/* <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>이메일</TableHead>
@@ -276,7 +280,7 @@ export const SettingsPage: React.FC = () => {
                         </TableRow>
                       )}
                     </TableBody>
-                  </Table>
+                  </Table> */}
                 </ScrollArea>
               </TabsContent>
             </Tabs>
