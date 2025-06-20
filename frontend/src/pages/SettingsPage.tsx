@@ -56,7 +56,20 @@ export const SettingsPage: React.FC = () => {
   const [inviteMessage, setInviteMessage] = useState('');
   const [inviteError, setInviteError] = useState(false);
 
-  const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([]);
+  const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([{
+    id: 999,
+    email: "expired@example.com",
+    invitedAt: "2025.06.15",
+    expiresAt: "2025.06.16", // ⏰ 현재(6/17)보다 이전이라 만료됨
+    token: "dummy-token",
+  },
+{
+    id: 998,
+    email: "sd@example.com",
+    invitedAt: "2025.06.15",
+    expiresAt: "2025.06.21", // ⏰ 현재(6/17)보다 이전이라 만료됨
+    token: "dummy-token",
+  }]);
   const [members] = useState<Member[]>(exampleMembers as Member[]);
   const [isHost] = useState(true);
   //const [isHost] = useState(false); // 게스트 화면을 보기 위해 false로 설정
@@ -243,44 +256,8 @@ export const SettingsPage: React.FC = () => {
                 </div>
               </TabsContent>
               <TabsContent value='pending' className='flex-1 mt-4'>
-                <ScrollArea className='h-[300px]'>
+                <ScrollArea className='h-[300px] '>
                   <DataTable columns={columns} data={pendingGuests}  />
-                  {/* <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>이메일</TableHead>
-                        <TableHead>초대일</TableHead>
-                        <TableHead>만료일</TableHead>
-                        <TableHead>상태</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pendingGuests.map((guest) => (
-                        <TableRow key={guest.id}>
-                          <TableCell>{guest.email}</TableCell>
-                          <TableCell>{guest.invitedAt}</TableCell>
-                          <TableCell>{guest.expiresAt}</TableCell>
-                          <TableCell>
-                            {new Date(guest.expiresAt) > new Date() ? (
-                              <span className='text-green-600'>유효</span>
-                            ) : (
-                              <span className='text-red-600'>만료</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {pendingGuests.length === 0 && (
-                        <TableRow>
-                          <TableCell
-                            colSpan={4}
-                            className='text-center text-muted-foreground'
-                          >
-                            대기 중인 게스트가 없습니다.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table> */}
                 </ScrollArea>
               </TabsContent>
             </Tabs>
@@ -297,7 +274,7 @@ export const SettingsPage: React.FC = () => {
                   {members.map((member) => (
                     <TableRow key={member.id}>
                       <TableCell>
-                        <div className='flex items-center gap-2'>
+                        <div className='flex items-center gap-2 '>
                           <Avatar className='h-8 w-8'>
                             <AvatarImage
                               src={member.user?.profile_image || undefined}

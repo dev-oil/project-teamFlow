@@ -1,37 +1,75 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import { Button } from '@/components/ui/button';
+import type { ColumnDef } from '@tanstack/react-table';
 
 export type PendingGuest = {
   id: number;
   email: string;
   invitedAt: string;
   expiresAt: string;
+  token: string;
 };
 
 export const columns: ColumnDef<PendingGuest>[] = [
   {
-    accessorKey: "email",
-    header: "이메일",
-  },
-  {
-    accessorKey: "invitedAt",
-    header: "초대일",
-  },
-  {
-    accessorKey: "expiresAt",
-    header: "만료일",
-  },
-  {
-    id: "status",
-    header: "상태",
+    accessorKey: 'email',
+    header: () => <div className='min-w-[500px]'>이메일</div>,
     cell: ({ row }) => {
       const expires = new Date(row.original.expiresAt);
       const now = new Date();
-      const isValid = expires > now;
+      const isExpired = expires <= now;
 
       return (
-        <span className ={isValid ? "text-green-600" : "text-red-600"}>
-          {isValid ? "유효" : "만료"}
+        <span className={isExpired ? 'line-through text-muted-foreground' : ''}>
+          {row.original.email}
         </span>
+      );
+    },
+  },
+  {
+    id: 'status',
+    header: '상태',
+    cell: ({ row }) => {
+      const guest = row.original;
+      const expires = new Date(guest.expiresAt);
+      const now = new Date();
+      const isExpired = expires <= now;
+      const formattedDate = guest.expiresAt.slice(6,11);
+
+      return (
+        <div className='flex items-center justify-between gap-2'>
+          <span className={isExpired ? 'text-red-600' : 'text-black-600'}>
+            {isExpired
+              ? `만료됨 (${formattedDate})`
+              : `대기중 (${formattedDate})`}
+          </span>
+
+          <div className='flex gap-3'>
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => console.log('다시초대:', guest.email)}
+            >
+              다시초대
+            </Button>
+            {isExpired ? (
+              <Button
+                size='sm'
+                variant='destructive'
+                onClick={() => console.log('삭제:', guest.email)}
+              >
+                삭제
+              </Button>
+            ) : (
+              <Button
+                size='sm'
+                variant='secondary'
+                onClick={() => console.log('취소:', guest.email)}
+              >
+                취소
+              </Button>
+            )}
+          </div>
+        </div>
       );
     },
   },
