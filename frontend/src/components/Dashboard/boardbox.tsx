@@ -16,13 +16,13 @@ type ModalProps = {
 
 export function Boardbox({ children }: ModalProps) {
   return (
-    <Card className="max-w-100 min-w-xs !bg-gray-200 rounded-md">
+    <Card className='max-w-100 min-w-xs !bg-neutral-50 rounded-md border-0'>
       <CardHeader>
-        <CardTitle className="text-lg">할 일</CardTitle>
+        <CardTitle className='text-lg'>할 일</CardTitle>
         <Dialog>
           <DialogTrigger asChild>
             <CardAction>
-              <Button className="text-m" variant="outline">
+              <Button className='text-m' variant='outline'>
                 + 카드 생성
               </Button>
             </CardAction>
