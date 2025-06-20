@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-import { exampleWorkspace, exampleMembers } from '@/data/dummyData';
+import { exampleWorkspace, exampleMembers } from '../data/dummyData';
 
 interface User {
   id: number;
@@ -62,35 +62,10 @@ export const SettingsPage: React.FC = () => {
     setIsEditing(false);
   };
 
-  // 토큰 생성 함수
-  // const generateInvitationToken = (): string => {
-  //   // 실제 구현에서는 더 안전한 토큰 생성 방식 사용
-  //   return Math.random().toString(36).substring(2) + Date.now().toString(36);
-  // };
-
-  // 만료일 계산 함수 (현재 시간 + 3일)
-  // const calculateExpiryDate = (): Date => {
-  //   const date = new Date();
-  //   date.setDate(date.getDate() + 3);
-  //   return date;
-  // };
-
   const handleInviteGuest = async () => {
     if (inviteEmail) {
       try {
-        // 토큰 생성
-      //   const token = generateInvitationToken();
-      //   const expiresAt = calculateExpiryDate();
-
-      //   // 임시로 로컬 상태에 저장
-      //   const newPendingGuest: PendingGuest = {
-      //     id: Date.now(),
-      //     email: inviteEmail,
-      //     invitedAt: new Date().toLocaleDateString(),
-      //     token,
-      //     expiresAt: expiresAt.toLocaleDateString(),
-      //   };
-
+       
 
       // 토큰 API 호출로 변경
       const response = await fetch('/api/invitations', {
