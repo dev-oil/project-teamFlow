@@ -11,8 +11,11 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 export function Header() {
+  const { workspace } = useWorkspaceStore();
+
   return (
     <header className='flex justify-between items-center h-16 border-b px-4'>
       <div className='flex shrink-0 items-center gap-2'>
@@ -25,7 +28,7 @@ export function Header() {
           <BreadcrumbList>
             <BreadcrumbItem className='hidden md:block'>
               <BreadcrumbLink asChild>
-                <Link to='/'>미래존</Link>
+                <Link to='/'>{workspace}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className='hidden md:block' />

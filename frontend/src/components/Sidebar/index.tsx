@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/sidebar';
 
 const data = {
-  versions: ['미래존', '나의 워크스페이스 1', '나의 워크스페이스 2'],
+  versions: ['기본 워크스페이스', '나의 워크스페이스 1', '나의 워크스페이스 2'],
   navMain: [
     {
       title: '팀플로우 시작하기',
@@ -40,6 +40,10 @@ const data = {
           title: '달력',
           routes: 'calendar',
         },
+        {
+          title: '워크스페이스 설정',
+          routes: 'settings',
+        },
       ],
     },
   ],
@@ -54,10 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Button>
       </SidebarHeader>
       <SidebarHeader>
-        <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
-        />
+        <VersionSwitcher versions={data.versions} />
       </SidebarHeader>
       <SidebarContent>
         {data.navMain.map((item) => (
@@ -87,9 +88,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }}
         >
           Logout
-        </Button>
-        <Button variant='outline' asChild>
-          <Link to='/settings'>워크스페이스 설정</Link>
         </Button>
       </SidebarFooter>
       <SidebarRail />

@@ -15,7 +15,7 @@ import { VerifyEmailPage } from './pages/Auth/VerifyEmailPage';
 
 import { CalendarPage } from './pages/CalendarPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { NotesPage } from './pages/NotesPage';
+import { NotesPage } from './pages/Notes/NotesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 
