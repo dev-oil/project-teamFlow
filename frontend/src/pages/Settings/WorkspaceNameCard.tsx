@@ -9,11 +9,6 @@ type Props = {
 };
 
 const WorkspaceNameCard = ({ isHost }: Props) => {
-  // const [workspaceName, setWorkspaceName] = useState(exampleWorkspace.name);
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [newWorkspaceName, setNewWorkspaceName] = useState(
-  //   exampleWorkspace.name
-  // );
   const [workspaceName, setWorkspaceName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
