@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -9,10 +8,12 @@ datasource db {
 }
 
 model boxes {
-  id            Int        @id
+  id            Int        @id @default(autoincrement())
   workspaces_id Int
   order         Int
   title         String     @db.VarChar(200)
+  created_at    DateTime   @default(now()) @db.Timestamp(0)
+  updated_at    DateTime   @default(now()) @db.Timestamp(0)
   workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_boxes_workspaces1")
   cards         cards[]
 
@@ -20,9 +21,10 @@ model boxes {
 }
 
 model cards {
-  id          Int      @id
+  id          Int      @id @default(autoincrement())
   boxes_id    Int
   order       Int
+  pinned      Int      @default(0) @db.TinyInt
   title       String   @db.VarChar(100)
   color       String?  @db.VarChar(20)
   description String?  @db.Text
@@ -31,25 +33,24 @@ model cards {
   assignee    Json?
   file        Json?
   created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(now()) @db.Timestamp(0)
   boxes       boxes    @relation(fields: [boxes_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cards_boxes1")
 
   @@index([boxes_id], map: "fk_cards_boxes1_idx")
 }
 
 model meeting_notes {
-  id                                       Int       @id
-  users_id                                 Int
-  lates_user_id                            Int?
-  title                                    String    @db.VarChar(200)
-  created_at                               DateTime  @default(now()) @db.Timestamp(0)
-  latest_at                                DateTime? @db.Timestamp(0)
-  content                                  String?   @db.Text
-  file                                     Json?
-  users_meeting_notes_users_idTousers      users     @relation("meeting_notes_users_idTousers", fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_users1")
-  users_meeting_notes_lates_user_idTousers users?    @relation("meeting_notes_lates_user_idTousers", fields: [lates_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_users2")
+  id                                  Int      @id @default(autoincrement())
+  users_id                            Int
+  title                               Int
+  created_at                          DateTime @default(now()) @db.Timestamp(0)
+  participant                         Json
+  content                             String?  @db.Text
+  file                                Json?
+  updated_at                          DateTime @default(now()) @db.Timestamp(0)
+  users_meeting_notes_users_idTousers users    @relation("meeting_notes_users_idTousers", fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_users1")
 
   @@index([users_id], map: "fk_meeting_notes_users1_idx")
-  @@index([lates_user_id], map: "fk_meeting_notes_users2_idx")
 }
 
 model members {
@@ -65,30 +66,45 @@ model members {
 }
 
 model users {
-  id                                               Int             @id @default(autoincrement())
-  email                                            String          @db.VarChar(100)
-  password                                         String          @db.VarChar(255)
-  name                                             String          @db.VarChar(100)
-  phone                                            String          @db.VarChar(11)
-  profile_image                                    String?         @db.VarChar(255)
-  created_at                                       DateTime        @default(now()) @db.Timestamp(0)
-  updated_at                                       DateTime        @default(now()) @db.Timestamp(0)
-  meeting_notes_meeting_notes_users_idTousers      meeting_notes[] @relation("meeting_notes_users_idTousers")
-  meeting_notes_meeting_notes_lates_user_idTousers meeting_notes[] @relation("meeting_notes_lates_user_idTousers")
-  members                                          members[]
-  workspaces                                       workspaces[]
+  id                                          Int             @id @default(autoincrement())
+  email                                       String          @unique(map: "email_UNIQUE") @db.VarChar(100)
+  password                                    String          @db.VarChar(255)
+  name                                        String          @db.VarChar(100)
+  phone                                       String          @db.VarChar(11)
+  profile_image                               String?         @db.VarChar(255)
+  created_at                                  DateTime        @default(now()) @db.Timestamp(0)
+  updated_at                                  DateTime        @default(now()) @db.Timestamp(0)
+  is_verified                                 Int             @default(0) @db.TinyInt
+  meeting_notes_meeting_notes_users_idTousers meeting_notes[] @relation("meeting_notes_users_idTousers")
+  members                                     members[]
+  workspaces                                  workspaces[]
 }
 
 model workspaces {
-  id         Int       @id @default(autoincrement())
-  name       String    @db.VarChar(100)
-  created_at DateTime  @default(now()) @db.Timestamp(0)
-  users_id   Int
-  boxes      boxes[]
-  members    members[]
-  users      users     @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_workspaces_users1")
+  id          Int           @id @default(autoincrement())
+  users_id    Int
+  name        String        @db.VarChar(100)
+  created_at  DateTime      @default(now()) @db.Timestamp(0)
+  updated_at  DateTime      @default(now()) @db.Timestamp(0)
+  boxes       boxes[]
+  invitations invitations[]
+  members     members[]
+  users       users         @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_workspaces_users1")
 
   @@index([users_id], map: "fk_workspaces_users1_idx")
+}
+
+model invitations {
+  id            Int        @id @default(autoincrement())
+  workspaces_id Int
+  email         String     @unique(map: "email_UNIQUE") @db.VarChar(100)
+  token         String     @unique(map: "token_UNIQUE") @db.VarChar(64)
+  expires_at    DateTime   @db.DateTime(0)
+  used          Int        @default(0) @db.TinyInt
+  created_at    DateTime   @default(now()) @db.Timestamp(0)
+  workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitations_workspaces1")
+
+  @@index([workspaces_id], map: "fk_invitations_workspaces1_idx")
 }
 
 enum members_role {
