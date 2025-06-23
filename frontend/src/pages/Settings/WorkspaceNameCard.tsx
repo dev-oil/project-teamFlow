@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,34 @@ type Props = {
 };
 
 const WorkspaceNameCard = ({ isHost }: Props) => {
-  const [workspaceName, setWorkspaceName] = useState(exampleWorkspace.name);
+  // const [workspaceName, setWorkspaceName] = useState(exampleWorkspace.name);
+  // const [isEditing, setIsEditing] = useState(false);
+  // const [newWorkspaceName, setNewWorkspaceName] = useState(
+  //   exampleWorkspace.name
+  // );
+  const [workspaceName, setWorkspaceName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [newWorkspaceName, setNewWorkspaceName] = useState(
-    exampleWorkspace.name
-  );
+  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+
+  useEffect(() => {
+    const fetchWorkspaceName = async () => {
+      try {
+        const response = await fetch(
+          `/api/workspaces/${exampleWorkspace.id}/name`
+        );
+        if (!response.ok)
+          throw new Error('워크스페이스 이름을 불러오지 못했습니다.');
+
+        const data = await response.json();
+        setWorkspaceName(data.name);
+        setNewWorkspaceName(data.name);
+      } catch (error) {
+        console.error('워크스페이스 이름 불러오기 실패:', error);
+      }
+    };
+
+    fetchWorkspaceName();
+  }, []);
 
   // const handleUpdate = () => {
   //   setWorkspaceName(newWorkspaceName);
