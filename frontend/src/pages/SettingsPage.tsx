@@ -16,7 +16,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { columns } from '@/components/Settings/columns';
-import { DataTable } from'@/components/Settings/data-table';
+import { DataTable } from '@/components/Settings/data-table';
 
 import { exampleWorkspace, exampleMembers } from '../data/dummyData';
 
@@ -55,21 +55,22 @@ export const SettingsPage: React.FC = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteMessage, setInviteMessage] = useState('');
   const [inviteError, setInviteError] = useState(false);
-
-  const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([{
-    id: 999,
-    email: "expired@example.com",
-    invitedAt: "2025.06.15",
-    expiresAt: "2025.06.16", // ⏰ 현재(6/17)보다 이전이라 만료됨
-    token: "dummy-token",
-  },
-{
-    id: 998,
-    email: "sd@example.com",
-    invitedAt: "2025.06.15",
-    expiresAt: "2025.06.21", // ⏰ 현재(6/17)보다 이전이라 만료됨
-    token: "dummy-token",
-  }]);
+  // 만료일 예시 데이터
+  //   const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([{
+  //     id: 999,
+  //     email: "expired@example.com",
+  //     invitedAt: "2025.06.15",
+  //     expiresAt: "2025.06.16", // ⏰ 현재(6/17)보다 이전이라 만료됨
+  //     token: "dummy-token",
+  //   },
+  // {
+  //     id: 998,
+  //     email: "sd@example.com",
+  //     invitedAt: "2025.06.15",
+  //     expiresAt: "2025.06.21", // ⏰ 현재(6/17)보다 이전이라 만료됨
+  //     token: "dummy-token",
+  //   }]);
+  const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([]);
   const [members] = useState<Member[]>(exampleMembers as Member[]);
   const [isHost] = useState(true);
   //const [isHost] = useState(false); // 게스트 화면을 보기 위해 false로 설정
@@ -96,7 +97,8 @@ export const SettingsPage: React.FC = () => {
 
       try {
         // 토큰 API 호출로 변경
-        const response = await fetch('/api/invitations', {
+        const response = await fetch('invitations', {
+          //   /invitations'
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -257,7 +259,7 @@ export const SettingsPage: React.FC = () => {
               </TabsContent>
               <TabsContent value='pending' className='flex-1 mt-4'>
                 <ScrollArea className='h-[300px] '>
-                  <DataTable columns={columns} data={pendingGuests}  />
+                  <DataTable columns={columns} data={pendingGuests} />
                 </ScrollArea>
               </TabsContent>
             </Tabs>
