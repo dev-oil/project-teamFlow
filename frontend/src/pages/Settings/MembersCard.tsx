@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
@@ -60,6 +60,33 @@ const MembersCard = ({ isHost }: Props) => {
     return emailRegex.test(email);
   };
 
+  useEffect(() => {
+    const fetchPendingGuests = async () => {
+      try {
+        const res = await fetch(
+          `/api/invitations/${exampleWorkspace.id}/pending`
+        );
+        if (!res.ok) throw new Error('초대 리스트 불러오기 실패');
+
+        const data = await res.json();
+        const formatted: PendingGuest[] = data.pending.map(
+          (item: PendingGuest) => ({
+            id: item.id,
+            email: item.email,
+            invited_at: new Date(item.invited_at).toLocaleDateString('ko-KR'),
+            expires_at: new Date(item.expires_at).toLocaleDateString('ko-KR'),
+            token: item.token,
+          })
+        );
+        setPendingGuests(formatted);
+      } catch (err) {
+        console.error('대기중 초대 불러오기 오류:', err);
+      }
+    };
+
+    fetchPendingGuests();
+  }, []);
+
   const handleInviteGuest = async () => {
     if (!isValidEmail(inviteEmail)) {
       setInviteMessage('유효한 이메일 주소를 입력해주세요.');
@@ -101,21 +128,21 @@ const MembersCard = ({ isHost }: Props) => {
   };
 
   return (
-    <Card className="flex flex-col h-[500px]">
+    <Card className='flex flex-col h-[500px]'>
       <CardHeader>
         <CardTitle>멤버 정보 ({members.length}명)</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1">
+      <CardContent className='flex-1'>
         {isHost ? (
-          <Tabs defaultValue="members" className="flex flex-col h-full">
-            <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="members">참여중인 멤버</TabsTrigger>
-              <TabsTrigger value="invite">게스트 초대</TabsTrigger>
-              <TabsTrigger value="pending">대기중인 게스트</TabsTrigger>
+          <Tabs defaultValue='members' className='flex flex-col h-full'>
+            <TabsList className='grid grid-cols-3 w-full'>
+              <TabsTrigger value='members'>참여중인 멤버</TabsTrigger>
+              <TabsTrigger value='invite'>게스트 초대</TabsTrigger>
+              <TabsTrigger value='pending'>대기중인 게스트</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="members" className="flex-1 mt-4">
-              <ScrollArea className="h-[300px]">
+            <TabsContent value='members' className='flex-1 mt-4'>
+              <ScrollArea className='h-[300px]'>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -127,16 +154,22 @@ const MembersCard = ({ isHost }: Props) => {
                     {members.map((m) => (
                       <TableRow key={m.id}>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={m.user?.profile_image || undefined} />
+                          <div className='flex items-center gap-2'>
+                            <Avatar className='h-8 w-8'>
+                              <AvatarImage
+                                src={m.user?.profile_image || undefined}
+                              />
                               <AvatarFallback>{m.user?.name[0]}</AvatarFallback>
                             </Avatar>
                             <span>{m.user?.name}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={m.role === 'host' ? 'default' : 'secondary'}>
+                          <Badge
+                            variant={
+                              m.role === 'host' ? 'default' : 'secondary'
+                            }
+                          >
                             {m.role === 'host' ? '호스트' : '게스트'}
                           </Badge>
                         </TableCell>
@@ -147,33 +180,35 @@ const MembersCard = ({ isHost }: Props) => {
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="invite" className="flex-1 mt-4">
-              <div className="space-y-4">
-                <div className="flex gap-2">
+            <TabsContent value='invite' className='flex-1 mt-4'>
+              <div className='space-y-4'>
+                <div className='flex gap-2'>
                   <Input
-                    type="email"
-                    placeholder="이메일 주소 입력"
+                    type='email'
+                    placeholder='이메일 주소 입력'
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                   />
                   <Button onClick={handleInviteGuest}>초대</Button>
                 </div>
                 {inviteMessage && (
-                  <p className={`text-sm ${inviteError ? 'text-red-500' : 'text-green-600'}`}>
+                  <p
+                    className={`text-sm ${inviteError ? 'text-red-500' : 'text-green-600'}`}
+                  >
                     {inviteMessage}
                   </p>
                 )}
               </div>
             </TabsContent>
 
-            <TabsContent value="pending" className="flex-1 mt-4">
-              <ScrollArea className="h-[300px]">
+            <TabsContent value='pending' className='flex-1 mt-4'>
+              <ScrollArea className='h-[300px]'>
                 <DataTable columns={columns} data={pendingGuests} />
               </ScrollArea>
             </TabsContent>
           </Tabs>
         ) : (
-          <ScrollArea className="h-[300px]">
+          <ScrollArea className='h-[300px]'>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -185,16 +220,20 @@ const MembersCard = ({ isHost }: Props) => {
                 {members.map((m) => (
                   <TableRow key={m.id}>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={m.user?.profile_image || undefined} />
+                      <div className='flex items-center gap-2'>
+                        <Avatar className='h-8 w-8'>
+                          <AvatarImage
+                            src={m.user?.profile_image || undefined}
+                          />
                           <AvatarFallback>{m.user?.name[0]}</AvatarFallback>
                         </Avatar>
                         <span>{m.user?.name}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={m.role === 'host' ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={m.role === 'host' ? 'default' : 'secondary'}
+                      >
                         {m.role === 'host' ? '호스트' : '게스트'}
                       </Badge>
                     </TableCell>
