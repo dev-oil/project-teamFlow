@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 
 import taskRouter from './routes/task';
-
 //초대 토큰
 import invitationRouter from './routes/invitation';
 

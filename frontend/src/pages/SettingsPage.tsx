@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { exampleWorkspace, exampleMembers } from '../data/dummyData';
 
-interface User {
+type User = {
   id: number;
   email: string;
   name: string;
@@ -28,24 +28,27 @@ interface User {
   profile_image: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-interface Member {
+type Member = {
   id: number;
   users_id: number;
   workspaces_id: number;
   role: 'host' | 'guest';
   user?: User;
-}
-interface PendingGuest {
+};
+
+type PendingGuest = {
   id: number;
   email: string;
   invitedAt: string;
   token: string;
   expiresAt: string;
-}
+};
 
-export const SettingsPage: React.FC = () => {
+type SettingsPageProps = {}; //상위 컴포넌트에서 전달되는 데이터, 콜백함수 예정
+
+export const SettingsPage: React.FC<SettingsPageProps> = () => {
   // 예시 데이터
   const [workspaceName, setWorkspaceName] = useState(exampleWorkspace.name);
   const [isEditing, setIsEditing] = useState(false);
@@ -329,3 +332,5 @@ export const SettingsPage: React.FC = () => {
     </div>
   );
 };
+
+export default SettingsPage;
