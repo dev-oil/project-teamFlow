@@ -46,6 +46,7 @@ type PendingGuest = {
 
 type Props = {
   isHost: boolean;
+
 };
 
 const MembersCard = ({ isHost }: Props) => {
@@ -93,13 +94,18 @@ const MembersCard = ({ isHost }: Props) => {
       setInviteError(true);
       return;
     }
-
+    const hostMember = members.find((m) => m.role === 'host');
+    const fromEmail = hostMember?.user?.email; 
+    console.log(fromEmail);  // host@example.com
     try {
+         console.log(fromEmail);
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: inviteEmail,
+          fromEmail,
+          toEmail: inviteEmail,
+          message: `${fromEmail}님이 워크스페이스에 초대했습니다.`,
           workspaceId: exampleWorkspace.id,
         }),
       });
