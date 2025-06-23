@@ -25,6 +25,7 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
         workspace: updated,
       });
     return;
+    
   } catch (error) {
     console.error('워크스페이스 이름 변경 실패:', error);
     res.status(500).json({ error: '서버 오류 발생' });

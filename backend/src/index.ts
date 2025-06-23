@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import taskRouter from './routes/task';
-import invitationRouter from './routes/invitation'; // 초대 토큰
+import invitationRouter from './routes/invitationRoutes'; // 초대 토큰
 import workspaceRouter from './routes/workspaceRoutes'; //웍스 이름 변경
 
 const app = express();

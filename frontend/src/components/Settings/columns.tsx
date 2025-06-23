@@ -4,8 +4,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 export type PendingGuest = {
   id: number;
   email: string;
-  invitedAt: string;
-  expiresAt: string;
+  invited_at: string;
+  expires_at: string;
   token: string;
 };
 
@@ -14,7 +14,7 @@ export const columns: ColumnDef<PendingGuest>[] = [
     accessorKey: 'email',
     header: () => <div className='min-w-[500px]'>이메일</div>,
     cell: ({ row }) => {
-      const expires = new Date(row.original.expiresAt);
+      const expires = new Date(row.original.expires_at);
       const now = new Date();
       const isExpired = expires <= now;
 
@@ -30,10 +30,10 @@ export const columns: ColumnDef<PendingGuest>[] = [
     header: '상태',
     cell: ({ row }) => {
       const guest = row.original;
-      const expires = new Date(guest.expiresAt);
+      const expires = new Date(guest.expires_at);
       const now = new Date();
       const isExpired = expires <= now;
-      const formattedDate = guest.expiresAt.slice(6,11);
+      const formattedDate = guest.expires_at.slice(6,11);
 
       return (
         <div className='flex items-center justify-between gap-2'>

@@ -39,9 +39,9 @@ type Member = {
 type PendingGuest = {
   id: number;
   email: string;
-  invitedAt: string;
+  invited_at: string;
   token: string;
-  expiresAt: string;
+  expires_at: string;
 };
 
 type Props = {
@@ -85,8 +85,8 @@ const MembersCard = ({ isHost }: Props) => {
         {
           id: Date.now(),
           email: inviteEmail,
-          invitedAt: new Date().toLocaleDateString(),
-          expiresAt: new Date(data.expiresAt).toLocaleDateString('ko-KR'),
+          invited_at: new Date().toLocaleDateString(),
+          expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
           token: data.token,
         },
       ]);
