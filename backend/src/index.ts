@@ -25,4 +25,4 @@ app.listen(PORT, () => {
 });
 
 //초대 토큰
-app.use(invitationRouter);
+app.use('/api', invitationRouter);

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
+import { columns } from '@/components/Settings/columns';
+import { DataTable } from '@/components/Settings/data-table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
   TableBody,
@@ -13,10 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
-
-import { columns } from '@/components/Settings/columns';
-import { DataTable } from '@/components/Settings/data-table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { exampleWorkspace, exampleMembers } from '../data/dummyData';
 
@@ -97,8 +97,7 @@ export const SettingsPage: React.FC = () => {
 
       try {
         // 토큰 API 호출로 변경
-        const response = await fetch('invitations', {
-          //   /invitations'
+        const response = await fetch('/api/invitations', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
