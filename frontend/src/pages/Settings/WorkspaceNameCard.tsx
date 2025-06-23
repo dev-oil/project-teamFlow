@@ -13,10 +13,31 @@ const WorkspaceNameCard = ({ isHost }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState(exampleWorkspace.name);
 
-  const handleUpdate = () => {
+  // const handleUpdate = () => {
+  //   setWorkspaceName(newWorkspaceName);
+  //   setIsEditing(false);
+  // };
+  const handleUpdate = async () => {
+  try {
+    const response = await fetch(`/api/workspaces/${exampleWorkspace.id}/name`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: newWorkspaceName }),
+    });
+
+    if (!response.ok) {
+      throw new Error('워크스페이스 이름 변경 실패');
+    }
+
     setWorkspaceName(newWorkspaceName);
     setIsEditing(false);
-  };
+  } catch (err) {
+    console.error('워크스페이스 이름 변경 오류:', err);
+    alert('이름 변경 중 오류가 발생했습니다.');
+  }
+};
 
   return (
     <Card>
