@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DataTable } from '@/components/Settings/data-table';
 import { columns } from '@/components/Settings/columns';
-import { exampleMembers, exampleWorkspace } from '@/data/dummyData';
+//import { exampleMembers, exampleWorkspace } from '@/data/dummyData';
 
 type User = {
   id: number;
@@ -46,11 +46,11 @@ type PendingGuest = {
 
 type Props = {
   isHost: boolean;
-
+  workspaceId: number;
 };
 
-const MembersCard = ({ isHost }: Props) => {
-  const [members] = useState<Member[]>(exampleMembers as Member[]);
+const MembersCard = ({ isHost, workspaceId }: Props) => {
+  const [members, setMembers] = useState<Member[]>([]);
   const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteMessage, setInviteMessage] = useState('');
@@ -62,10 +62,11 @@ const MembersCard = ({ isHost }: Props) => {
   };
 
   useEffect(() => {
+    //대기중 초대 리스트 불러오기
     const fetchPendingGuests = async () => {
       try {
         const res = await fetch(
-          `/api/invitations/${exampleWorkspace.id}/pending`
+          `/api/invitations/${workspaceId}/pending`
         );
         if (!res.ok) throw new Error('초대 리스트 불러오기 실패');
 
@@ -86,7 +87,21 @@ const MembersCard = ({ isHost }: Props) => {
     };
 
     fetchPendingGuests();
-  }, []);
+
+    //멤버 리스트 불러오기
+    const fetchMembers = async () => {
+      try {
+        const res = await fetch(`/api/workspaces/${workspaceId}/members`);
+        if (!res.ok) throw new Error('멤버 리스트 불러오기 실패');
+        const data = await res.json();
+        setMembers(data); // API 응답이 배열임
+      } catch (err) {
+        console.error('멤버 불러오기 오류:', err);
+      }
+    };
+    fetchMembers();
+  }, [workspaceId]);
+
 
   const handleInviteGuest = async () => {
     if (!isValidEmail(inviteEmail)) {
@@ -95,18 +110,29 @@ const MembersCard = ({ isHost }: Props) => {
       return;
     }
     const hostMember = members.find((m) => m.role === 'host');
-    const fromEmail = hostMember?.user?.email; 
-    console.log(fromEmail);  // host@example.com
+    const fromEmail = hostMember?.user?.email;
+    //const fromName = hostMember?.user?.name;
+
     try {
          console.log(fromEmail);
-      const response = await fetch('/api/invitations', {
+      // const response = await fetch('/api/invitations', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     email: inviteEmail,
+      //     fromEmail,
+      //     toEmail: inviteEmail,
+      //     //message: `${fromEmail}님이 워크스페이스에 초대했습니다.`,
+      //     workspaceId: exampleWorkspace.id,
+       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email: inviteEmail,
           fromEmail,
           toEmail: inviteEmail,
-          message: `${fromEmail}님이 워크스페이스에 초대했습니다.`,
-          workspaceId: exampleWorkspace.id,
+          //message: `${fromEmail}님이 워크스페이스에 초대했습니다.`,
+          workspaceId: workspaceId,
         }),
       });
 
@@ -114,7 +140,6 @@ const MembersCard = ({ isHost }: Props) => {
 
       const data = await response.json();
       setPendingGuests([
-        ...pendingGuests,
         {
           id: Date.now(),
           email: inviteEmail,
@@ -122,6 +147,7 @@ const MembersCard = ({ isHost }: Props) => {
           expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
           token: data.token,
         },
+        ...pendingGuests,
       ]);
 
       setInviteMessage(`${inviteEmail}로 초대장을 보냈습니다.`);

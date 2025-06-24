@@ -6,6 +6,7 @@ import { sendInvitationEmail } from '../utils/mailer';
 
 const prisma = new PrismaClient();
 
+// 대기중 초대 조회
 export const getPendingInvitations = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
 
@@ -33,6 +34,7 @@ export const getPendingInvitations = async (req: Request, res: Response) => {
   }
 };
 
+// 초대 생성
 export const createInvitation = async (req: Request, res: Response) => {
   const { fromEmail, toEmail, message, workspaceId } = req.body;
 
@@ -72,3 +74,20 @@ export const createInvitation = async (req: Request, res: Response) => {
     return;
   }
 };
+
+// 초대 삭제
+export const deleteInvitation = async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  try {
+    await prisma.invitations.delete({
+      where: { token },
+    });
+    res.json({ success: true });
+    return;
+  } catch (error) {
+    console.error('초대 삭제 실패:', error);
+    res.status(500).json({ error: '서버 오류' });
+    return;
+  }
+};  
