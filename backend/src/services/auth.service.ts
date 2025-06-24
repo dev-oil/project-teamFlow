@@ -1,9 +1,11 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '../db/prisma';
 import { redisClient } from '../utils/redis';
 import { sendVerificationEmail } from './email.service';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
+import { JwtPayload } from '../types/jwt';
 
 /**
  * 회원가입
@@ -30,6 +32,28 @@ export const registerUser = async (
   await redisClient.setEx(`email:verify:${token}`, 60 * 10, email);
 
   await sendVerificationEmail(email, token);
+};
+
+/**
+ * 회원 이메일 인증
+ * @param token 이메일 인증 토큰
+ */
+export const verifyUserEmail = async (token: string): Promise<string> => {
+  const email = await redisClient.get(`email:verify:${token}`);
+  if (!email) throw new Error('토큰이 만료되었거나 유효하지 않습니다.');
+
+  const user = await prisma.users.findUnique({ where: { email } });
+  if (!user) throw new Error('사용자를 찾을 수 없습니다.');
+
+  if (user.is_verified) return '이미 인증된 사용자입니다.';
+
+  await prisma.users.update({
+    where: { email },
+    data: { is_verified: true },
+  });
+
+  await redisClient.del(`email:verify:${token}`);
+  return '이메일 인증이 완료되었습니다.';
 };
 
 /**
@@ -71,4 +95,23 @@ export const loginUser = async (email: string, password: string) => {
       name: user.name,
     },
   };
+};
+
+export const refreshAccessToken = async (refreshToken: string | undefined) => {
+  if (!refreshToken) throw new Error('Refresh Token 없음');
+
+  const decoded = jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET!
+  ) as JwtPayload;
+
+  const storedToken = await redisClient.get(`user:refresh:${decoded.userId}`);
+  if (!storedToken || storedToken !== refreshToken)
+    throw new Error('Refresh Token 무효');
+
+  const newAccessToken = generateAccessToken(decoded.userId);
+  const newRefreshToken = generateRefreshToken(decoded.userId);
+  storeRefreshToken(decoded.userId, newRefreshToken);
+
+  return { newAccessToken, newRefreshToken };
 };

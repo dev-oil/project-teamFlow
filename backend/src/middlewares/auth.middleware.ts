@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-
-type JwtPayload = {
-  userId: number;
-};
+import { JwtPayload } from '../types/jwt';
 
 /** AccessToken 검증 미들웨어 */
 export const verifyAccessToken = (
