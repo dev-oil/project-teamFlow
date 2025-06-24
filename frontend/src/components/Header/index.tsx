@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -15,6 +15,20 @@ import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 export function Header() {
   const { workspace } = useWorkspaceStore();
+  const location = useLocation();
+
+  const pathname = location.pathname;
+
+  const pageNameMap: Record<string, string> = {
+    '/': '홈',
+    '/dashboard': '작업보드',
+    '/notes': '회의록',
+    '/calendar': '달력',
+    '/profile': '프로필',
+    '/settings': '워크스페이스 설정',
+  };
+
+  const currentPageName = pageNameMap[pathname];
 
   return (
     <header className='flex justify-between items-center h-16 border-b px-4'>
@@ -24,6 +38,7 @@ export function Header() {
           orientation='vertical'
           className='mr-2 data-[orientation=vertical]:h-4'
         />
+
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className='hidden md:block'>
@@ -33,11 +48,12 @@ export function Header() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className='hidden md:block' />
             <BreadcrumbItem>
-              <BreadcrumbPage>작업보드</BreadcrumbPage>
+              <BreadcrumbPage>{currentPageName}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+
       <Avatar>
         <Link to='/profile'>
           <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
