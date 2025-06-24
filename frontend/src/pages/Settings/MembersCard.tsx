@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DataTable } from '@/components/Settings/data-table';
 import { columns } from '@/components/Settings/columns';
-//import { exampleMembers, exampleWorkspace } from '@/data/dummyData';
 
 type User = {
   id: number;
@@ -102,19 +101,14 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     fetchMembers();
   }, [workspaceId]);
 
-
   const handleInviteGuest = async () => {
     if (!isValidEmail(inviteEmail)) {
-      setInviteMessage('유효한 이메일 주소를 입력해주세요.');
+       setInviteMessage('유효한 이메일 주소를 입력해주세요.');
       setInviteError(true);
       return;
     }
-    const hostMember = members.find((m) => m.role === 'host');
-    const fromEmail = hostMember?.user?.email;
-    //const fromName = hostMember?.user?.name;
-
-    try {
-         console.log(fromEmail);
+ 
+      //  console.log(fromEmail);
       // const response = await fetch('/api/invitations', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
@@ -124,14 +118,43 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
       //     toEmail: inviteEmail,
       //     //message: `${fromEmail}님이 워크스페이스에 초대했습니다.`,
       //     workspaceId: exampleWorkspace.id,
+    try {
+       // ✅ 이메일 존재 여부 확인
+    const checkRes = await fetch('/api/users/check-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: inviteEmail }),
+    });
+
+    if (!checkRes.ok) {
+      const text = await checkRes.text();
+      console.error('check-email 응답 오류:', text);
+      setInviteMessage('이메일 확인 중 서버 오류가 발생했습니다.');
+      setInviteError(true);
+      return;
+    }
+
+    const checkData = await checkRes.json();
+    if (!checkData.exists) {
+      setInviteMessage('존재하지 않는 이메일입니다.');
+      setInviteError(true);
+      return;
+    }
+
+    // ✅ 여기까지 왔으면 이메일은 존재함
+    console.log('이메일 존재함, 초대 진행');
+    
+    const hostMember = members.find((m) => m.role === 'host');
+    const fromEmail = hostMember?.user?.email;
+    const fromName = hostMember?.user?.name;
+
        const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: inviteEmail,
+          fromName,
           fromEmail,
           toEmail: inviteEmail,
-          //message: `${fromEmail}님이 워크스페이스에 초대했습니다.`,
           workspaceId: workspaceId,
         }),
       });

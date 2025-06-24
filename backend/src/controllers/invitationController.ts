@@ -36,11 +36,10 @@ export const getPendingInvitations = async (req: Request, res: Response) => {
 
 // 초대 생성
 export const createInvitation = async (req: Request, res: Response) => {
-  const { fromEmail, toEmail, message, workspaceId } = req.body;
-
-  if (!fromEmail || !toEmail || !workspaceId) {
-    res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
-    return;
+  const { fromName , fromEmail, toEmail, workspaceId } = req.body;
+ 
+    if (!fromName || !fromEmail || !toEmail || !workspaceId) {
+    return res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
   }
 
   const token = crypto.randomBytes(32).toString('hex');
@@ -60,7 +59,7 @@ export const createInvitation = async (req: Request, res: Response) => {
     });
 
     //이메일 발송
-    await sendInvitationEmail(fromEmail, toEmail, message);
+    await sendInvitationEmail(fromName, fromEmail, toEmail);
 
     res.json({
       success: true,
