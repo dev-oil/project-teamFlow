@@ -22,12 +22,10 @@ export const getWorkspaceName = async (req: Request, res: Response) => {
       return;
     }
     res.json({ name: workspace.name });
-    return;
     
   } catch (error) {
     console.error('워크스페이스 이름 조회 실패:', error);
     res.status(500).json({ error: '서버 오류 발생' });
-    return;
 
   }
 };
@@ -50,8 +48,7 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
     });
 
     res
-      .status(200)
-      .json({
+      .status(200).json({
         message: '워크스페이스 이름이 변경되었습니다.',
         workspace: updated,
       });

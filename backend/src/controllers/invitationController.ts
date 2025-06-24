@@ -24,13 +24,9 @@ export const getPendingInvitations = async (req: Request, res: Response) => {
       orderBy: { created_at: 'desc' },
     });
     res.status(200).json({ pending });
-
-    return;
   } catch (error) {
     console.error('대기중 초대 조회 실패:', error);
     res.status(500).json({ error: '서버 오류 발생' });
-
-    return;
   }
 };
 
@@ -39,7 +35,8 @@ export const createInvitation = async (req: Request, res: Response) => {
   const { fromName , fromEmail, toEmail, workspaceId } = req.body;
  
     if (!fromName || !fromEmail || !toEmail || !workspaceId) {
-    return res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
+      res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
+    return ;
   }
 
   const token = crypto.randomBytes(32).toString('hex');
@@ -66,11 +63,11 @@ export const createInvitation = async (req: Request, res: Response) => {
       token,
       expires_at,
     });
-    return;
+
   } catch (error) {
     console.error('초대 저장 또는 이메일 전송 실패:', error);
     res.status(500).json({ error: '서버 오류' });
-    return;
+
   }
 };
 
@@ -83,10 +80,9 @@ export const deleteInvitation = async (req: Request, res: Response) => {
       where: { token },
     });
     res.json({ success: true });
-    return;
+
   } catch (error) {
     console.error('초대 삭제 실패:', error);
     res.status(500).json({ error: '서버 오류' });
-    return;
   }
 };  
