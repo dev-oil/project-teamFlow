@@ -5,6 +5,7 @@ type JwtPayload = {
   userId: number;
 };
 
+/** AccessToken 검증 미들웨어 */
 export const verifyAccessToken = (
   req: Request,
   res: Response,
@@ -13,7 +14,8 @@ export const verifyAccessToken = (
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Access Token이 없습니다' });
+    res.status(401).json({ message: 'Access Token이 없습니다' });
+    return;
   }
 
   // Bearer 때고 jwt 가져오기

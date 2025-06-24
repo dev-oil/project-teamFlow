@@ -1,7 +1,11 @@
 import nodemailer from 'nodemailer';
 import { createTestAccount } from 'nodemailer';
 
-// 테스트용 가짜 메일 보내기
+/**
+ * 테스트용 가짜 메일 보내기
+ * @param to 받는 사람 이메일
+ * @param token Verification Token(uuid)
+ */
 export const sendVerificationEmail = async (to: string, token: string) => {
   // 1. Ethereal 테스트 계정 생성
   const testAccount = await createTestAccount();
@@ -17,7 +21,7 @@ export const sendVerificationEmail = async (to: string, token: string) => {
   });
 
   // 3. 인증 링크 생성
-  const verifyUrl = `http://localhost:5173/verify?token=${token}`;
+  const verifyUrl = `http://localhost:5173/api/auth/verify?token=${token}`;
 
   // 4. 메일 전송
   const info = await transporter.sendMail({

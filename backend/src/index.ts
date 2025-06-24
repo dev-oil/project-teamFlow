@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import taskRouter from './routes/task';
 import authRouter from './routes/auth.routes';
@@ -9,6 +10,7 @@ const PORT = 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // test용 taskRouter
 app.use('/api', taskRouter);
