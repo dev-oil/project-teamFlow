@@ -9,7 +9,12 @@ export type PendingGuest = {
   token: string;
 };
 
-export const columns: ColumnDef<PendingGuest>[] = [
+type ColumnsProps = {
+  onDelete: (token: string) => void;
+  resendInvite: (email: string) => void;
+};
+
+export const columns = ({ onDelete, resendInvite }: ColumnsProps): ColumnDef<PendingGuest>[] => [
   {
     accessorKey: 'email',
     header: () => <div className='min-w-[500px]'>이메일</div>,
@@ -47,27 +52,17 @@ export const columns: ColumnDef<PendingGuest>[] = [
             <Button
               size='sm'
               variant='outline'
-              onClick={() => console.log('다시초대:', guest.email)}
+              onClick={() => resendInvite(guest.email)}
             >
               다시초대
             </Button>
-            {isExpired ? (
-              <Button
-                size='sm'
-                variant='destructive'
-                onClick={() => console.log('삭제:', guest.email)}
-              >
-                삭제
-              </Button>
-            ) : (
-              <Button
-                size='sm'
-                variant='secondary'
-                onClick={() => console.log('취소:', guest.email)}
-              >
-                취소
-              </Button>
-            )}
+            <Button
+              size='sm'
+              variant='destructive'
+              onClick={() => onDelete(guest.token)}
+            >
+              삭제
+            </Button>
           </div>
         </div>
       );

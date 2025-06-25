@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useEffect } from 'react';
+
+import { columns } from '@/components/Settings/columns';
+import { DataTable } from '@/components/Settings/data-table';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
   TableHeader,
@@ -9,13 +16,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { DataTable } from '@/components/Settings/data-table';
-import { columns } from '@/components/Settings/columns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type User = {
   id: number;
@@ -108,16 +109,6 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
       return;
     }
  
-      //  console.log(fromEmail);
-      // const response = await fetch('/api/invitations', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     email: inviteEmail,
-      //     fromEmail,
-      //     toEmail: inviteEmail,
-      //     //message: `${fromEmail}님이 워크스페이스에 초대했습니다.`,
-      //     workspaceId: exampleWorkspace.id,
     try {
        // ✅ 이메일 존재 여부 확인
     const checkRes = await fetch('/api/users/check-email', {
@@ -136,14 +127,11 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
 
     const checkData = await checkRes.json();
     if (!checkData.exists) {
-      setInviteMessage('존재하지 않는 이메일입니다.');
+      setInviteMessage('Teamflow 존재하지 않는 회원입니다. 이메일을 확인해주세요');
       setInviteError(true);
       return;
     }
 
-    // ✅ 여기까지 왔으면 이메일은 존재함
-    console.log('이메일 존재함, 초대 진행');
-    
     const hostMember = members.find((m) => m.role === 'host');
     const fromEmail = hostMember?.user?.email;
     const fromName = hostMember?.user?.name;
@@ -179,6 +167,64 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     } catch (error) {
       console.error('초대 오류:', error);
       setInviteMessage('초대 처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteInvitation = async (token: string) => {
+    try {
+      const res = await fetch(`/api/invitations/${token}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error('초대 삭제 실패');
+
+      setPendingGuests((prev) => prev.filter((guest) => guest.token !== token));
+    } catch (err) {
+      console.error('초대 삭제 오류:', err);
+    }
+  };
+
+  const handleResendInvite = async (email: string) => {
+    try {
+      const hostMember = members.find((m) => m.role === 'host');
+      const fromEmail = hostMember?.user?.email;
+      const fromName = hostMember?.user?.name;
+
+      const response = await fetch('/api/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromName,
+          fromEmail,
+          toEmail: email,
+          workspaceId: workspaceId,
+        }),
+      });
+
+      if (!response.ok) throw new Error('다시 초대 실패');
+
+      const data = await response.json();
+      
+      // 기존 초대를 삭제하고 새로운 초대로 교체
+      setPendingGuests((prev) => 
+        prev.map((guest) => 
+          guest.email === email 
+            ? {
+                ...guest,
+                invited_at: new Date().toLocaleDateString('ko-KR'),
+                expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
+                token: data.token,
+              }
+            : guest
+        )
+      );
+
+      setInviteMessage(`${email}로 초대장을 다시 보냈습니다.`);
+      setInviteError(false);
+    } catch (error) {
+      console.error('다시 초대 오류:', error);
+      setInviteMessage('다시 초대 처리 중 오류가 발생했습니다.');
+      setInviteError(true);
     }
   };
 
@@ -258,7 +304,13 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
 
             <TabsContent value='pending' className='flex-1 mt-4'>
               <ScrollArea className='h-[300px]'>
-                <DataTable columns={columns} data={pendingGuests} />
+                <DataTable
+                  columns={columns({
+                    onDelete: handleDeleteInvitation,
+                    resendInvite: handleResendInvite,
+                  })}
+                  data={pendingGuests}
+                />
               </ScrollArea>
             </TabsContent>
           </Tabs>
