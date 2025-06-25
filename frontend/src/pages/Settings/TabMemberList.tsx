@@ -1,6 +1,15 @@
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-//import { User, Member, PendingGuest } from '@/components/Types/member';
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
+
+import PopoverMemberProfile from './PopoverMemberProfile';
+
 type User = {
   id: number;
   email: string;
@@ -17,22 +26,14 @@ type Member = {
   role: 'host' | 'guest';
   user?: User;
 };
-
-
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/ui/table';
-
 type Props = {
   members: Member[];
+  isHost: boolean;
+  workspaceId: number;
+  onRemoveMember?: (userId: number) => void;
 };
 
-const TabMemberList = ({ members }: Props) => {
+const TabMemberList = ({ members, isHost, onRemoveMember, workspaceId }: Props) => {
   return (
     <Table>
       <TableHeader>
@@ -45,12 +46,13 @@ const TabMemberList = ({ members }: Props) => {
         {members.map((m) => (
           <TableRow key={m.id}>
             <TableCell>
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={m.user?.profile_image || undefined} />
-                  <AvatarFallback>{m.user?.name?.[0]}</AvatarFallback>
-                </Avatar>
-                <span>{m.user?.name}</span>
+              <div className='flex items-center gap-2'>
+                <PopoverMemberProfile
+                  user={m.user!}
+                  isHost={isHost}
+                  workspaceId={workspaceId}
+                  onRemoveMember={onRemoveMember}
+                />
               </div>
             </TableCell>
             <TableCell>

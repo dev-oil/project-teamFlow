@@ -1,7 +1,6 @@
 import { columns } from '@/components/Settings/columns';
 import { DataTable } from '@/components/Settings/data-table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-//import { PendingGuest } from '@/components/Types/member';
 
 type PendingGuest = {
   id: number;

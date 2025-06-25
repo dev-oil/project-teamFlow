@@ -81,7 +81,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
   const handleDeleteInvitation = async (token: string) => {
     try {
       await fetch(`/api/invitations/${token}`, { method: 'DELETE' });
-      setPendingGuests(prev => prev.filter(g => g.token !== token));
+      setPendingGuests((prev) => prev.filter((g) => g.token !== token));
     } catch (err) {
       console.error('초대 삭제 오류:', err);
     }
@@ -103,13 +103,15 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
       if (!res.ok) throw new Error('다시 초대 실패');
 
       const data = await res.json();
-      setPendingGuests(prev =>
-        prev.map(g =>
+      setPendingGuests((prev) =>
+        prev.map((g) =>
           g.email === email
             ? {
                 ...g,
                 invited_at: new Date().toLocaleDateString('ko-KR'),
-                expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
+                expires_at: new Date(data.expires_at).toLocaleDateString(
+                  'ko-KR'
+                ),
               }
             : g
         )
@@ -138,7 +140,16 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
             </TabsList>
 
             <TabsContent value='members' className='flex-1 mt-4'>
-              <TabMemberList members={members} />
+              <TabMemberList
+                members={members}
+                isHost={isHost}
+                workspaceId={workspaceId}
+                onRemoveMember={(userId) => {
+                  setMembers((prev) =>
+                    prev.filter((m) => m.user?.id !== userId)
+                  );
+                }}
+              />
             </TabsContent>
 
             <TabsContent value='invite' className='flex-1 mt-4'>
@@ -163,7 +174,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
             <TabsContent value='pending' className='flex-1 mt-4'>
               <ScrollArea className='h-[300px]'>
                 <TabPendingGuest
-                  guests={pendingGuests} 
+                  guests={pendingGuests}
                   onDelete={handleDeleteInvitation}
                   onResend={handleResendInvite}
                 />
@@ -172,7 +183,14 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
           </Tabs>
         ) : (
           <ScrollArea className='h-[300px]'>
-            <TabMemberList members={members} />
+            <TabMemberList
+              members={members}
+              isHost={isHost}
+              workspaceId={workspaceId}
+              onRemoveMember={(userId) => {
+                setMembers((prev) => prev.filter((m) => m.user?.id !== userId));
+              }}
+            />
           </ScrollArea>
         )}
       </CardContent>

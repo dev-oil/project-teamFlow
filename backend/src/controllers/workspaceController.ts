@@ -43,6 +43,26 @@ export const getWorkspaceMembers = async (req: Request, res: Response) => {
   }
 };
 
+//멤버 추방
+export const removeMember = async (req: Request, res: Response) => {
+  const workspaceId = Number(req.params.workspaceId);
+  const userId = Number(req.params.userId);
+
+  try {
+    await prisma.members.deleteMany({
+      where: {
+        workspaces_id: workspaceId,
+        users_id: userId,
+      },
+    });
+
+    res.status(200).json({ message: '멤버가 성공적으로 추방되었습니다.' });
+  } catch (error) {
+    console.error('멤버 추방 오류:', error);
+    res.status(500).json({ error: '멤버 추방 실패' });
+  }
+};
+
 // 워크스페이스 이름 조회
 export const getWorkspaceName = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
