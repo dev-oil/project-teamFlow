@@ -56,7 +56,7 @@ export const createInvitation = async (req: Request, res: Response) => {
     });
 
     //이메일 발송
-    await sendInvitationEmail(fromName, fromEmail, toEmail);
+    await sendInvitationEmail(fromName, fromEmail, toEmail, token);
 
     res.json({
       success: true,
@@ -86,3 +86,33 @@ export const deleteInvitation = async (req: Request, res: Response) => {
     res.status(500).json({ error: '서버 오류' });
   }
 };  
+
+//다시 초대
+export const reInvitation = async (req:Request, res : Response) => {
+    const { email, workspaceId, fromEmail, fromName } = req.body;
+  try {
+    const existing = await prisma.invitations.findFirst({
+      where: { email, workspaces_id: workspaceId },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: '초대 기록이 없습니다.' });
+    }
+
+    // 토큰은 유지하고 expires_at만 갱신
+    const newExpiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);  //3일
+
+   const updated = await prisma.invitations.update({
+      where: { id: existing.id },
+      data: { expires_at: newExpiry },
+    });
+
+    // 이메일 다시 전송
+    await sendInvitationEmail(fromName, fromEmail, email, existing.token);
+
+    res.json({ success: true, expires_at: newExpiry });
+  } catch (error) {
+    console.error('다시 초대 실패:', error);
+    res.status(500).json({ error: '서버 오류' });
+  }
+};

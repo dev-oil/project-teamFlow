@@ -51,14 +51,14 @@ export const columns = ({ onDelete, resendInvite }: ColumnsProps): ColumnDef<Pen
           <div className='flex gap-3'>
             <Button
               size='sm'
-              variant='outline'
+              
               onClick={() => resendInvite(guest.email)}
             >
-              다시초대
+              다시 초대
             </Button>
             <Button
               size='sm'
-              variant='destructive'
+              variant='outline'
               onClick={() => onDelete(guest.token)}
             >
               삭제

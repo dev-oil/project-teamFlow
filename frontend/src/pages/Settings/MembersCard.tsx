@@ -102,6 +102,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     fetchMembers();
   }, [workspaceId]);
 
+  // 초대
   const handleInviteGuest = async () => {
     if (!isValidEmail(inviteEmail)) {
        setInviteMessage('유효한 이메일 주소를 입력해주세요.');
@@ -110,7 +111,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     }
  
     try {
-       // ✅ 이메일 존재 여부 확인
+       // 이메일 존재 여부 확인
     const checkRes = await fetch('/api/users/check-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -170,6 +171,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     }
   };
 
+  // 초대 삭제
   const handleDeleteInvitation = async (token: string) => {
     try {
       const res = await fetch(`/api/invitations/${token}`, {
@@ -184,49 +186,49 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     }
   };
 
+  // 다시 초대
   const handleResendInvite = async (email: string) => {
     try {
-      const hostMember = members.find((m) => m.role === 'host');
-      const fromEmail = hostMember?.user?.email;
-      const fromName = hostMember?.user?.name;
+    const hostMember = members.find((m) => m.role === 'host');
+    const fromEmail = hostMember?.user?.email;
+    const fromName = hostMember?.user?.name;
 
-      const response = await fetch('/api/invitations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fromName,
-          fromEmail,
-          toEmail: email,
-          workspaceId: workspaceId,
-        }),
-      });
+    const response = await fetch('/api/invitations/resend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        workspaceId,
+        fromName,
+        fromEmail,
+      }),
+    });
 
-      if (!response.ok) throw new Error('다시 초대 실패');
+    if (!response.ok) throw new Error('다시 초대 실패');
 
-      const data = await response.json();
-      
-      // 기존 초대를 삭제하고 새로운 초대로 교체
-      setPendingGuests((prev) => 
-        prev.map((guest) => 
-          guest.email === email 
-            ? {
-                ...guest,
-                invited_at: new Date().toLocaleDateString('ko-KR'),
-                expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
-                token: data.token,
-              }
-            : guest
-        )
-      );
+    const data = await response.json();
 
-      setInviteMessage(`${email}로 초대장을 다시 보냈습니다.`);
-      setInviteError(false);
-    } catch (error) {
-      console.error('다시 초대 오류:', error);
-      setInviteMessage('다시 초대 처리 중 오류가 발생했습니다.');
-      setInviteError(true);
-    }
-  };
+    // 만료일만 업데이트
+    setPendingGuests((prev) =>
+      prev.map((guest) =>
+        guest.email === email
+          ? {
+              ...guest,
+              invited_at: new Date().toLocaleDateString('ko-KR'),
+              expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
+            }
+          : guest
+      )
+    );
+
+    setInviteMessage(`${email}로 초대장을 다시 보냈습니다.`);
+    setInviteError(false);
+  } catch (error) {
+    console.error('다시 초대 오류:', error);
+    setInviteMessage('다시 초대 처리 중 오류가 발생했습니다.');
+    setInviteError(true);
+  }
+};
 
   return (
     <Card className='flex flex-col h-[500px]'>
