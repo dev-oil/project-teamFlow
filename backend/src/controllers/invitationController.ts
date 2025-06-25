@@ -96,7 +96,8 @@ export const reInvitation = async (req:Request, res : Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ error: '초대 기록이 없습니다.' });
+      res.status(404).json({ error: '초대 기록이 없습니다.' });
+      return; 
     }
 
     // 토큰은 유지하고 expires_at만 갱신

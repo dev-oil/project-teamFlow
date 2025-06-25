@@ -100,9 +100,9 @@ model workspaces {
   name        String        @db.VarChar(100)
   created_at  DateTime      @default(now()) @db.Timestamp(0)
   updated_at  DateTime      @default(now()) @db.Timestamp(0)
-  boxes       boxes[]
-  invitations invitations[]
-  members     members[]
+  boxes       boxes[] 
+  invitations invitations[]  //  invitations Invitations[] @relation("WorkspaceInvitations", onDelete: CASCADE)
+  members     members[]      //  members   Members[] @relation("WorkspaceMembers", onDelete: CASCADE)
   users       users         @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_workspaces_users1")
 
   @@index([users_id], map: "fk_workspaces_users1_idx")

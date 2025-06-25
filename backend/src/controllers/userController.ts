@@ -8,8 +8,10 @@ const prisma = new PrismaClient();
 export const checkUserEmail = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ exists: false, error: '이메일 필요' });
-
+    if (!email) {
+      res.status(400).json({ exists: false, error: '이메일 필요' });
+      return ;
+    }
     const user = await prisma.users.findUnique({ where: { email } });
     res.json({ exists: !!user });
 
@@ -18,3 +20,5 @@ export const checkUserEmail = async (req: Request, res: Response) => {
     res.status(500).json({ exists: false, error: '서버 에러 발생' });
   }
 };
+
+

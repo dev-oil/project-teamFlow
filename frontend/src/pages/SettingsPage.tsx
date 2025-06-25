@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import WorkspaceNameCard from './Settings/WorkspaceNameCard';
-import MembersCard from './Settings/MembersCard';
+import { useState } from 'react';
+
+import { useNavigate } from 'react-router-dom';
+
 import DeleteWorkspaceCard from './Settings/DeleteWorkspaceCard';
+import MembersCard from './Settings/MembersCard';
+import WorkspaceNameCard from './Settings/WorkspaceNameCard';
+
 
 export const SettingsPage = () => {
+
+  const navigate = useNavigate();
   //역할제어
  const [isHost] = useState(true); // 호스트
  //const [isHost] = useState(false); //게스트
@@ -16,7 +22,11 @@ export const SettingsPage = () => {
 
       <WorkspaceNameCard isHost={isHost} workspaceId={workspaceId} />
       <MembersCard isHost={isHost} workspaceId={workspaceId} />
-      {isHost && <DeleteWorkspaceCard  />}
+      {isHost && 
+        <DeleteWorkspaceCard  
+          workspaceId={workspaceId} 
+          onDeleted={() => navigate('/')}
+        />}
     </div>
   );
 };
