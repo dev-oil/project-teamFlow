@@ -18,6 +18,8 @@ import { Label } from '@/components/ui/label';
 
 const registerSchema = z
   .object({
+    name: z.string().min(1, '이름을 입력하세요'),
+    phone: z.string().min(10, '전화번호를 입력하세요'),
     email: z.string().email('유효한 이메일을 입력하세요'),
     password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다'),
     confirmPassword: z.string(),
@@ -57,6 +59,24 @@ export function RegisterPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
             <div className='grid gap-5'>
+              <div className='grid gap-2'>
+                <Label htmlFor='name'>Name</Label>
+                <Input id='name' placeholder='홍길동' {...register('name')} />
+                {errors.name && (
+                  <p className='text-sm text-red-500'>{errors.name.message}</p>
+                )}
+              </div>
+              <div className='grid gap-2'>
+                <Label htmlFor='phone'>Phone</Label>
+                <Input
+                  id='phone'
+                  placeholder='01012345678'
+                  {...register('phone')}
+                />
+                {errors.phone && (
+                  <p className='text-sm text-red-500'>{errors.phone.message}</p>
+                )}
+              </div>
               <div className='grid gap-2'>
                 <Label htmlFor='email'>Email</Label>
                 <Input
