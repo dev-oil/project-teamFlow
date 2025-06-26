@@ -75,22 +75,6 @@ export const createInvitation = async (req: Request, res: Response) => {
   }
 };
 
-// //DB 이메일 확인
-// export const checkUserEmail = async (req: Request, res: Response) => {
-//   try {
-//     const { email } = req.body;
-//     if (!email) {
-//       res.status(400).json({ exists: false, error: '이메일 필요' });
-//       return;
-//     }
-//     const user = await prisma.users.findUnique({ where: { email } });
-//     res.json({ exists: !!user });
-//   } catch (err) {
-//     console.error('checkUserEmail Error:', err);
-//     res.status(500).json({ exists: false, error: '서버 에러 발생' });
-//   }
-// };
-
 // 초대 삭제
 export const deleteInvitation = async (req: Request, res: Response) => {
   const { token } = req.params;
