@@ -81,7 +81,7 @@ const PopoverMemberProfile = ({ user, isHost, onRemoveMember, workspaceId }: Pro
         {isHost && (
           <Button
             variant='outline'
-            className='w-full border-yellow-500 bg-yellow-400 text-white hover:bg-yellow-300"'
+            className='w-full text-red-600 hover:border-red-300 '   
             onClick={handleRemove}
           >
             워크스페이스에서 추방하기
