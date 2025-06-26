@@ -1,8 +1,11 @@
 import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
+import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+import { fetchWorkspaces } from '@/api/workspaces';
 import { VersionSwitcher } from '@/components/Sidebar/version-switcher';
 
 import { Button } from '@/components/ui/button';
@@ -20,35 +23,42 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 
-const data = {
-  versions: ['기본 워크스페이스', '나의 워크스페이스 1', '나의 워크스페이스 2'],
-  navMain: [
-    {
-      title: '팀플로우 시작하기',
-      url: '#',
-      items: [
-        {
-          title: '작업보드',
-          routes: 'dashboard',
-        },
-        {
-          title: '회의록',
-          routes: 'notes',
-        },
-        {
-          title: '달력',
-          routes: 'calendar',
-        },
-        {
-          title: '워크스페이스 설정',
-          routes: 'settings',
-        },
-      ],
-    },
-  ],
-};
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
+import type { WorkspaceListItem } from '@/types/workspace';
+
+const navMain = [
+  {
+    title: '팀플로우 시작하기',
+    url: '#',
+    items: [
+      { title: '작업보드', routes: 'dashboard' },
+      { title: '회의록', routes: 'notes' },
+      { title: '달력', routes: 'calendar' },
+      { title: '워크스페이스 설정', routes: 'settings' },
+    ],
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { setWorkspaceList, setWorkspace, workspace } = useWorkspaceStore();
+
+  const { data: workspaces = [] } = useQuery<WorkspaceListItem[]>({
+    queryKey: ['workspaces'],
+    queryFn: fetchWorkspaces,
+  });
+
+  useEffect(() => {
+    if (workspaces.length === 0) return;
+
+    // 목록 상태 저장
+    setWorkspaceList(workspaces);
+
+    const exists = workspaces.some((ws) => ws.name === workspace);
+
+    // 선택값이 없거나 유효하지 않으면 첫 번째 워크스페이스로 설정
+    if (!workspace || !exists) setWorkspace(workspaces[0].name);
+  }, [workspaces, workspace, setWorkspace, setWorkspaceList]);
+
   const location = useLocation();
 
   return (
@@ -58,23 +68,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <IconCirclePlusFilled /> 새 워크스페이스
         </Button>
       </SidebarHeader>
+
       <SidebarHeader>
-        <VersionSwitcher versions={data.versions} />
+        <VersionSwitcher versions={workspaces.map((ws) => ws.name)} />
       </SidebarHeader>
+
       <SidebarContent>
-        {data.navMain.map((item) => (
+        {navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items.map((item) => {
-                  const fullPath = `/${item.routes}`;
+                {item.items.map((menu) => {
+                  const fullPath = `/${menu.routes}`;
                   const isActive = location.pathname === fullPath;
 
                   return (
-                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuItem key={menu.title}>
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <Link to={item.routes}>{item.title}</Link>
+                        <Link to={menu.routes}>{menu.title}</Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
@@ -84,18 +96,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         ))}
       </SidebarContent>
+
       <SidebarFooter>
-        {/* Dev용 임시 로그아웃 */}
         <Button
           variant='outline'
           onClick={() => {
-            localStorage.removeItem('token'); // ✅ 토큰 제거
-            window.location.href = '/'; // 또는 window.location.reload() 해도 됨
+            localStorage.removeItem('token');
+            window.location.href = '/';
           }}
         >
           Logout
         </Button>
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );

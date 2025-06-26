@@ -47,10 +47,9 @@ export function NotesPage() {
     <div className='p-6 space-y-6 relative'>
       <h2 className='sr-only'>회의록</h2>
 
-      <div className='flex justify-between items-center'>
-        <div className='flex gap-3 items-center'>
-          <Input placeholder='회의록 검색…' className='max-w-md' />
-          <Button>검색</Button>
+      <div className='flex gap-4 justify-between items-center'>
+        <div className='flex items-center w-full'>
+          <Input placeholder='회의록 검색…' />
         </div>
         <Button>+ 회의록 추가하기</Button>
       </div>
