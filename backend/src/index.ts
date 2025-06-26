@@ -3,7 +3,13 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import taskRouter from './routes/task';
+<<<<<<< HEAD
 import authRouter from './routes/auth.routes';
+=======
+import invitationRouter from './routes/invitationRoutes'; // 초대 토큰
+import workspaceRouter from './routes/workspaceRoutes'; //웍스 이름 변경
+import userRouter from './routes/userRoutes'; //이메일 존재 여부 확인
+>>>>>>> feature/#4-workspace-page
 
 const app = express();
 const PORT = 3001;
@@ -12,10 +18,12 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-// test용 taskRouter
-app.use('/api', taskRouter);
+app.use('/api/invitations', invitationRouter); //초대 토큰
+app.use('/api/workspaces', workspaceRouter); //웍스 이름 변경
+app.use('/api/users', userRouter); //이메일 존재 여부 확인
 
 // test용
+app.use('/api', taskRouter);
 app.get('/api/ping', (_req, res) => {
   res.json({ message: 'pong' });
 });
