@@ -3,13 +3,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import taskRouter from './routes/task';
-<<<<<<< HEAD
 import authRouter from './routes/auth.routes';
-=======
 import invitationRouter from './routes/invitationRoutes'; // 초대 토큰
 import workspaceRouter from './routes/workspaceRoutes'; //웍스 이름 변경
 import userRouter from './routes/userRoutes'; //이메일 존재 여부 확인
->>>>>>> feature/#4-workspace-page
 
 const app = express();
 const PORT = 3001;
