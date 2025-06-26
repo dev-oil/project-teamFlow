@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 //멤버 조회
 export const getWorkspaceMembers = async (req: Request, res: Response) => {
-  const workspaceId = parseInt(req.params.id, 10);
+  const workspaceId = parseInt(req.params.workspaceId, 10);
   if (isNaN(workspaceId)) {
     res.status(400).json({ error: '유효한 워크스페이스 ID가 아닙니다.' });
     return;
@@ -65,15 +65,15 @@ export const removeMember = async (req: Request, res: Response) => {
 
 // 워크스페이스 이름 조회
 export const getWorkspaceName = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
+  const workspaceId = parseInt(req.params.workspaceId, 10);
+  if (isNaN(workspaceId)) {
     res.status(400).json({ error: '유효한 ID가 아닙니다.' });
     return;
   }
 
   try {
     const workspace = await prisma.workspaces.findUnique({
-      where: { id },
+      where: { id: workspaceId },
     });
 
     if (!workspace) {
@@ -89,7 +89,7 @@ export const getWorkspaceName = async (req: Request, res: Response) => {
 
 // 워크스페이스 이름 변경
 export const updateWorkspaceName = async (req: Request, res: Response) => {
-  const workspaceId = parseInt(req.params.id, 10);
+  const workspaceId = parseInt(req.params.workspaceId, 10);
   const { name } = req.body;
 
   if (!name || typeof name !== 'string') {
@@ -117,14 +117,14 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
 
 //워크스페이스 삭제
 export const deleteWorkspace = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
+  const workspaceId = parseInt(req.params.workspaceId, 10);
+  if (isNaN(workspaceId)) {
     res.status(400).json({ error: '유효한 ID가 아닙니다.' });
     return;
   }
 
   try {
-    await prisma.workspaces.delete({ where: { id } });
+    await prisma.workspaces.delete({ where: { id: workspaceId } });
     res.json({ success: true });
   } catch (error) {
     console.error('워크스페이스 삭제 실패:', error);
