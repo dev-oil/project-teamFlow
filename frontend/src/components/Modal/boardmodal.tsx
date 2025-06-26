@@ -1,0 +1,313 @@
+import { useState } from 'react';
+
+import { Button } from '../ui/button';
+import {
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Calendar } from '../ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { ChevronDownIcon } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Checkbox } from '../ui/checkbox';
+
+export type ColorOption =
+  | '#FF6B6B'
+  | '#FFD43B'
+  | '#51CF66'
+  | '#38BDF8'
+  | '#845EF7'
+  | '#FFA8D4';
+
+const colorOptions: ColorOption[] = [
+  '#FF6B6B',
+  '#FFD43B',
+  '#51CF66',
+  '#38BDF8',
+  '#845EF7',
+  '#FFA8D4',
+];
+
+export type User = {
+  id: string;
+  name: string;
+  image: string;
+};
+
+// 임시 데이터
+const users: User[] = [
+  {
+    id: 'user1',
+    name: '김유화',
+    image: 'https://github.com/evilrabbit.png',
+  },
+  {
+    id: 'user2',
+    name: '이주희',
+    image: 'https://github.com/octocat.png',
+  },
+  {
+    id: 'user3',
+    name: '손형수',
+    image: 'https://github.com/octocat.png',
+  },
+  {
+    id: 'user4',
+    name: '홍민경',
+    image: 'https://github.com/octocat.png',
+  },
+];
+
+export function Boardmodal() {
+  // 색상
+  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null);
+  // 일정
+  const [range, setRange] = useState<DateRange | undefined>(undefined);
+  // null과 undefined 따로 써도 되나? range는 null 불가
+  // 담당자
+  const [selectedUserid, setSelectedUserid] = useState<string[]>([]);
+
+  // 첨부파일
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  // 첨부파일 추가
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+
+      // 중복 방지 & 최대 5개 제한
+      const mergedFiles = [...attachedFiles, ...newFiles]
+        .filter(
+          (file, index, self) =>
+            index === self.findIndex((f) => f.name === file.name)
+        )
+        .slice(0, 5); // 최대 5개 제한
+
+      setAttachedFiles(mergedFiles);
+      e.target.value = ''; // 같은 파일 선택불가
+    }
+  };
+  // 첨부파일 삭제
+  const handleRemoveFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  console.log(range);
+  return (
+    <>
+      <DialogHeader className='flex-row'>
+        <DialogTitle>카드 작성</DialogTitle>
+        <DialogDescription>in 박스 이름</DialogDescription>
+      </DialogHeader>
+
+      <form action='' className='grid gap-4'>
+        <div className='grid gap-4'>
+          {/* 제목 영역 */}
+          <div className='grid gap-3'>
+            <Label htmlFor='title' className='font-semibold'>
+              제목
+            </Label>
+            <Input id='title' name='title' type='text' placeholder='제목' />
+          </div>
+
+          <div className='flex flex-row justify-between'>
+            {/* 색상 영역 */}
+            <div className='grid gap-3'>
+              <Label htmlFor='color' className='font-semibold'>
+                색상
+              </Label>
+              <div className='flex items-center gap-2'>
+                {colorOptions.map((color) => (
+                  <button
+                    key={color}
+                    className={`w-6 h-6 rounded-full border-2 transition-colors ${
+                      selectedColor === color
+                        ? 'border-black scale-110'
+                        : 'border-transparent'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setSelectedColor(color)}
+                    type='button'
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* 일정 영역 */}
+            <div className='grid gap-3'>
+              <Label htmlFor='dates' className='font-semibold'>
+                일정
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant='outline'
+                    id='dates'
+                    className='w-56 justify-between font-normal'
+                  >
+                    {range?.from && range?.to
+                      ? `${range.from.toLocaleDateString()} - ${range.to.toLocaleDateString()}`
+                      : '----.--.--'}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className='w-auto overflow-hidden p-0'
+                  align='start'
+                >
+                  <Calendar
+                    mode='range'
+                    selected={range}
+                    captionLayout='dropdown'
+                    onSelect={(range) => {
+                      setRange(range);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          {/* 설명 영역 */}
+          <div className='grid gap-3'>
+            <Label htmlFor='description' className='font-semibold'>
+              설명
+            </Label>
+            <Textarea
+              id='description'
+              name='description'
+              placeholder='카드에 대한 설명을 적어주세요'
+            ></Textarea>
+          </div>
+
+          {/* <div className=''> */}
+          {/* 담당자 영역 */}
+          <div className='grid gap-3'>
+            <div className='flex flex-row justify-between'>
+              <Label htmlFor='in_charge' className='font-semibold'>
+                담당자
+              </Label>
+              <div className='flex items-center gap-3 text-xs'>
+                <Label htmlFor='usercheck' className='text-gray-400'>
+                  모두 선택하기
+                </Label>
+                <Checkbox
+                  id='usercheck'
+                  checked={selectedUserid.length == users.length}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setSelectedUserid(users.map((u) => u.id));
+                    } else {
+                      setSelectedUserid([]);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+            {/* <button
+              key='userid'
+              className={`w-6 h-6 rounded-full border-2 transition-colors ${
+                selectedColor === color
+								? 'border-black scale-110'
+								: 'border-transparent'
+								}`}
+								style={{ backgroundColor: color }}
+								onClick={() => setSelectedColor(color)}
+								type='button'
+								/> */}
+            <div className='flex items-start gap-3'>
+              {users.map((user) => {
+                const isSelected = selectedUserid.includes(user.id);
+
+                return (
+                  <button
+                    key={user.id}
+                    type='button'
+                    onClick={() => {
+                      setSelectedUserid((prev) =>
+                        isSelected
+                          ? prev.filter((id) => id !== user.id)
+                          : [...prev, user.id]
+                      );
+                    }}
+                  >
+                    <span
+                      className={`flex flex-col items-center grow transition-all ${isSelected ? 'opacity-100 font-bold' : 'opacity-50 grayscale-100 font-light '}`}
+                    >
+                      <Avatar>
+                        <AvatarImage src={user.image} alt={user.name} />
+                        <AvatarFallback>{user.name}</AvatarFallback>
+                      </Avatar>
+                      <strong className='text-xs pt-1 '>{user.name}</strong>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 첨부파일 영역 */}
+          <div className='grid gap-3'>
+            <div className='flex flex-row justify-between items-center'>
+              <Label className='font-semibold'>첨부파일</Label>
+              <Button variant='ghost' className='text-gray-400 text-xs'>
+                모두 다운받기 +
+              </Button>
+            </div>
+            <div className='flex items-end'>
+              <Label
+                htmlFor='file-upload'
+                className='cursor-pointer border px-4 py-2 rounded-md text-sm text-gray-600 bg-white hover:bg-gray-50 w-fit'
+              >
+                파일 선택
+              </Label>
+              <p className='text-gray-400 text-xs px-2 py-2 '>
+                최대 5개까지 저장 가능합니다
+              </p>
+              <Input
+                id='file-upload'
+                type='file'
+                multiple // 다중 업로드
+                className='hidden'
+                onChange={handleFileChange}
+              />
+            </div>
+            <div>
+              <ul className='mt-2 space-y-2 text-sm'>
+                {attachedFiles.map((file, index) => (
+                  <li
+                    key={index}
+                    className='flex justify-between items-center border px-3 py-2 rounded-md bg-gray-50'
+                  >
+                    <span className='truncate'>{file.name}</span>
+                    <button
+                      type='button'
+                      onClick={() => handleRemoveFile(index)}
+                      className='text-red-500 text-xs ml-2'
+                    >
+                      ✕
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          {/* </div> */}
+        </div>
+      </form>
+
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button variant='outline'>삭제하기</Button>
+        </DialogClose>
+        <Button type='submit'>저장하기</Button>
+      </DialogFooter>
+    </>
+  );
+}
