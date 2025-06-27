@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export function useAuth() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(Boolean(token));
-  }, []);
-
-  return { isLoggedIn };
+  const accessToken = useAuthStore((state) => state.accessToken);
+  return {
+    isLoggedIn: Boolean(accessToken),
+  };
 }

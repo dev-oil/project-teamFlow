@@ -1,4 +1,4 @@
-import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
+import { IconCirclePlusFilled } from '@tabler/icons-react';
 import * as React from 'react';
 
 import { Link } from 'react-router-dom';
@@ -19,6 +19,7 @@ import {
   SidebarRail,
   SidebarFooter,
 } from '@/components/ui/sidebar';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const data = {
   versions: ['미래존', '나의 워크스페이스 1', '나의 워크스페이스 2'],
@@ -78,15 +79,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        {/* Dev용 임시 로그아웃 */}
         <Button
           variant='outline'
+          asChild
           onClick={() => {
-            localStorage.removeItem('token'); // ✅ 토큰 제거
-            window.location.href = '/'; // 또는 window.location.reload() 해도 됨
+            useAuthStore.getState().clearAccessToken();
           }}
         >
-          Logout
+          <Link to='/'>Logout</Link>
         </Button>
         <Button variant='outline' asChild>
           <Link to='/settings'>워크스페이스 설정</Link>

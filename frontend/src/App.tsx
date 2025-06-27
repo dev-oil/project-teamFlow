@@ -5,7 +5,9 @@ import { AppSidebar } from '@/components/Sidebar/index';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 import { Header } from './components/Header';
+import { Toaster } from './components/ui/sonner';
 import { useAuth } from './hooks/useAuth';
+import { useAuthInitializer } from './hooks/useAuthInitializer';
 import { AuthLayout } from './pages/Auth/AuthLayout';
 import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { LoginPage } from './pages/Auth/LoginPage';
@@ -20,21 +22,25 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
+  useAuthInitializer();
   const { isLoggedIn } = useAuth();
   console.log(isLoggedIn);
   if (!isLoggedIn) {
     return (
-      <Routes>
-        <Route path='/' element={<AuthLayout />}>
-          <Route index element={<Navigate to='/login' replace />} />
-          <Route path='login' element={<LoginPage />} />
-          <Route path='register' element={<RegisterPage />} />
-          <Route path='forgot-password' element={<ForgotPasswordPage />} />
-          <Route path='*' element={<Navigate to='/login' replace />} />
-        </Route>
-        <Route path='/verify' element={<VerifyEmailPage />} />
-        <Route path='/reset-password' element={<ResetPasswordPage />} />
-      </Routes>
+      <>
+        <Routes>
+          <Route path='/' element={<AuthLayout />}>
+            <Route index element={<Navigate to='/login' replace />} />
+            <Route path='login' element={<LoginPage />} />
+            <Route path='register' element={<RegisterPage />} />
+            <Route path='forgot-password' element={<ForgotPasswordPage />} />
+            <Route path='*' element={<Navigate to='/login' replace />} />
+          </Route>
+          <Route path='/verify' element={<VerifyEmailPage />} />
+          <Route path='/reset-password' element={<ResetPasswordPage />} />
+        </Routes>
+        <Toaster richColors />
+      </>
     );
   }
 
@@ -54,6 +60,7 @@ function App() {
           </Routes>
         </div>
       </SidebarInset>
+      <Toaster />
     </SidebarProvider>
   );
 }

@@ -11,9 +11,13 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { name, phone, email, password } = req.body;
     await registerUser(name, phone, email, password);
-    res.status(201).json({ message: '회원가입 성공. 이메일을 확인해주세요.' });
+    res.status(201).json({
+      title: '회원가입 성공',
+      description: '이메일을 확인해주세요.',
+    });
   } catch (err: unknown) {
-    if (err instanceof Error) res.status(400).json({ message: err.message });
+    if (err instanceof Error)
+      res.status(400).json({ title: err.name, description: err.message });
   }
 };
 
@@ -30,17 +34,18 @@ export const verifyEmail = async (req: Request, res: Response) => {
     const message = await verifyUserEmail(token);
     res.status(200).json({ message });
   } catch (err: unknown) {
-    if (err instanceof Error) res.status(400).json({ message: err.message });
+    if (err instanceof Error)
+      res.status(400).json({ title: err.name, description: err.message });
   }
 };
 
 /** 로그인 */
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-    const result = await loginUser(email, password);
+    const { email, password }: { email: string; password: string } = req.body;
+    const { refreshToken, ...result } = await loginUser(email, password);
 
-    res.cookie('refreshToken', result.refreshToken, {
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       signed: true,
       secure: process.env.NODE_ENV === 'production',
@@ -50,7 +55,8 @@ export const login = async (req: Request, res: Response) => {
 
     res.status(200).json(result);
   } catch (err: unknown) {
-    if (err instanceof Error) res.status(401).json({ message: err.message });
+    if (err instanceof Error)
+      res.status(401).json({ title: err.name, description: err.message });
   }
 };
 
