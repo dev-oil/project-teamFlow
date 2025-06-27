@@ -1,6 +1,14 @@
+import { ChevronDownIcon } from 'lucide-react';
 import { useState } from 'react';
 
+import type { DateRange } from 'react-day-picker';
+
+import type { Boxtype, Cardtype } from '@/types/board';
+
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
+import { Calendar } from '../ui/calendar';
+import { Checkbox } from '../ui/checkbox';
 import {
   DialogClose,
   DialogDescription,
@@ -10,13 +18,8 @@ import {
 } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Calendar } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { ChevronDownIcon } from 'lucide-react';
-import type { DateRange } from 'react-day-picker';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Checkbox } from '../ui/checkbox';
+import { Textarea } from '../ui/textarea';
 
 export type ColorOption =
   | '#FF6B6B'
@@ -65,12 +68,26 @@ const users: User[] = [
   },
 ];
 
-export function Boardmodal() {
+type BoardmodalProps = {
+  mode: 'create' | 'edit';
+  box?: Boxtype;
+  card?: Cardtype;
+};
+
+export function Boardmodal({ mode, box, card }: BoardmodalProps) {
+  // 데이터를 usestate에 저장한 뒤에 데이터를 보여준다 => 어차피 저장해서 쓸거니까 ? 저장해서 하는게 맞다?
+  // or 어차피 데이터는 받아오니까 바로 뿌려줘도 된다 ?
+
+  // 제목
+  const [cardtitle, setCardtitle] = useState(card?.title ?? '');
   // 색상
-  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null);
+  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(
+    (card?.color as ColorOption) ?? null
+  );
   // 일정
   const [range, setRange] = useState<DateRange | undefined>(undefined);
-  // null과 undefined 따로 써도 되나? range는 null 불가
+  // 설명
+  const [description, setDescription] = useState(card?.description ?? '');
   // 담당자
   const [selectedUserid, setSelectedUserid] = useState<string[]>([]);
 
@@ -98,12 +115,14 @@ export function Boardmodal() {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  console.log(range);
+  console.log(mode);
   return (
     <>
       <DialogHeader className='flex-row'>
-        <DialogTitle>카드 작성</DialogTitle>
-        <DialogDescription>in 박스 이름</DialogDescription>
+        <DialogTitle>
+          {mode === 'create' ? '카드 작성' : '카드 상세/수정'}
+        </DialogTitle>
+        <DialogDescription>in {box?.title ?? '알 수 없음'}</DialogDescription>
       </DialogHeader>
 
       <form action='' className='grid gap-4'>
@@ -113,7 +132,14 @@ export function Boardmodal() {
             <Label htmlFor='title' className='font-semibold'>
               제목
             </Label>
-            <Input id='title' name='title' type='text' placeholder='제목' />
+            <Input
+              id='title'
+              name='title'
+              type='text'
+              placeholder='제목'
+              value={card?.title ?? ''}
+              onChange={(e) => setCardtitle(e.target.value)}
+            />
           </div>
 
           <div className='flex flex-row justify-between'>
@@ -183,6 +209,8 @@ export function Boardmodal() {
               id='description'
               name='description'
               placeholder='카드에 대한 설명을 적어주세요'
+              value={card?.description ?? ''}
+              onChange={(e) => setDescription(e.target.value)}
             ></Textarea>
           </div>
 

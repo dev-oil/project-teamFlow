@@ -1,8 +1,9 @@
 'use client';
 
 // import { useEffect, useState } from 'react';
-import { Button } from '../ui/button';
 import { ChevronUp } from 'lucide-react';
+
+import { Button } from '../ui/button';
 
 type ScrollTopButtonProps = {
   targetRef: React.RefObject<HTMLElement | null>;

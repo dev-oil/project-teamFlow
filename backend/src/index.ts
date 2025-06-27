@@ -7,6 +7,7 @@ import authRouter from './routes/auth.routes';
 import invitationRouter from './routes/invitationRoutes'; // 초대 토큰
 import workspaceRouter from './routes/workspaceRoutes'; //웍스 이름 변경
 import userRouter from './routes/userRoutes'; //이메일 존재 여부 확인
+import getBoard from './routes/board';
 
 const app = express();
 const PORT = 3001;
@@ -27,6 +28,9 @@ app.get('/api/ping', (_req, res) => {
 
 // 로그인
 app.use('/api/auth', authRouter);
+
+// 작업보드
+app.use('/api/board', getBoard);
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
