@@ -12,10 +12,8 @@ export const register = async (req: Request, res: Response) => {
     const { name, phone, email, password } = req.body;
     await registerUser(name, phone, email, password);
     res.status(201).json({ message: '회원가입 성공. 이메일을 확인해주세요.' });
-    return;
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
-    return;
+  } catch (err: unknown) {
+    if (err instanceof Error) res.status(400).json({ message: err.message });
   }
 };
 

@@ -25,7 +25,7 @@ export const registerUser = async (
 
   const hashed = await bcrypt.hash(password, 10);
   await prisma.users.create({
-    data: { name, phone, email, password: hashed, is_verified: false },
+    data: { name, phone, email, password: hashed },
   });
 
   const token = uuidv4();
@@ -49,7 +49,7 @@ export const verifyUserEmail = async (token: string): Promise<string> => {
 
   await prisma.users.update({
     where: { email },
-    data: { is_verified: true },
+    data: { is_verified: 1 },
   });
 
   await redisClient.del(`email:verify:${token}`);
