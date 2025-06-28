@@ -39,9 +39,9 @@ function App() {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className='overflow-hidden'>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className='overflow-hidden'>
         <Header />
         <div>
           <Routes>
