@@ -42,7 +42,7 @@ model cards {
 model meeting_notes {
   id                                  Int      @id @default(autoincrement())
   users_id                            Int
-  title                               Int
+  title                               String   @db.VarChar(100)
   created_at                          DateTime @default(now()) @db.Timestamp(0)
   participant                         Json
   content                             String?  @db.Text
@@ -75,6 +75,7 @@ model users {
   created_at                                  DateTime        @default(now()) @db.Timestamp(0)
   updated_at                                  DateTime        @default(now()) @db.Timestamp(0)
   is_verified                                 Int             @default(0) @db.TinyInt
+  invitations                                 invitations[]
   meeting_notes_meeting_notes_users_idTousers meeting_notes[] @relation("meeting_notes_users_idTousers")
   members                                     members[]
   workspaces                                  workspaces[]
@@ -102,9 +103,12 @@ model invitations {
   expires_at    DateTime   @db.DateTime(0)
   used          Int        @default(0) @db.TinyInt
   created_at    DateTime   @default(now()) @db.Timestamp(0)
+  users_id      Int
+  users         users      @relation(fields: [users_id], references: [id], onUpdate: Restrict, map: "fk_invitations_users1")
   workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitations_workspaces1")
 
   @@index([workspaces_id], map: "fk_invitations_workspaces1_idx")
+  @@index([users_id], map: "fk_invitations_users1_idx")
 }
 
 enum members_role {
