@@ -1,10 +1,9 @@
 import { IconCirclePlusFilled } from '@tabler/icons-react';
 import * as React from 'react';
-
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { VersionSwitcher } from '@/components/Sidebar/version-switcher';
-
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -82,8 +81,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <Button
           variant='outline'
           asChild
-          onClick={() => {
-            useAuthStore.getState().clearAccessToken();
+          onClick={async () => {
+            try {
+              const res = await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+              });
+
+              if (!res.ok) throw new Error('로그아웃 실패');
+              useAuthStore.getState().clearAccessToken();
+            } catch (err: unknown) {
+              if (err instanceof Error) {
+                toast.warning('로그아웃 실패', {
+                  description: '잠시후 다시 시도해주세요',
+                });
+              }
+            }
           }}
         >
           <Link to='/'>Logout</Link>

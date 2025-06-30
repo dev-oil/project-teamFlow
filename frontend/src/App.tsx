@@ -22,9 +22,9 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
+  const { isLoggedIn, isInitiailized } = useAuth();
   useAuthInitializer();
-  const { isLoggedIn } = useAuth();
-  console.log(isLoggedIn);
+  if (!isInitiailized) return null;
   if (!isLoggedIn) {
     return (
       <>
@@ -60,7 +60,7 @@ function App() {
           </Routes>
         </div>
       </SidebarInset>
-      <Toaster />
+      <Toaster richColors />
     </SidebarProvider>
   );
 }

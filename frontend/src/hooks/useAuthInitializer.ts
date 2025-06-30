@@ -20,6 +20,8 @@ export function useAuthInitializer() {
         }
       } catch {
         useAuthStore.getState().clearAccessToken();
+      } finally {
+        useAuthStore.getState().setIsInitiailized(true);
       }
     };
 

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -40,7 +40,6 @@ export function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
-    console.log(data);
     // 로그인 요청 로직
     try {
       const response = await fetch('http://localhost:3001/api/auth/login', {
@@ -105,9 +104,10 @@ export function LoginPage() {
                   <Button
                     variant='link'
                     className='ml-auto text-blue-600'
-                    onClick={() =>
-                      navigate('/forgot-password', { replace: true })
-                    }
+                    onClick={(e: React.FormEvent) => {
+                      e.preventDefault();
+                      navigate('/forgot-password', { replace: true });
+                    }}
                   >
                     Forgot your password?
                   </Button>
