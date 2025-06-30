@@ -1,4 +1,4 @@
-// backend/src/routes/workspaceRoutes.ts
+// backend/src/routes/workspace.routes.ts
 import express from 'express';
 import {  
   getWorkspaceName,

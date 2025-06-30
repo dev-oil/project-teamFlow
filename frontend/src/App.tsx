@@ -17,6 +17,7 @@ import { CalendarPage } from './pages/CalendarPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NotesPage } from './pages/NotesPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { InviteEmailPage } from './pages/Settings/InviteEmailPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         </Route>
         <Route path='/verify' element={<VerifyEmailPage />} />
         <Route path='/reset-password' element={<ResetPasswordPage />} />
+        <Route path="/invite" element={<InviteEmailPage />} />
       </Routes>
     );
   }
