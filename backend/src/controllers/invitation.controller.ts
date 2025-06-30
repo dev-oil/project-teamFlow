@@ -10,7 +10,7 @@ export const createInvitation = async (req: Request, res: Response) => {
   const { fromName, fromEmail, toEmail, workspaceId } = req.body;
   if (!fromName || !fromEmail || !toEmail || !workspaceId) {
     res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
-    return; 
+    return;
   }
 
   try {
@@ -23,29 +23,54 @@ export const createInvitation = async (req: Request, res: Response) => {
     res.json({ success: true, token, expires_at });
   } catch (error: unknown) {
     console.error('초대 생성 실패:', error);
-    if (error instanceof Error) res.status(500).json({ error: error.message || '서버 오류' });
+    if (error instanceof Error)
+      res.status(500).json({ error: error.message || '서버 오류' });
   }
 };
 
-/** 초대 토큰 */
+/** 초대 토큰 유효성 검사*/
 export const verifyInvitationToken = async (req: Request, res: Response) => {
-  const { token } = req.query;
+    const token = req.query.token as string;
 
   if (!token || typeof token !== 'string') {
-    return res.status(400).json({ error: '토큰이 필요합니다.' });
+    console.log(`토큰 없음`);
+    res.status(400).json({ error: '토큰이 필요합니다.' });
   }
 
   try {
     const invite = await prisma.invitations.findUnique({ where: { token } });
 
-    if (!invite || invite.used === 1 || new Date(invite.expires_at) < new Date()) {
-      return res.status(400).json({ error: '유효하지 않거나 만료된 토큰입니다.' });
+    if (
+      !invite ||
+      invite.used === 1 ||
+      new Date(invite.expires_at) < new Date()
+    ) {
+      res
+        .status(400)
+        .json({ error: '유효하지 않거나 만료된 토큰입니다.' });
+      return ;
     }
 
-    return res.status(200).json({ success: true });
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error('초대 토큰 검증 실패:', error);
-    return res.status(500).json({ error: '서버 오류 발생' });
+    res.status(500).json({ error: '서버 오류 발생' });
+  }
+};
+
+/** 초대 수락 */
+export const acceptInvitation = async (req: Request, res: Response) => {
+  const { token } = req.body;
+
+  if (!token) {
+    res.status(400).json({ error: '초대 토큰이 필요합니다.' });
+  }
+
+  try {
+    const result = await invitationService.acceptInvitationService(token);
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message || '초대 수락 실패' });
   }
 };
 
@@ -54,7 +79,7 @@ export const getPendingInvitations = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
   if (isNaN(workspaceId)) {
     res.status(400).json({ error: '유효한 워크스페이스 ID가 필요합니다.' });
-    return; 
+    return;
   }
 
   try {
@@ -69,9 +94,9 @@ export const getPendingInvitations = async (req: Request, res: Response) => {
 /** 초대 삭제 */
 export const deleteInvitation = async (req: Request, res: Response) => {
   const { token } = req.params;
-    if (!token) {
-      res.status(400).json({ error: '토큰이 누락되었습니다.' });
-    return ;
+  if (!token) {
+    res.status(400).json({ error: '토큰이 누락되었습니다.' });
+    return;
   }
 
   try {
@@ -97,6 +122,7 @@ export const reInvitation = async (req: Request, res: Response) => {
     res.json({ success: true, expires_at });
   } catch (error: unknown) {
     console.error('다시 초대 실패:', error);
-   if (error instanceof Error)  res.status(500).json({ error: error.message || '서버 오류' });
+    if (error instanceof Error)
+      res.status(500).json({ error: error.message || '서버 오류' });
   }
 };

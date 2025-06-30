@@ -1,20 +1,20 @@
 // services/email.service.ts
 import { sendMail } from '../utils/mailer';
-import { createVerifyToken } from '../utils/jwt';
+// import { createVerifyToken } from '../utils/jwt';
 
-export async function sendVerificationEmail(userEmail: string, userId: string) {
-  const token = createVerifyToken(userId);
+// export async function sendVerificationEmail(userEmail: string, userId: string) {
+//   const token = createVerifyToken(userId);
 
-  const verifyLink = `http://localhost:5173/verify?token=${token}`;
-  const html = `<p>이메일 인증을 완료하려면 아래 링크를 클릭해주세요:</p>
-                <a href="${verifyLink}">이메일 인증</a>`;
+//   const verifyLink = `http://localhost:5173/verify?token=${token}`;
+//   const html = `<p>이메일 인증을 완료하려면 아래 링크를 클릭해주세요:</p>
+//                 <a href="${verifyLink}">이메일 인증</a>`;
 
-  return sendMail({
-    to: userEmail,
-    subject: 'TeamFlow 이메일 인증',
-    html,
-  });
-}
+//   return sendMail({
+//     to: userEmail,
+//     subject: 'TeamFlow 이메일 인증',
+//     html,
+//   });
+// }
 
 /** 초대 이메일 */ 
 export async function sendInvitationEmail({

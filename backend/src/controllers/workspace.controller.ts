@@ -16,7 +16,10 @@ const parseIdParam = (param: string): number | null => {
 /** 멤버 조회 */ 
 export const getWorkspaceMembers = async (req: Request, res: Response) => {
   const workspaceId = parseIdParam(req.params.workspaceId);
-  if (!workspaceId) return res.status(400).json({ error: '유효한 워크스페이스 ID가 아닙니다.' });
+  if (!workspaceId) {
+     res.status(400).json({ error: '유효한 워크스페이스 ID가 아닙니다.' });
+     return;
+  }
 
   try {
     const members = await fetchMembersByWorkspaceId(workspaceId);
@@ -30,7 +33,10 @@ export const getWorkspaceMembers = async (req: Request, res: Response) => {
 export const removeMember = async (req: Request, res: Response) => {
   const workspaceId = parseIdParam(req.params.workspaceId);
   const userId = parseIdParam(req.params.userId);
-  if (!workspaceId || !userId) return res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+  if (!workspaceId || !userId) {
+    res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+    return;
+  } 
 
   try {
     await deleteMember(workspaceId, userId);
@@ -43,11 +49,17 @@ export const removeMember = async (req: Request, res: Response) => {
 /**  워크스페이스 이름 조회 */  
 export const getWorkspaceName = async (req: Request, res: Response) => {
   const workspaceId = parseIdParam(req.params.workspaceId);
-  if (!workspaceId) return res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+  if (!workspaceId) {
+     res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+     return;
+  } 
 
   try {
     const workspace = await getWorkspaceNameById(workspaceId);
-    if (!workspace) return res.status(404).json({ error: '워크스페이스를 찾을 수 없습니다.' });
+    if (!workspace) {
+      res.status(404).json({ error: '워크스페이스를 찾을 수 없습니다.' });
+      return;
+    } 
 
     res.json({ name: workspace.name });
   } catch (error: unknown) {
@@ -61,7 +73,8 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
   const { name } = req.body;
 
   if (!workspaceId || !name || typeof name !== 'string') {
-    return res.status(400).json({ error: '유효한 워크스페이스 이름을 입력해주세요.' });
+    res.status(400).json({ error: '유효한 워크스페이스 이름을 입력해주세요.' });
+   return;
   }
 
   try {
@@ -78,7 +91,10 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
 /**  워크스페이스 삭제 */  
 export const deleteWorkspace = async (req: Request, res: Response) => {
   const workspaceId = parseIdParam(req.params.workspaceId);
-  if (!workspaceId) return res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+  if (!workspaceId) {
+    res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+    return;
+  } 
 
   try {
     await removeWorkspace(workspaceId);

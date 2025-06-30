@@ -69,7 +69,7 @@ const TabInviteGuest = ({
       const fromEmail = host?.user?.email;
       const fromName = host?.user?.name;
 
-      const res = await fetch('/api/invitations', {
+      const res = await fetch('/api/invite/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -60,7 +60,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
 
     const fetchPendingGuests = async () => {
       try {
-        const res = await fetch(`/api/invitations/${workspaceId}/pending`);
+        const res = await fetch(`/api/invite/${workspaceId}/pending`);
         const data = await res.json();
         const formatted = data.pending.map((item: PendingGuest) => ({
           ...item,
@@ -80,7 +80,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
   // 초대 삭제
   const handleDeleteInvitation = async (token: string) => {
     try {
-      await fetch(`/api/invitations/${token}`, { method: 'DELETE' });
+      await fetch(`/api/invite/${token}`, { method: 'DELETE' });
       setPendingGuests((prev) => prev.filter((g) => g.token !== token));
     } catch (err) {
       console.error('초대 삭제 오류:', err);
@@ -94,7 +94,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
       const fromEmail = hostMember?.user?.email;
       const fromName = hostMember?.user?.name;
 
-      const res = await fetch('/api/invitations/resend', {
+      const res = await fetch('/api/invite/resend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, workspaceId, fromName, fromEmail }),

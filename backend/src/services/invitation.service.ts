@@ -32,6 +32,47 @@ export const createInvitation = async (
   return { token, expires_at };
 };
 
+/** 초대 토큰 유효성 검사 */
+export const acceptInvitationService = async (token: string) => {
+  const invitation = await prisma.invitations.findUnique({ where: { token } });
+
+  if (!invitation || invitation.used) {
+    throw new Error('유효하지 않거나 이미 사용된 초대입니다.');
+  }
+
+  const user = await prisma.users.findUnique({ where: { email: invitation.email } });
+  if (!user) {
+    throw new Error('초대된 이메일이 가입되어 있지 않습니다.');
+  }
+
+  const isAlreadyMember = await prisma.members.findFirst({
+    where: {
+      users_id: user.id,
+      workspaces_id: invitation.workspaces_id,
+    },
+  });
+
+  if (isAlreadyMember) {
+    throw new Error('이미 이 워크스페이스의 멤버입니다.');
+  }
+
+  await prisma.$transaction([
+    prisma.members.create({
+      data: {
+        users_id: user.id,
+        workspaces_id: invitation.workspaces_id,
+        role: 'guest',
+      },
+    }),
+    prisma.invitations.update({
+      where: { token },
+      data: { used: 1 },
+    }),
+  ]);
+
+  return { success: true, message: '초대 수락 완료' };
+};
+
 /** 대기중 초대 조회 */
 export const findPendingInvitations = async (workspaceId: number) => {
   return prisma.invitations.findMany({
