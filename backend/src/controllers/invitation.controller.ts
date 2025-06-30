@@ -55,6 +55,9 @@ export const createInvitation = async (req: Request, res: Response) => {
         token,
         expires_at,
         used: 0,
+        users: {
+          connect: { id: user.id },
+        },
         workspaces: {
           connect: { id: workspaceId },
         },

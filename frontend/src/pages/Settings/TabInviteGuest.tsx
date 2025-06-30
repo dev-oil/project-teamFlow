@@ -1,3 +1,5 @@
+import { useEffect } from 'react'; 
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -39,6 +41,18 @@ const TabInviteGuest = ({
     return emailRegex.test(email);
   };
 
+  //대기중 -> 참여중 
+  useEffect(() => {
+  const syncPendingWithMembers = () => {
+    const memberEmails = members.map((m) => m.user?.email);
+    setPendingGuests((prev) =>
+      prev.filter((guest) => !memberEmails.includes(guest.email))
+    );
+  };
+
+  syncPendingWithMembers();
+}, [members, setPendingGuests]);
+
   //최대 인원 초과 여부 계산
   const isMaxReached = members.length >= 5;
 
@@ -50,6 +64,7 @@ const TabInviteGuest = ({
     }
 
     try {
+      //초대장 보내기
       const host = members.find((m) => m.role === 'host');
       const fromEmail = host?.user?.email;
       const fromName = host?.user?.name;
