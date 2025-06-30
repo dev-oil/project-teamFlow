@@ -18,11 +18,13 @@ import {
 } from '@/components/ui/sheet';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { Note } from '@/types/note';
+import { useNavigate } from 'react-router-dom';
 
 export function NotesPage() {
   const { workspace } = useWorkspaceStore();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const {
     data: notes = [],
@@ -30,7 +32,7 @@ export function NotesPage() {
     isError,
   } = useQuery({
     queryKey: ['notes', workspace],
-    queryFn: () => fetchNotes(workspace),
+    queryFn: () => fetchNotes(),
     enabled: !!workspace,
   });
 
@@ -51,7 +53,9 @@ export function NotesPage() {
         <div className='flex items-center w-full'>
           <Input placeholder='회의록 검색…' />
         </div>
-        <Button>+ 회의록 추가하기</Button>
+        <Button onClick={() => navigate('/notes/create')}>
+          + 회의록 추가하기
+        </Button>
       </div>
 
       <div className='border rounded-md overflow-hidden'>
@@ -68,7 +72,7 @@ export function NotesPage() {
         ) : (
           notes.map((note) => (
             <div
-              key={note.noteId}
+              key={note.id}
               className='relative grid grid-cols-3 items-center px-4 py-3 border-t hover:bg-gray-50 group cursor-pointer'
               onClick={() => handleNoteClick(note)}
               role='button'
@@ -76,14 +80,13 @@ export function NotesPage() {
               aria-label={`회의록 ${note.title} 열기`}
             >
               <div className='truncate'>{note.title}</div>
-              <div>{note.author}</div>
+              <div>{note.users?.name}</div>
               <div className='flex justify-between items-center gap-2 text-sm text-gray-500 relative'>
-                {new Date(note.createdAt).toLocaleDateString('ko-KR', {
+                {new Date(note.created_at).toLocaleDateString('ko-KR', {
                   month: '2-digit',
                   day: '2-digit',
                 })}
 
-                {/* 더보기 버튼 */}
                 <div
                   className='z-10'
                   onClick={(e) => e.stopPropagation()}
@@ -96,7 +99,11 @@ export function NotesPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
-                      <DropdownMenuItem>수정하기</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => navigate(`/notes/edit/${note.id}`)}
+                      >
+                        수정하기
+                      </DropdownMenuItem>
                       <DropdownMenuItem>삭제하기</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -107,20 +114,43 @@ export function NotesPage() {
         )}
       </div>
 
-      {/* 사이드 시트 */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side='right' className='w-[400px]'>
-          <SheetHeader>
-            <SheetTitle>{selectedNote?.title ?? '회의록 상세'}</SheetTitle>
+        <SheetContent
+          side='right'
+          className='w-full max-w-[480px] md:max-w-[720px] p-6'
+        >
+          <SheetHeader className='mb-4 px-0'>
+            <SheetTitle className='text-xl font-semibold'>
+              {selectedNote?.title ?? '회의록 상세'}
+            </SheetTitle>
           </SheetHeader>
-          <div className='mt-4 space-y-2 text-sm'>
-            <p>
-              <strong>작성자:</strong> {selectedNote?.author}
-            </p>
-            <p>
-              <strong>작성일:</strong>{' '}
-              {new Date(selectedNote?.createdAt ?? '').toLocaleString('ko-KR')}
-            </p>
+
+          <div className='space-y-6 text-sm text-gray-800'>
+            <div className='space-y-1'>
+              <p className='text-xs text-gray-500'>작성자</p>
+              <p className='font-medium'>{selectedNote?.users?.name}</p>
+            </div>
+
+            <div className='space-y-1'>
+              <p className='text-xs text-gray-500'>작성일</p>
+              <p className='font-medium'>
+                {selectedNote?.created_at &&
+                  new Date(selectedNote.created_at).toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+              </p>
+            </div>
+
+            <div className='space-y-2'>
+              <p className='text-xs text-gray-500'>본문 내용</p>
+              <div className='bg-gray-100 p-3 rounded-md whitespace-pre-wrap leading-relaxed text-[15px] text-gray-900'>
+                {selectedNote?.content || '내용이 없습니다.'}
+              </div>
+            </div>
           </div>
         </SheetContent>
       </Sheet>

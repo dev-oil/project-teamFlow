@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as notesService from '../services/notesService';
+import * as notesService from '../services/notes.service';
 
 export const getNotes = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);

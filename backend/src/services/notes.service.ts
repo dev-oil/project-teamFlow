@@ -10,6 +10,13 @@ export const findNotesByWorkspace = async (workspaceId: number) => {
       },
     },
     orderBy: { created_at: 'desc' },
+    include: {
+      users: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 };
 

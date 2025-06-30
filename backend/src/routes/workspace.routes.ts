@@ -9,6 +9,10 @@ import {
   getWorkspaces,
   getWorkspace,
 } from '../controllers/workspace.controller';
+import {
+  findUserWorkspaces,
+  findUserWorkspace,
+} from '../services/workspace.service';
 import { verifyAccessToken } from '../middlewares/auth.middleware';
 
 const router = express.Router();

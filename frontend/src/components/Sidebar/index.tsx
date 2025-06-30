@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import { fetchWorkspaces } from '@/api/workspaces';
+// import { fetchWorkspaces } from '@/api/workspaces';
 import { VersionSwitcher } from '@/components/Sidebar/version-switcher';
 
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ import {
 
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { WorkspaceListItem } from '@/types/workspace';
+import { fetchWorkspaces } from '@/api/workspaces';
 
 const navMain = [
   {
