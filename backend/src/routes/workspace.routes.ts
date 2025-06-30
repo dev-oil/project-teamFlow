@@ -1,13 +1,15 @@
 import express from 'express';
 
-import {  
+import {
   getWorkspaceName,
   removeMember,
   updateWorkspaceName,
   getWorkspaceMembers,
   deleteWorkspace,
   getWorkspaces,
-  getWorkspace,  } from '../controllers/workspaceController';
+  getWorkspace,
+} from '../controllers/workspace.controller';
+import { verifyAccessToken } from '../middlewares/auth.middleware';
 
 const router = express.Router();
 
@@ -18,9 +20,7 @@ router.get('/:workspaceId/name', getWorkspaceName); //워크스페이스 이름 
 router.put('/:workspaceId/name', updateWorkspaceName); // 워크스페이스 이름 수정
 router.delete('/:workspaceId', deleteWorkspace); // 워크스페이스 삭제
 
-router.get('/', getWorkspaces);
-router.get('/:workspaceId', getWorkspace);
+router.get('/workspace', verifyAccessToken, getWorkspaces); // 유저의 전체 워크스페이스
+router.get('/workspace/:workspaceId', verifyAccessToken, getWorkspace); // 특정 워크스페이스
 
 export default router;
-
-

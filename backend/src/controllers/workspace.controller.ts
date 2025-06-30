@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import {
   findUserWorkspaces,
   findUserWorkspace,
-} from '../services/workspaceService';
+} from '../services/workspace.service';
+import { prisma } from '../db/prisma';
 
 export const getWorkspaces = async (req: Request, res: Response) => {
   const userId = parseInt(req.params.userId);
@@ -25,9 +26,8 @@ export const getWorkspace = async (req: Request, res: Response) => {
     res.json(workspace);
   } catch (err) {
     res.status(500).json({ error: '워크스페이스 조회 실패' });
-      }
+  }
 };
-
 
 //멤버 조회
 export const getWorkspaceMembers = async (req: Request, res: Response) => {

@@ -3,10 +3,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import notesRouter from './routes/notesRoutes';
-import workspaceRoutes from './routes/workspaceRoutes';
+import workspaceRoutes from './routes/workspace.routes';
 import authRouter from './routes/auth.routes';
 import invitationRouter from './routes/invitationRoutes'; // 초대 토큰
-import workspaceRouter from './routes/workspaceRoutes'; //웍스 이름 변경
+import workspaceRouter from './routes/workspace.routes'; //웍스 이름 변경
 import userRouter from './routes/userRoutes'; //이메일 존재 여부 확인
 
 const app = express();
