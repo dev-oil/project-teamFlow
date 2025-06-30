@@ -3,16 +3,8 @@ import { prisma } from '../db/prisma';
 import crypto from 'crypto';
 import { sendInvitationEmail } from './email.service'; 
 
-export const findPendingInvitations = async (workspaceId: number) => {
-  return prisma.invitations.findMany({
-    where: {
-      workspaces_id: workspaceId,
-      used: 0,
-    },
-    orderBy: { created_at: 'desc' },
-  });
-};
 
+/** 초대 */
 export const createInvitation = async (
   fromName: string,
   fromEmail: string,
@@ -40,10 +32,23 @@ export const createInvitation = async (
   return { token, expires_at };
 };
 
+/** 대기중 초대 조회 */
+export const findPendingInvitations = async (workspaceId: number) => {
+  return prisma.invitations.findMany({
+    where: {
+      workspaces_id: workspaceId,
+      used: 0,
+    },
+    orderBy: { created_at: 'desc' },
+  });
+};
+
+/** 초대 삭제 */
 export const deleteInvitation = (token: string) => {
   return prisma.invitations.delete({ where: { token } });
 };
 
+/** 다시 초대 */
 export const renewInvitation = async (
   email: string,
   workspaceId: number,
