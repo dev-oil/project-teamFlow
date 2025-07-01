@@ -1,7 +1,7 @@
 import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
-        
+
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -43,10 +43,11 @@ const navMain = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setWorkspaceList, setWorkspace, workspace } = useWorkspaceStore();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   const { data: workspaces = [] } = useQuery<WorkspaceListItem[]>({
     queryKey: ['workspaces'],
-    queryFn: fetchWorkspaces,
+    queryFn: () => fetchWorkspaces(accessToken!),
   });
 
   useEffect(() => {
@@ -55,10 +56,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     // 목록 상태 저장
     setWorkspaceList(workspaces);
 
-    const exists = workspaces.some((ws) => ws.name === workspace);
+    const exists = workspaces.some((ws) => ws.id === workspace?.id);
 
     // 선택값이 없거나 유효하지 않으면 첫 번째 워크스페이스로 설정
-    if (!workspace || !exists) setWorkspace(workspaces[0].name);
+    if (!workspace || !exists) {
+      setWorkspace(workspaces[0]);
+    }
   }, [workspaces, workspace, setWorkspace, setWorkspaceList]);
 
   const location = useLocation();
@@ -72,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarHeader>
-        <VersionSwitcher versions={workspaces.map((ws) => ws.name)} />
+        <VersionSwitcher versions={workspaces} />
       </SidebarHeader>
 
       <SidebarContent>
