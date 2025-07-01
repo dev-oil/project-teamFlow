@@ -56,9 +56,10 @@
 
 // 시도 3
 
-import { forwardRef, useImperativeHandle, useRef, type ReactNode } from 'react';
-import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { forwardRef, useImperativeHandle, useRef, type ReactNode } from 'react';
+
+import { Button } from '../../components/ui/button';
 
 // type horizonProps = {
 //   children: ReactNode;
