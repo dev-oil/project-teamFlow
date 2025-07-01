@@ -10,7 +10,7 @@ import {
 } from '../services/workspace.service';
 
 export const getWorkspaces = async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId);
+  const userId = req.user?.userId;
   try {
     const workspaces = await findUserWorkspaces(userId);
     res.json(workspaces);
@@ -20,7 +20,7 @@ export const getWorkspaces = async (req: Request, res: Response) => {
 };
 
 export const getWorkspace = async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId);
+  const userId = req.user?.userId;
   const workspaceId = parseInt(req.params.workspaceId);
   try {
     const workspace = await findUserWorkspace(userId, workspaceId);
