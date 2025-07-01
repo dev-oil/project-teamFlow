@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +29,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate(); // 훅 사용
   const {
     register,
@@ -74,9 +75,9 @@ export function LoginPage() {
     <div className='w-1/2 flex items-center justify-center'>
       <Card className='w-full max-w-sm'>
         <CardHeader>
-          <CardTitle className='text-2xl'>Guess Who's Back?</CardTitle>
+          <CardTitle className='text-2xl'>만나서 반가워요 👋</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            로그인하려면 이메일과 비밀번호를 입력해주세요
           </CardDescription>
         </CardHeader>
 
@@ -88,7 +89,7 @@ export function LoginPage() {
           >
             <div className='flex flex-col gap-5'>
               <div className='grid gap-2'>
-                <Label htmlFor='email'>Email</Label>
+                <Label htmlFor='email'>이메일 주소</Label>
                 <Input
                   id='email'
                   placeholder='email@example.com'
@@ -100,7 +101,7 @@ export function LoginPage() {
               </div>
               <div className='grid gap-2'>
                 <div className='flex items-center'>
-                  <Label htmlFor='password'>Password</Label>
+                  <Label htmlFor='password'>비밀번호</Label>
                   <Button
                     variant='link'
                     className='ml-auto text-blue-600'
@@ -109,14 +110,30 @@ export function LoginPage() {
                       navigate('/forgot-password', { replace: true });
                     }}
                   >
-                    Forgot your password?
+                    비밀번호를 잊으셨나요?
                   </Button>
                 </div>
-                <Input
-                  id='password'
-                  type='password'
-                  {...register('password')}
-                />
+                <div className='relative'>
+                  <Input
+                    id='password'
+                    type={showPassword ? 'text' : 'password'}
+                    {...register('password')}
+                    className='pr-10'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className='absolute inset-y-0 right-0 px-3 flex items-center text-muted-foreground'
+                    tabIndex={-1}
+                    aria-label='비밀번호 보기 토글'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='w-4 h-4' />
+                    ) : (
+                      <Eye className='w-4 h-4' />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className='text-sm text-red-500'>
                     {errors.password.message}
@@ -134,18 +151,18 @@ export function LoginPage() {
             disabled={isLoading}
           >
             {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
-            Login
+            로그인
           </Button>
 
           <CardAction className='w-full'>
             <p className='text-center text-sm text-muted-foreground'>
-              Don’t have an account?
+              아직 계정이 없으신가요?
               <Button
                 variant='link'
                 className='text-blue-600'
                 onClick={() => navigate('/register', { replace: true })}
               >
-                Sign Up
+                회원가입하러 가기
               </Button>
             </p>
           </CardAction>
