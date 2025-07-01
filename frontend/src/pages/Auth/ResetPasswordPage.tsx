@@ -1,7 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -42,6 +44,7 @@ export function ResetPasswordPage() {
 
   const [invalidToken, setInvalidToken] = useState(false);
   const [done, setDone] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!token) setInvalidToken(true);
@@ -49,15 +52,30 @@ export function ResetPasswordPage() {
 
   const onSubmit = async (data: ResetForm) => {
     if (!token) return;
+    console.log(data);
+    setIsLoading(true);
     try {
-      await fetch('/api/auth/reset-password', {
+      const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, token }),
+        body: JSON.stringify({ token, newPassword: data.password }),
       });
-      setDone(true);
-    } catch (err) {
-      console.error('Reset failed', err);
+      if (response.ok) {
+        setDone(true);
+      } else {
+        const result = await response.json();
+        toast.warning(result.title, {
+          description: result.description,
+        });
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.warning(err.name, {
+          description: err.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -109,7 +127,8 @@ export function ResetPasswordPage() {
                 </p>
               )}
             </div>
-            <Button type='submit' className='w-full'>
+            <Button type='submit' className='w-full' disabled={isLoading}>
+              {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
               Reset Password
             </Button>
           </form>

@@ -1,13 +1,13 @@
 import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
-
+        
+import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 // import { fetchWorkspaces } from '@/api/workspaces';
 import { VersionSwitcher } from '@/components/Sidebar/version-switcher';
-
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -22,6 +22,7 @@ import {
   SidebarRail,
   SidebarFooter,
 } from '@/components/ui/sidebar';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { WorkspaceListItem } from '@/types/workspace';
@@ -101,12 +102,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <Button
           variant='outline'
-          onClick={() => {
-            localStorage.removeItem('token');
-            window.location.href = '/';
+          asChild
+          onClick={async () => {
+            try {
+              const res = await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+              });
+
+              if (!res.ok) throw new Error('로그아웃 실패');
+              useAuthStore.getState().clearAccessToken();
+            } catch (err: unknown) {
+              if (err instanceof Error) {
+                toast.warning('로그아웃 실패', {
+                  description: '잠시후 다시 시도해주세요',
+                });
+              }
+            }
           }}
         >
-          Logout
+          <Link to='/'>Logout</Link>
         </Button>
       </SidebarFooter>
 

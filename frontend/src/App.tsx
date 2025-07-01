@@ -5,7 +5,9 @@ import { AppSidebar } from '@/components/Sidebar/index';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 import { Header } from './components/Header';
+import { Toaster } from './components/ui/sonner';
 import { useAuth } from './hooks/useAuth';
+import { useAuthInitializer } from './hooks/useAuthInitializer';
 import { AuthLayout } from './pages/Auth/AuthLayout';
 import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { LoginPage } from './pages/Auth/LoginPage';
@@ -22,21 +24,25 @@ import { EditNotePage } from './pages/Notes/EditNotePage';
 import { CreateNotePage } from './pages/Notes/CreateNotePage';
 
 function App() {
-  const { isLoggedIn } = useAuth();
-  console.log(isLoggedIn);
+  const { isLoggedIn, isInitiailized } = useAuth();
+  useAuthInitializer();
+  if (!isInitiailized) return null;
   if (!isLoggedIn) {
     return (
-      <Routes>
-        <Route path='/' element={<AuthLayout />}>
-          <Route index element={<Navigate to='/login' replace />} />
-          <Route path='login' element={<LoginPage />} />
-          <Route path='register' element={<RegisterPage />} />
-          <Route path='forgot-password' element={<ForgotPasswordPage />} />
-          <Route path='*' element={<Navigate to='/login' replace />} />
-        </Route>
-        <Route path='/verify' element={<VerifyEmailPage />} />
-        <Route path='/reset-password' element={<ResetPasswordPage />} />
-      </Routes>
+      <>
+        <Routes>
+          <Route path='/' element={<AuthLayout />}>
+            <Route index element={<Navigate to='/login' replace />} />
+            <Route path='login' element={<LoginPage />} />
+            <Route path='register' element={<RegisterPage />} />
+            <Route path='forgot-password' element={<ForgotPasswordPage />} />
+            <Route path='*' element={<Navigate to='/login' replace />} />
+          </Route>
+          <Route path='/verify' element={<VerifyEmailPage />} />
+          <Route path='/reset-password' element={<ResetPasswordPage />} />
+        </Routes>
+        <Toaster richColors />
+      </>
     );
   }
 
@@ -58,6 +64,7 @@ function App() {
           </Routes>
         </div>
       </SidebarInset>
+      <Toaster richColors />
     </SidebarProvider>
   );
 }

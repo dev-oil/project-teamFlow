@@ -1,6 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -32,6 +35,7 @@ const registerSchema = z
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const {
     register,
@@ -41,9 +45,36 @@ export function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: RegisterForm) => {
-    console.log('회원가입 정보:', data);
-    navigate('/', { replace: true });
+  const onSubmit = async (data: RegisterForm) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.title, {
+          description: result.description,
+        });
+        navigate('/', { replace: true });
+      } else {
+        toast.warning(result.title, {
+          description: result.description,
+        });
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.warning(error.name, {
+          description: error.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -93,6 +124,7 @@ export function RegisterPage() {
                 <Input
                   id='password'
                   type='password'
+                  placeholder='●●●●●●●●●'
                   {...register('password')}
                 />
                 {errors.password && (
@@ -106,6 +138,7 @@ export function RegisterPage() {
                 <Input
                   id='confirmPassword'
                   type='password'
+                  placeholder='●●●●●●●●●'
                   {...register('confirmPassword')}
                 />
                 {errors.confirmPassword && (
@@ -115,7 +148,8 @@ export function RegisterPage() {
                 )}
               </div>
             </div>
-            <Button type='submit' className='w-full'>
+            <Button type='submit' className='w-full' disabled={isLoading}>
+              {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
               Sign Up
             </Button>
           </form>

@@ -7,12 +7,15 @@ import authRouter from './routes/auth.routes';
 import invitationRouter from './routes/invitationRoutes'; // 초대 토큰
 import workspaceRouter from './routes/workspace.routes'; //웍스 이름 변경
 import userRouter from './routes/userRoutes'; //이메일 존재 여부 확인
+import { connRedis } from './utils/redis';
 import getBoard from './routes/board';
 
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+(async () => await connRedis())();
+
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 

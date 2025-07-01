@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '../db/prisma';
 import { redisClient } from '../utils/redis';
-import { sendVerificationEmail } from './email.service';
+import { sendResetEmail, sendVerificationEmail } from './email.service';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { JwtPayload } from '../types/jwt';
 
@@ -25,7 +25,7 @@ export const registerUser = async (
 
   const hashed = await bcrypt.hash(password, 10);
   await prisma.users.create({
-    data: { name, phone, email, password: hashed, is_verified: false },
+    data: { name, phone, email, password: hashed },
   });
 
   const token = uuidv4();
@@ -49,7 +49,7 @@ export const verifyUserEmail = async (token: string): Promise<string> => {
 
   await prisma.users.update({
     where: { email },
-    data: { is_verified: true },
+    data: { is_verified: 1 },
   });
 
   await redisClient.del(`email:verify:${token}`);
@@ -97,6 +97,11 @@ export const loginUser = async (email: string, password: string) => {
   };
 };
 
+/**
+ * Refresh Token 재발급
+ * @param refreshToken
+ * @returns
+ */
 export const refreshAccessToken = async (refreshToken: string | undefined) => {
   if (!refreshToken) throw new Error('Refresh Token 없음');
 
@@ -114,4 +119,38 @@ export const refreshAccessToken = async (refreshToken: string | undefined) => {
   storeRefreshToken(decoded.userId, newRefreshToken);
 
   return { newAccessToken, newRefreshToken };
+};
+
+/**
+ * 비밀번호 재설정 이메일 발송
+ * @param email
+ */
+export const sendReset = async (email: string | undefined) => {
+  if (!email) throw new Error('Email 없음');
+
+  const user = await prisma.users.findUnique({ where: { email } });
+  if (!user) throw new Error('TeamFlow에 존재하지 않는 이메일입니다');
+
+  const token = uuidv4();
+
+  await redisClient.setEx(`password:reset:${token}`, 60 * 5, email);
+
+  await sendResetEmail(email, token);
+};
+
+export const updatePassword = async (token: string, newPassword: string) => {
+  const email = await redisClient.get(`password:reset:${token}`);
+  if (!email) throw new Error('유효하지 않거나 만료된 토큰입니다');
+
+  const user = await prisma.users.findUnique({ where: { email } });
+  if (!user) throw new Error('TeamFlow에서 사용자를 찾을 수 없습니다');
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+
+  await prisma.users.update({
+    where: { email },
+    data: { password: hashed },
+  });
+
+  await redisClient.del(`password:reset:${token}`);
 };

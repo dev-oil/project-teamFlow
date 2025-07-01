@@ -1,5 +1,7 @@
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,30 +19,48 @@ export function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const isValidEmail = (email: string) => {
-    return /^[\\w.-]+@[\\w.-]+\\.\\w{2,}$/.test(email);
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isValidEmail(email)) {
-      setError('유효한 이메일 주소를 입력해주세요.');
+      setError('이메일 주소를 입력해주세요');
       return;
     }
     setError('');
-
+    setIsLoading(true);
     try {
-      await fetch('/api/auth/forgot-password', {
+      const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      setSubmitted(true);
-    } catch (error) {
-      console.error('전송 실패:', error);
+      const result = await response.json();
+      if (response.ok) {
+        setSubmitted(true);
+        toast.success(result.title, {
+          description: result.description,
+        });
+      } else {
+        toast.warning(result.title, {
+          description: result.description,
+        });
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.warning(error.name, {
+          description: error.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -74,7 +94,8 @@ export function ForgotPasswordPage() {
                 />
                 {error && <p className='text-sm text-red-500'>{error}</p>}
               </div>
-              <Button type='submit' className='w-full'>
+              <Button type='submit' className='w-full' disabled={isLoading}>
+                {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
                 Send Reset Link
               </Button>
             </form>
