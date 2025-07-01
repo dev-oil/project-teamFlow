@@ -19,10 +19,10 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use('/api/invite', invitationRouter); //초대
-app.use('/api/workspaces', workspaceRouter); //워크스페이스 설정
-// 라우터 설정
-// app.use('/api/workspaces/:workspaceId/notes', notesRouter);
-// app.use('/api/:userId/workspace/:workspaceId/notes', notesRouter); // 차후 상단처럼 수정 (userId 지우고)
+
+// 워크스페이스
+app.use('/api/workspaces', workspaceRouter); // 워크스페이스
+app.use('/api/workspace/:workspaceId/notes', notesRouter); // 워크스페이스 내 노트
 
 // 로그인
 app.use('/api/auth', authRouter);
