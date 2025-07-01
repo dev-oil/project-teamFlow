@@ -1,10 +1,10 @@
 import { ScrollAreaViewport } from '@radix-ui/react-scroll-area';
 import { useEffect, useRef, useState } from 'react';
 
-import { Boardbox } from '@/components/Dashboard/boardbox';
-// import { ScrollHorizonBtn } from '@/components/Dashboard/scrollhorizon';
-import { ScrollTopBtn } from '@/components/Dashboard/scrolltop';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Boardbox } from '@/pages/Dashboard/boardbox';
+// import { ScrollHorizonBtn } from '@/components/Dashboard/scrollhorizon';
+import { ScrollTopBtn } from '@/pages/Dashboard/scrolltop';
 import type { BoxtypeWithCards } from '@/types/board';
 
 export function DashboardPage() {

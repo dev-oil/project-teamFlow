@@ -3,8 +3,12 @@ import { useState } from 'react';
 
 import type { Boxtype, Cardtype } from '@/types/board';
 
-import { Boardmodal } from '../Modal/boardmodal';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Boardmodal } from '../../components/Modal/boardmodal';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '../../components/ui/avatar';
 import {
   Card,
   CardAction,
@@ -12,8 +16,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+} from '../../components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from '../../components/ui/dialog';
 
 type BoardcardProps = {
   box: Boxtype;

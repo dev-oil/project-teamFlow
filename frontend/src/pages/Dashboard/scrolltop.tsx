@@ -3,7 +3,7 @@
 // import { useEffect, useState } from 'react';
 import { ChevronUp } from 'lucide-react';
 
-import { Button } from '../ui/button';
+import { Button } from '../../components/ui/button';
 
 type ScrollTopButtonProps = {
   targetRef: React.RefObject<HTMLElement | null>;
