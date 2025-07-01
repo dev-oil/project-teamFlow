@@ -40,17 +40,20 @@ model cards {
 }
 
 model meeting_notes {
-  id                                  Int      @id @default(autoincrement())
+  id                                  Int         @id @default(autoincrement())
   users_id                            Int
-  title                               String   @db.VarChar(100)
-  created_at                          DateTime @default(now()) @db.Timestamp(0)
+  title                               String      @db.VarChar(100)
+  created_at                          DateTime    @default(now()) @db.Timestamp(0)
   participant                         Json
-  content                             String?  @db.Text
+  content                             String?     @db.Text
   file                                Json?
-  updated_at                          DateTime @default(now()) @db.Timestamp(0)
-  users_meeting_notes_users_idTousers users    @relation("meeting_notes_users_idTousers", fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_users1")
+  updated_at                          DateTime    @default(now()) @db.Timestamp(0)
+  workspaces_id                       Int?
+  users_meeting_notes_users_idTousers users       @relation("meeting_notes_users_idTousers", fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_users1")
+  workspaces                          workspaces? @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_workspaces1")
 
   @@index([users_id], map: "fk_meeting_notes_users1_idx")
+  @@index([workspaces_id], map: "fk_meeting_notes_workspaces1_idx")
 }
 
 model members {
@@ -82,15 +85,16 @@ model users {
 }
 
 model workspaces {
-  id          Int           @id @default(autoincrement())
-  users_id    Int
-  name        String        @db.VarChar(100)
-  created_at  DateTime      @default(now()) @db.Timestamp(0)
-  updated_at  DateTime      @default(now()) @db.Timestamp(0)
-  boxes       boxes[]
-  invitations invitations[]
-  members     members[]
-  users       users         @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_workspaces_users1")
+  id            Int             @id @default(autoincrement())
+  users_id      Int
+  name          String          @db.VarChar(100)
+  created_at    DateTime        @default(now()) @db.Timestamp(0)
+  updated_at    DateTime        @default(now()) @db.Timestamp(0)
+  boxes         boxes[]
+  invitations   invitations[]
+  meeting_notes meeting_notes[]
+  members       members[]
+  users         users           @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_workspaces_users1")
 
   @@index([users_id], map: "fk_workspaces_users1_idx")
 }

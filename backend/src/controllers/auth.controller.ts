@@ -7,7 +7,6 @@ import {
   updatePassword,
   verifyUserEmail,
 } from '../services/auth.service';
-import { title } from 'process';
 
 /** 회원가입 */
 export const register = async (req: Request, res: Response) => {
