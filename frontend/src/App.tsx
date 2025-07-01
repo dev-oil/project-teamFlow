@@ -17,9 +17,11 @@ import { VerifyEmailPage } from './pages/Auth/VerifyEmailPage';
 
 import { CalendarPage } from './pages/CalendarPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { NotesPage } from './pages/NotesPage';
+import { NotesPage } from './pages/Notes/NotesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { EditNotePage } from './pages/Notes/EditNotePage';
+import { CreateNotePage } from './pages/Notes/CreateNotePage';
 
 function App() {
   const { isLoggedIn, isInitiailized } = useAuth();
@@ -54,6 +56,8 @@ function App() {
             <Route path='/' element={<Home />} />
             <Route path='/dashboard' element={<DashboardPage />} />
             <Route path='/notes' element={<NotesPage />} />
+            <Route path='/notes/edit/:noteId' element={<EditNotePage />} />
+            <Route path='/notes/create' element={<CreateNotePage />} />
             <Route path='/calendar' element={<CalendarPage />} />
             <Route path='/profile' element={<ProfilePage />} />
             <Route path='/settings' element={<SettingsPage />} />
