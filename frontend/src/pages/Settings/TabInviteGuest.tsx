@@ -1,3 +1,5 @@
+import { useEffect } from 'react'; 
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -39,6 +41,21 @@ const TabInviteGuest = ({
     return emailRegex.test(email);
   };
 
+  //대기중 -> 참여중 
+  useEffect(() => {
+  const syncPendingWithMembers = () => {
+    const memberEmails = members.map((m) => m.user?.email);
+    setPendingGuests((prev) =>
+      prev.filter((guest) => !memberEmails.includes(guest.email))
+    );
+  };
+
+  syncPendingWithMembers();
+}, [members, setPendingGuests]);
+
+  //최대 인원 초과 여부 계산
+  const isMaxReached = members.length >= 5;
+
   const handleInvite = async () => {
     if (!isValidEmail(inviteEmail)) {
       setInviteMessage('유효한 이메일 주소를 입력해주세요.');
@@ -47,25 +64,12 @@ const TabInviteGuest = ({
     }
 
     try {
-      // 이메일 존재 확인
-      const checkRes = await fetch('/api/users/check-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail }),
-      });
-
-      const checkData = await checkRes.json();
-      if (!checkData.exists) {
-        setInviteMessage('Teamflow 존재하지 않는 회원입니다. 이메일을 확인해주세요.');
-        setInviteError(true);
-        return;
-      }
-
+      //초대장 보내기
       const host = members.find((m) => m.role === 'host');
       const fromEmail = host?.user?.email;
       const fromName = host?.user?.name;
 
-      const res = await fetch('/api/invitations', {
+      const res = await fetch('/api/invite/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,8 +91,7 @@ const TabInviteGuest = ({
           expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
           token: data.token,
         },
-         ...prev,
-
+        ...prev,
       ]);
 
       setInviteMessage(`${inviteEmail}로 초대장을 보냈습니다.`);
@@ -102,16 +105,23 @@ const TabInviteGuest = ({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
+    <div className='space-y-4'>
+      <div className='flex gap-2'>
         <Input
-          type="email"
-          placeholder="이메일 주소 입력"
+          type='email'
+          placeholder='이메일 주소 입력'
           value={inviteEmail}
           onChange={(e) => setInviteEmail(e.target.value)}
+          disabled={isMaxReached}
         />
         <Button onClick={handleInvite}>초대</Button>
       </div>
+
+      {isMaxReached && (
+        <p className='text-sm text-red-500'>
+          최대 5명의 멤버까지만 초대할 수 있습니다.
+        </p>
+      )}
     </div>
   );
 };

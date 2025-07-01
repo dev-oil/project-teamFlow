@@ -61,25 +61,3 @@ const DeleteWorkspaceCard = ({ workspaceId, onDeleted }: Props) => {
 };
 
 export default DeleteWorkspaceCard;
-
-
-//prisma 수정 필요
-// model members {
-//   id            Int        @id @default(autoincrement())
-//   users_id      Int
-//   workspaces_id Int
-//   role          members_role
-
-//   users       users      @relation(fields: [users_id], references: [id], onDelete: NO_ACTION)
-//   workspaces  workspaces @relation(fields: [workspaces_id], references: [id], onDelete: Cascade)
-
-//   @@index([users_id])
-//   @@index([workspaces_id])
-// }
-
-// model workspaces {
-//   id          Int          @id @default(autoincrement())
-//   name        String
-//   members     members[]
-//   invitations invitations[] // 여기도 onDelete 추가 가능
-// }

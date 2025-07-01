@@ -134,7 +134,6 @@ model invitations {
   @@index([workspaces_id], map: "fk_invitations_workspaces1_idx")
   @@index([users_id], map: "fk_invitations_users1_idx")
 }
-
 enum members_role {
   host
   guest

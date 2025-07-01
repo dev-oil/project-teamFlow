@@ -19,6 +19,7 @@ import { CalendarPage } from './pages/CalendarPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NotesPage } from './pages/Notes/NotesPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { InviteEmailPage } from './pages/Settings/InviteEmailPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { EditNotePage } from './pages/Notes/EditNotePage';
 import { CreateNotePage } from './pages/Notes/CreateNotePage';
@@ -40,6 +41,7 @@ function App() {
           </Route>
           <Route path='/verify' element={<VerifyEmailPage />} />
           <Route path='/reset-password' element={<ResetPasswordPage />} />
+          <Route path="/invite" element={<InviteEmailPage />} />
         </Routes>
         <Toaster richColors />
       </>
