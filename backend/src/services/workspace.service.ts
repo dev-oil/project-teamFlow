@@ -1,4 +1,3 @@
-// services/workspace.service.ts
 import { prisma } from '../db/prisma';
 
 /** 멤버 조회 */ 
@@ -48,4 +47,29 @@ export const renameWorkspace = async (workspaceId: number, name: string) => {
 /**  워크스페이스 삭제 */ 
 export const removeWorkspace = async (workspaceId: number) => {
   return await prisma.workspaces.delete({ where: { id: workspaceId } });
+};
+
+export const findUserWorkspaces = (userId: number) => {
+  return prisma.workspaces.findMany({
+    where: {
+      members: {
+        some: {
+          users_id: userId,
+        },
+      },
+    },
+  });
+};
+
+export const findUserWorkspace = (userId: number, workspaceId: number) => {
+  return prisma.workspaces.findFirst({
+    where: {
+      id: workspaceId,
+      members: {
+        some: {
+          users_id: userId,
+        },
+      },
+    },
+  });
 };

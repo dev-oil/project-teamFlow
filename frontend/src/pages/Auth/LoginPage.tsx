@@ -1,8 +1,9 @@
-// src/pages/LoginPage.tsx
-
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const loginSchema = z.object({
   email: z.string().email('유효한 이메일을 입력하세요'),
@@ -26,6 +28,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); // 훅 사용
   const {
     register,
@@ -35,10 +38,36 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginForm) => {
+  const onSubmit = async (data: LoginForm) => {
+    setIsLoading(true);
     // 로그인 요청 로직
-    console.log(data);
-    navigate('/', { replace: true }); // [dev] 홈으로 이동
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        useAuthStore.getState().setAccessToken(result.accessToken);
+        navigate('/', { replace: true });
+      } else {
+        toast.warning(result.title, {
+          description: result.description,
+        });
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.warning(error.name, {
+          description: error.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -60,7 +89,11 @@ export function LoginPage() {
             <div className='flex flex-col gap-5'>
               <div className='grid gap-2'>
                 <Label htmlFor='email'>Email</Label>
-                <Input placeholder='email@example.com' {...register('email')} />
+                <Input
+                  id='email'
+                  placeholder='email@example.com'
+                  {...register('email')}
+                />
                 {errors.email && (
                   <p className='text-sm text-red-500'>{errors.email.message}</p>
                 )}
@@ -71,14 +104,19 @@ export function LoginPage() {
                   <Button
                     variant='link'
                     className='ml-auto text-blue-600'
-                    onClick={() =>
-                      navigate('/forgot-password', { replace: true })
-                    }
+                    onClick={(e: React.FormEvent) => {
+                      e.preventDefault();
+                      navigate('/forgot-password', { replace: true });
+                    }}
                   >
                     Forgot your password?
                   </Button>
                 </div>
-                <Input type='password' {...register('password')} />
+                <Input
+                  id='password'
+                  type='password'
+                  {...register('password')}
+                />
                 {errors.password && (
                   <p className='text-sm text-red-500'>
                     {errors.password.message}
@@ -89,23 +127,16 @@ export function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className='flex-col gap-2'>
-          <Button type='submit' className='w-full' form='login-form'>
-            Login
-          </Button>
           <Button
-            variant='outline'
+            type='submit'
             className='w-full'
             form='login-form'
-            type='button'
-            onClick={() => {
-              localStorage.setItem('token', 'dev-token'); // ✅ 토큰 저장
-
-              // 추후 실제 로그인 기능 붙일 땐 Context나 zustand 같은 상태 관리로 확장해서 useAuth()를 상태 기반으로 구현
-              window.location.href = '/'; // 또는 window.location.reload() 해도 됨
-            }}
+            disabled={isLoading}
           >
-            [Dev] Enter
+            {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
+            Login
           </Button>
+
           <CardAction className='w-full'>
             <p className='text-center text-sm text-muted-foreground'>
               Don’t have an account?

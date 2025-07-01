@@ -1,24 +1,50 @@
-//controllers/workspaceController.ts
 import { Request, Response } from 'express';
 import {
+  findUserWorkspaces,
+  findUserWorkspace,
   fetchMembersByWorkspaceId,
   deleteMember,
   getWorkspaceNameById,
   renameWorkspace,
   removeWorkspace,
 } from '../services/workspace.service';
+import { prisma } from '../db/prisma';
 
+export const getWorkspaces = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId);
+  try {
+    const workspaces = await findUserWorkspaces(userId);
+    res.json(workspaces);
+  } catch (err) {
+    res.status(500).json({ error: '워크스페이스 목록 조회 실패' });
+  }
+};
+
+export const getWorkspace = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId);
+  const workspaceId = parseInt(req.params.workspaceId);
+  try {
+    const workspace = await findUserWorkspace(userId, workspaceId);
+    if (!workspace) {
+      res.status(404).json({ error: '워크스페이스를 찾을 수 없습니다.' });
+    }
+    res.json(workspace);
+  } catch (err) {
+    res.status(500).json({ error: '워크스페이스 조회 실패' });
+  }
+};
+  
 const parseIdParam = (param: string): number | null => {
   const id = parseInt(param, 10);
   return isNaN(id) ? null : id;
 };
 
-/** 멤버 조회 */ 
+//멤버 조회
 export const getWorkspaceMembers = async (req: Request, res: Response) => {
-  const workspaceId = parseIdParam(req.params.workspaceId);
-  if (!workspaceId) {
-     res.status(400).json({ error: '유효한 워크스페이스 ID가 아닙니다.' });
-     return;
+  const workspaceId = parseInt(req.params.workspaceId, 10);
+  if (isNaN(workspaceId)) {
+    res.status(400).json({ error: '유효한 워크스페이스 ID가 아닙니다.' });
+    return;
   }
 
   try {
@@ -29,10 +55,11 @@ export const getWorkspaceMembers = async (req: Request, res: Response) => {
   }
 };
 
-/** 멤버 추방 */  
+//멤버 추방
 export const removeMember = async (req: Request, res: Response) => {
-  const workspaceId = parseIdParam(req.params.workspaceId);
-  const userId = parseIdParam(req.params.userId);
+  const workspaceId = Number(req.params.workspaceId);
+  const userId = Number(req.params.userId);
+
   if (!workspaceId || !userId) {
     res.status(400).json({ error: '유효한 ID가 아닙니다.' });
     return;
@@ -46,13 +73,13 @@ export const removeMember = async (req: Request, res: Response) => {
   }
 };
 
-/**  워크스페이스 이름 조회 */  
+// 워크스페이스 이름 조회
 export const getWorkspaceName = async (req: Request, res: Response) => {
-  const workspaceId = parseIdParam(req.params.workspaceId);
-  if (!workspaceId) {
-     res.status(400).json({ error: '유효한 ID가 아닙니다.' });
-     return;
-  } 
+  const workspaceId = parseInt(req.params.workspaceId, 10);
+  if (isNaN(workspaceId)) {
+    res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+    return;
+  }
 
   try {
     const workspace = await getWorkspaceNameById(workspaceId);
@@ -67,14 +94,14 @@ export const getWorkspaceName = async (req: Request, res: Response) => {
   }
 };
 
-/**  워크스페이스 이름 변경 */   
+// 워크스페이스 이름 변경
 export const updateWorkspaceName = async (req: Request, res: Response) => {
-  const workspaceId = parseIdParam(req.params.workspaceId);
+  const workspaceId = parseInt(req.params.workspaceId, 10);
   const { name } = req.body;
 
-  if (!workspaceId || !name || typeof name !== 'string') {
+  if (!name || typeof name !== 'string') {
     res.status(400).json({ error: '유효한 워크스페이스 이름을 입력해주세요.' });
-   return;
+    return;
   }
 
   try {
@@ -83,23 +110,26 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
       message: '워크스페이스 이름이 변경되었습니다.',
       workspace: updated,
     });
-  } catch (error: unknown) {
-    res.status(500).json({ error: error instanceof Error ? error.message : '서버 오류 발생' });
+  } catch (error) {
+    console.error('워크스페이스 이름 변경 실패:', error);
+    res.status(500).json({ error: '서버 오류 발생' });
+    return;
   }
 };
 
-/**  워크스페이스 삭제 */  
+//워크스페이스 삭제
 export const deleteWorkspace = async (req: Request, res: Response) => {
-  const workspaceId = parseIdParam(req.params.workspaceId);
-  if (!workspaceId) {
+  const workspaceId = parseInt(req.params.workspaceId, 10);
+  if (isNaN(workspaceId)) {
     res.status(400).json({ error: '유효한 ID가 아닙니다.' });
     return;
-  } 
+  }
 
   try {
-    await removeWorkspace(workspaceId);
+    await prisma.workspaces.delete({ where: { id: workspaceId } });
     res.json({ success: true });
-  } catch (error: unknown) {
-    res.status(500).json({ error: error instanceof Error ? error.message : '서버 오류 발생' });
+  } catch (error) {
+    console.error('워크스페이스 삭제 실패:', error);
+    res.status(500).json({ error: '서버 오류 발생' });
   }
 };
