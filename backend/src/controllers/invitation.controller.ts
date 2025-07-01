@@ -9,8 +9,7 @@ const prisma = new PrismaClient();
 export const createInvitation = async (req: Request, res: Response) => {
   const { fromName, fromEmail, toEmail, workspaceId } = req.body;
   if (!fromName || !fromEmail || !toEmail || !workspaceId) {
-    res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
-    return;
+    return res.status(400).json({ message: '필수 항목이 누락되었습니다.' });
   }
 
   try {
@@ -20,11 +19,18 @@ export const createInvitation = async (req: Request, res: Response) => {
       toEmail,
       workspaceId
     );
-    res.json({ success: true, token, expires_at });
+    return res.json({ success: true, token, expires_at });
   } catch (error: unknown) {
     console.error('초대 생성 실패:', error);
-    if (error instanceof Error)
-      res.status(500).json({ error: error.message || '서버 오류' });
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+        ? error
+        : '서버 오류';
+
+    return res.status(400).json({ message }); // 프론트에서 받기 쉬운 키 이름
   }
 };
 

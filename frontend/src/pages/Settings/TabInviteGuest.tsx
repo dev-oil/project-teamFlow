@@ -1,4 +1,4 @@
-import { useEffect } from 'react'; 
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,17 +41,17 @@ const TabInviteGuest = ({
     return emailRegex.test(email);
   };
 
-  //대기중 -> 참여중 
+  //대기중 -> 참여중
   useEffect(() => {
-  const syncPendingWithMembers = () => {
-    const memberEmails = members.map((m) => m.user?.email);
-    setPendingGuests((prev) =>
-      prev.filter((guest) => !memberEmails.includes(guest.email))
-    );
-  };
+    const syncPendingWithMembers = () => {
+      const memberEmails = members.map((m) => m.user?.email);
+      setPendingGuests((prev) =>
+        prev.filter((guest) => !memberEmails.includes(guest.email))
+      );
+    };
 
-  syncPendingWithMembers();
-}, [members, setPendingGuests]);
+    syncPendingWithMembers();
+  }, [members, setPendingGuests]);
 
   //최대 인원 초과 여부 계산
   const isMaxReached = members.length >= 5;
@@ -79,10 +79,13 @@ const TabInviteGuest = ({
           workspaceId,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json();
+        const msg = data?.message || '초대 처리 중 오류가 발생했습니다.';
+        throw new Error(msg);
+      }
 
-      if (!res.ok) throw new Error('초대 실패');
       const data = await res.json();
-
       setPendingGuests((prev) => [
         {
           id: Date.now(),
@@ -97,11 +100,22 @@ const TabInviteGuest = ({
       setInviteMessage(`${inviteEmail}로 초대장을 보냈습니다.`);
       setInviteEmail('');
       setInviteError(false);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('초대 실패:', error);
-      setInviteMessage('초대 처리 중 오류가 발생했습니다.');
-      setInviteError(true);
-    }
+
+      let message = '초대 처리 중 오류가 발생했습니다.';
+
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
+  } else if (typeof error === 'object' && error !== null && 'message' in error) {
+    message = String(error.message);
+  }
+
+  setInviteMessage(message);
+  setInviteError(true);
+}
   };
 
   return (

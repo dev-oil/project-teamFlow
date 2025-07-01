@@ -1,8 +1,7 @@
 // src/services/invitation.service.ts
 import { prisma } from '../db/prisma';
 import crypto from 'crypto';
-import { sendInvitationEmail } from './email.service'; 
-
+import { sendInvitationEmail } from './email.service';
 
 /** 초대 */
 export const createInvitation = async (
@@ -11,9 +10,19 @@ export const createInvitation = async (
   toEmail: string,
   workspaceId: number
 ) => {
+  //1. 유저 존재 확인
   const user = await prisma.users.findUnique({ where: { email: toEmail } });
   if (!user) throw new Error('존재하지 않는 유저입니다.');
+  
+  // 2. 이미 초대된 이메일인지 확인
+  const existingInvitation = await prisma.invitations.findUnique({
+    where: { email: toEmail },
+  });
+  if (existingInvitation) {
+    throw new Error('이미 초대된 이메일입니다.');
+  }
 
+  //3. 초대 생성
   const token = crypto.randomBytes(32).toString('hex');
   const expires_at = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3일
 
@@ -27,7 +36,8 @@ export const createInvitation = async (
       workspaces: { connect: { id: workspaceId } },
     },
   });
-
+  
+  //4. 이메일 전송
   await sendInvitationEmail({ fromName, fromEmail, toEmail, token });
   return { token, expires_at };
 };
@@ -40,7 +50,9 @@ export const acceptInvitationService = async (token: string) => {
     throw new Error('유효하지 않거나 이미 사용된 초대입니다.');
   }
 
-  const user = await prisma.users.findUnique({ where: { email: invitation.email } });
+  const user = await prisma.users.findUnique({
+    where: { email: invitation.email },
+  });
   if (!user) {
     throw new Error('초대된 이메일이 가입되어 있지 않습니다.');
   }
@@ -109,7 +121,7 @@ export const renewInvitation = async (
     data: { expires_at: newExpiry },
   });
 
-   await sendInvitationEmail({
+  await sendInvitationEmail({
     fromName,
     fromEmail,
     toEmail: email,
