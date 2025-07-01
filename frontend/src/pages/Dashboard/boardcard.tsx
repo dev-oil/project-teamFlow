@@ -29,13 +29,19 @@ type BoardcardProps = {
 };
 
 export function Boardcard({ box, card }: BoardcardProps) {
-  const [pinned, setPinned] = useState(false);
+  const [pinned, setPinned] = useState(card.pinned);
+  // cards.sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   // if (!card) {
   //   console.warn('Boardcard: card prop이 없습니다!');
   // } else {
   //   console.log('Boardcard: card prop 잘 받았습니다', card);
   // }
+
+  const formatMD = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return `${date.getMonth() + 1}.${date.getDate()}`;
+  };
 
   return (
     <>
@@ -52,8 +58,8 @@ export function Boardcard({ box, card }: BoardcardProps) {
             />
 
             <Card className='w-full rounded-md'>
-              <CardHeader className='pl-[26px] pr-[16px]'>
-                <CardTitle className='text-lg'>{card.title}</CardTitle>
+              <CardHeader className='pl-[26px] pr-[16px] max-w-[270px]'>
+                <CardTitle className='text-lg truncate'>{card.title}</CardTitle>
                 <CardAction>
                   <button
                     type='button'
@@ -69,11 +75,17 @@ export function Boardcard({ box, card }: BoardcardProps) {
                     )}
                   </button>
                 </CardAction>
-                <CardDescription>{card.description}</CardDescription>
+                <CardDescription className='truncate'>
+                  {card.description}
+                </CardDescription>
               </CardHeader>
               <CardContent className='pl-[26px] pr-[16px]'>
                 <div className='flex justify-between items-center'>
-                  <div>6.10 ~ 6.12</div>
+                  <div>
+                    {card.start_date && card.end_date
+                      ? `${formatMD(card.start_date)} ~ ${formatMD(card.end_date)}`
+                      : '날짜 없음'}
+                  </div>
                   <div>
                     <div className='flex flex-row flex-wrap items-center gap-12'>
                       <div className='*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 '>

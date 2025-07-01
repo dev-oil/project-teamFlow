@@ -28,7 +28,7 @@ export function Boardbox({ box }: BoardboxProps) {
   // }
 
   return (
-    <Card className='max-w-100 min-w-xs !bg-neutral-50 rounded-md border-0'>
+    <Card className='max-w-100 min-w-xs !bg-neutral-50 rounded-md border-0 py-0 pt-6'>
       <CardHeader>
         <CardTitle className='text-lg'>{box.title}</CardTitle>
         <Dialog>

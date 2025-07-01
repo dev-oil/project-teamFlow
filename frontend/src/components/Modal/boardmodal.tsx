@@ -85,7 +85,16 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
     (card?.color as ColorOption) ?? null
   );
   // 일정
-  const [range, setRange] = useState<DateRange | undefined>(undefined);
+  const [range, setRange] = useState<DateRange | undefined>(() => {
+    if (mode === 'edit' && card?.start_date && card?.end_date) {
+      return {
+        from: new Date(card.start_date),
+        to: new Date(card.end_date),
+      };
+    }
+    return undefined;
+  });
+  const formatDate = (date: Date) => date.toISOString().slice(0, 10); // '2025-06-20'
   // 설명
   const [description, setDescription] = useState(card?.description ?? '');
   // 담당자
@@ -137,7 +146,7 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
               name='title'
               type='text'
               placeholder='제목'
-              value={card?.title ?? ''}
+              value={cardtitle}
               onChange={(e) => setCardtitle(e.target.value)}
             />
           </div>
@@ -178,8 +187,8 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
                     className='w-56 justify-between font-normal'
                   >
                     {range?.from && range?.to
-                      ? `${range.from.toLocaleDateString()} - ${range.to.toLocaleDateString()}`
-                      : '----.--.--'}
+                      ? `${formatDate(range.from)} - ${formatDate(range.to)}`
+                      : 'YYYY-MM-DD'}
                     <ChevronDownIcon />
                   </Button>
                 </PopoverTrigger>
@@ -209,13 +218,14 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
               id='description'
               name='description'
               placeholder='카드에 대한 설명을 적어주세요'
-              value={card?.description ?? ''}
+              value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></Textarea>
           </div>
 
           {/* <div className=''> */}
           {/* 담당자 영역 */}
+          {/* 유저 연결 시 작업 */}
           <div className='grid gap-3'>
             <div className='flex flex-row justify-between'>
               <Label htmlFor='in_charge' className='font-semibold'>
