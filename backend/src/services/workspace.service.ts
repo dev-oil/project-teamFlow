@@ -1,6 +1,7 @@
 import { prisma } from '../db/prisma';
+import type { Request, Response } from 'express';
 
-/** 멤버 조회 */ 
+/** 멤버 조회 */
 export const fetchMembersByWorkspaceId = async (workspaceId: number) => {
   const members = await prisma.members.findMany({
     where: { workspaces_id: workspaceId },
@@ -24,7 +25,7 @@ export const fetchMembersByWorkspaceId = async (workspaceId: number) => {
   }));
 };
 
-/** 멤버 추방 */  
+/** 멤버 추방 */
 export const deleteMember = async (workspaceId: number, userId: number) => {
   return await prisma.members.deleteMany({
     where: { workspaces_id: workspaceId, users_id: userId },
@@ -44,11 +45,38 @@ export const renameWorkspace = async (workspaceId: number, name: string) => {
   });
 };
 
-/**  워크스페이스 삭제 */ 
-export const removeWorkspace = async (workspaceId: number) => {
-  return await prisma.workspaces.delete({ where: { id: workspaceId } });
+/**  워크스페이스 삭제 */
+export const removeWorkspace = (workspaceId: number) => {
+  return prisma.workspaces.delete({ where: { id: workspaceId } });
 };
 
+// dev
+// export const findUserWorkspaces = (userId: number) => {
+//   return prisma.workspaces.findMany({
+//     where: {
+//       members: {
+//         some: {
+//           users_id: userId,
+//         },
+//       },
+//     },
+//   });
+// };
+
+// export const findUserWorkspace = (userId: number, workspaceId: number) => {
+//   return prisma.workspaces.findFirst({
+//     where: {
+//       id: workspaceId,
+//       members: {
+//         some: {
+//           users_id: userId,
+//         },
+//       },
+//     },
+//   });
+// };
+
+/**  워크스페이스 리스트 */   
 export const findUserWorkspaces = (userId: number) => {
   return prisma.workspaces.findMany({
     where: {
@@ -58,9 +86,27 @@ export const findUserWorkspaces = (userId: number) => {
         },
       },
     },
-  });
+    include: {
+      members: {
+        where: {
+          users_id: userId,
+        },
+        select: {
+          role: true,
+        },
+      },
+    },
+  }).then(workspaces => 
+    workspaces.map(workspace => ({
+      id: workspace.id,
+      users_id: workspace.users_id,
+      name: workspace.name,
+      role: workspace.members[0]?.role || 'guest',
+    }))
+  );
 };
 
+/** 워크스페이스 한개 */   
 export const findUserWorkspace = (userId: number, workspaceId: number) => {
   return prisma.workspaces.findFirst({
     where: {
@@ -71,5 +117,22 @@ export const findUserWorkspace = (userId: number, workspaceId: number) => {
         },
       },
     },
-  });
+    include: {
+      members: {
+        where: {
+          users_id: userId,
+        },
+        select: {
+          role: true,
+        },
+      },
+    },
+  }).then(workspace => 
+    workspace ? {
+      id: workspace.id,
+      users_id: workspace.users_id,
+      name: workspace.name,
+      role: workspace.members[0]?.role || 'guest', 
+    } : null
+  );
 };
