@@ -42,7 +42,7 @@ const navMain = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { setWorkspaceList, setWorkspace, workspace } = useWorkspaceStore();
+  const { setWorkspace, workspace } = useWorkspaceStore();
   const accessToken = useAuthStore((state) => state.accessToken);
 
   const { data: workspaces = [] } = useQuery<WorkspaceListItem[]>({
@@ -53,16 +53,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   useEffect(() => {
     if (workspaces.length === 0) return;
 
-    // 목록 상태 저장
-    setWorkspaceList(workspaces);
-
     const exists = workspaces.some((ws) => ws.id === workspace?.id);
 
     // 선택값이 없거나 유효하지 않으면 첫 번째 워크스페이스로 설정
     if (!workspace || !exists) {
       setWorkspace(workspaces[0]);
     }
-  }, [workspaces, workspace, setWorkspace, setWorkspaceList]);
+  }, [workspaces, workspace, setWorkspace]);
 
   const location = useLocation();
 
