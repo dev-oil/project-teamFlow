@@ -73,9 +73,11 @@ export function LoginPage() {
 
   return (
     <div className='w-1/2 flex items-center justify-center'>
-      <Card className='w-full max-w-sm'>
+      <Card className='w-full max-w-md'>
         <CardHeader>
-          <CardTitle className='text-2xl'>만나서 반가워요 👋</CardTitle>
+          <CardTitle className='text-2xl'>
+            TeamFlow에 오신 걸 환영합니다 👋
+          </CardTitle>
           <CardDescription>
             로그인하려면 이메일과 비밀번호를 입력해주세요
           </CardDescription>
@@ -92,7 +94,7 @@ export function LoginPage() {
                 <Label htmlFor='email'>이메일 주소</Label>
                 <Input
                   id='email'
-                  placeholder='email@example.com'
+                  placeholder='example@teamflow.com'
                   {...register('email')}
                 />
                 {errors.email && (
@@ -103,6 +105,7 @@ export function LoginPage() {
                 <div className='flex items-center'>
                   <Label htmlFor='password'>비밀번호</Label>
                   <Button
+                    type='button'
                     variant='link'
                     className='ml-auto text-blue-600'
                     onClick={(e: React.FormEvent) => {
