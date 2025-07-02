@@ -9,8 +9,9 @@ import {
   removeWorkspace,
 } from '../services/workspace.service';
 
+/**  워크스페이스 리스트 */  
 export const getWorkspaces = async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId);
+   const userId = req.user?.userId;
   try {
     const workspaces = await findUserWorkspaces(userId);
     res.json(workspaces);
@@ -19,8 +20,9 @@ export const getWorkspaces = async (req: Request, res: Response) => {
   }
 };
 
+/**  워크스페이스 한개 */  
 export const getWorkspace = async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId);
+   const userId = req.user?.userId;
   const workspaceId = parseInt(req.params.workspaceId);
   try {
     const workspace = await findUserWorkspace(userId, workspaceId);
@@ -33,12 +35,8 @@ export const getWorkspace = async (req: Request, res: Response) => {
   }
 };
 
-const parseIdParam = (param: string): number | null => {
-  const id = parseInt(param, 10);
-  return isNaN(id) ? null : id;
-};
 
-//멤버 조회
+/** 멤버 조회 */ 
 export const getWorkspaceMembers = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
   if (isNaN(workspaceId)) {
@@ -56,7 +54,7 @@ export const getWorkspaceMembers = async (req: Request, res: Response) => {
   }
 };
 
-//멤버 추방
+/** 멤버 추방 */  
 export const removeMember = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
   const userId = Number(req.params.userId);
@@ -76,7 +74,7 @@ export const removeMember = async (req: Request, res: Response) => {
   }
 };
 
-// 워크스페이스 이름 조회
+/**  워크스페이스 이름 조회 */  
 export const getWorkspaceName = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
   if (isNaN(workspaceId)) {
@@ -99,7 +97,7 @@ export const getWorkspaceName = async (req: Request, res: Response) => {
   }
 };
 
-// 워크스페이스 이름 변경
+/**  워크스페이스 이름 변경 */ 
 export const updateWorkspaceName = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
   const { name } = req.body;
@@ -122,7 +120,7 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
   }
 };
 
-//워크스페이스 삭제
+/**  워크스페이스 삭제 */ 
 export const deleteWorkspace = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
   if (isNaN(workspaceId)) {

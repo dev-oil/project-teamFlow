@@ -1,6 +1,6 @@
-import { useState } from 'react';
-
 import { useNavigate } from 'react-router-dom';
+
+import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 
 import DeleteWorkspaceCard from './Settings/DeleteWorkspaceCard';
 import MembersCard from './Settings/MembersCard';
@@ -10,10 +10,15 @@ import WorkspaceNameCard from './Settings/WorkspaceNameCard';
 export const SettingsPage = () => {
 
   const navigate = useNavigate();
-  //역할제어
- const [isHost] = useState(true); // 호스트
- //const [isHost] = useState(false); //게스트
- const workspaceId = 1;
+  const { workspace } = useWorkspaceStore();
+  
+  const workspaceId = workspace?.id;
+  const isHost = workspace?.role === 'host';
+  console.log('role:', workspace?.role);
+
+  if (!workspaceId || !workspace) return <div>로딩 중...</div>; 
+
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold mb-6">

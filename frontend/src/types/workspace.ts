@@ -6,4 +6,7 @@ export type Workspace = {
   updated_at: string;
 };
 
-export type WorkspaceListItem = Pick<Workspace, 'id' | 'name'>;
+// + role 추가
+export type WorkspaceListItem = Pick<Workspace, 'id' | 'name'> & {
+  role?: 'host' | 'guest'; // 선택적 필드
+};

@@ -18,7 +18,10 @@ const WorkspaceNameCard = ({ isHost, workspaceId }: Props) => {
     const fetchWorkspaceName = async () => {
       try {
         const response = await fetch(
-          `/api/workspaces/${workspaceId}/name`
+          `/api/workspaces/${workspaceId}/name`,
+            {
+          credentials: 'include', // ← 핵심 추가
+        }
         );
         if (!response.ok)
           throw new Error('워크스페이스 이름을 불러오지 못했습니다.');
