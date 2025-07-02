@@ -246,6 +246,8 @@ export function SortableBoardbox() {
     const targetBox = boxes.find((b) => b.cards.some((c) => c.id === overId));
 
     if (sourceBox && (targetBox || overId.startsWith('box-'))) {
+      if (activeId === overId) return;
+
       const updatedBoxes = [...boxes];
       const fromBoxIndex = updatedBoxes.findIndex((b) => b.id === sourceBox.id);
       const toBoxIndex = targetBox
@@ -255,35 +257,34 @@ export function SortableBoardbox() {
       const activeCardIndex = updatedBoxes[fromBoxIndex].cards.findIndex(
         (c) => c.id === activeId
       );
+
+      let insertIndex = targetBox
+        ? updatedBoxes[toBoxIndex].cards.findIndex((c) => c.id === overId)
+        : updatedBoxes[toBoxIndex].cards.length;
+
+      if (insertIndex === -1) {
+        insertIndex = updatedBoxes[toBoxIndex].cards.length;
+      }
+
+      // if (sourceBox.id === targetBox?.id && activeCardIndex < insertIndex) {
+      //   insertIndex += 1;
+      // }
+
       const [movingCard] = updatedBoxes[fromBoxIndex].cards.splice(
         activeCardIndex,
         1
       );
 
-      const insertIndex = targetBox
-        ? updatedBoxes[toBoxIndex].cards.findIndex((c) => c.id === overId)
-        : updatedBoxes[toBoxIndex].cards.length;
-      // let insertIndex = targetBox
-      // ? updatedBoxes[toBoxIndex].cards.findIndex((c) => c.id === overId)
-      // : updatedBoxes[toBoxIndex].cards.length;
-
-      // if (insertIndex === -1) {
-      //   insertIndex = updatedBoxes[toBoxIndex].cards.length;
-      // }
-      // if (sourceBox.id === targetBox?.id && activeCardIndex < insertIndex) {
-      //   insertIndex -= 1;
-      // }
-
-      console.log('--- drag event ---');
-      console.log('activeId', activeId);
-      console.log('overId', overId);
-      console.log('fromBox', sourceBox?.title, '→ toBox', targetBox?.title);
-      console.log(
-        'activeCardIndex',
-        activeCardIndex,
-        '→ insertIndex',
-        insertIndex
-      );
+      // console.log('--- drag event ---');
+      // console.log('activeId', activeId);
+      // console.log('overId', overId);
+      // console.log('fromBox', sourceBox?.title, '→ toBox', targetBox?.title);
+      // console.log(
+      //   'activeCardIndex',
+      //   activeCardIndex,
+      //   '→ insertIndex',
+      //   insertIndex
+      // );
 
       updatedBoxes[toBoxIndex].cards.splice(insertIndex, 0, movingCard);
 
