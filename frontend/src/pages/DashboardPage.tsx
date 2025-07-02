@@ -6,6 +6,7 @@ import { Boardbox } from '@/pages/Dashboard/boardbox';
 // import { ScrollHorizonBtn } from '@/components/Dashboard/scrollhorizon';
 import { ScrollTopBtn } from '@/pages/Dashboard/scrolltop';
 import type { BoxtypeWithCards } from '@/types/board';
+import { SortableBoardbox } from './Dashboard/sortableboardbox';
 
 export function DashboardPage() {
   const [boxes, setBoxes] = useState<BoxtypeWithCards[]>([]);
@@ -23,26 +24,29 @@ export function DashboardPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className='relative'>
-      {/* <ScrollHorizonBtn> */}
-      <ScrollArea className='h-[calc(100vh-64px)] overflow-y-auto  whitespace-nowrap'>
-        <ScrollAreaViewport ref={scrollRef}>
-          <div className='p-8 flex items-start gap-5'>
-            {boxes.length === 0 ? (
-              <div className='p-4 text-center text-gray-500'>
-                작업 보드를 추가해 보세요
-              </div>
-            ) : (
-              boxes.map((box) => <Boardbox key={box.id} box={box} />)
-            )}
-          </div>
-        </ScrollAreaViewport>
-        <ScrollBar orientation='horizontal' />
-        <ScrollBar orientation='vertical' />
-      </ScrollArea>
-      {/* </ScrollHorizonBtn> */}
+    <>
+      <div className='relative'>
+        {/* <ScrollHorizonBtn> */}
+        <ScrollArea className='h-[calc(100vh-64px)] overflow-y-auto  whitespace-nowrap'>
+          <ScrollAreaViewport ref={scrollRef}>
+            <div className='p-8 flex items-start gap-5'>
+              {boxes.length === 0 ? (
+                <div className='p-4 text-center text-gray-500'>
+                  작업 보드를 추가해 보세요
+                </div>
+              ) : (
+                boxes.map((box) => <Boardbox key={box.id} box={box} />)
+              )}
+            </div>
+          </ScrollAreaViewport>
+          <ScrollBar orientation='horizontal' />
+          <ScrollBar orientation='vertical' />
+        </ScrollArea>
+        {/* </ScrollHorizonBtn> */}
 
-      <ScrollTopBtn targetRef={scrollRef} />
-    </div>
+        <ScrollTopBtn targetRef={scrollRef} />
+      </div>
+      <SortableBoardbox></SortableBoardbox>
+    </>
   );
 }

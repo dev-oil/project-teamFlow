@@ -59,7 +59,9 @@ export function Boardcard({ box, card }: BoardcardProps) {
 
             <Card className='w-full rounded-md'>
               <CardHeader className='pl-[26px] pr-[16px] max-w-[270px]'>
-                <CardTitle className='text-lg truncate'>{card.title}</CardTitle>
+                <CardTitle className='text-lg break-words whitespace-normal'>
+                  {card.title}
+                </CardTitle>
                 <CardAction>
                   <button
                     type='button'
