@@ -1,4 +1,3 @@
-import { Home } from 'lucide-react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppSidebar } from '@/components/Sidebar/index';
@@ -23,6 +22,7 @@ import { InviteEmailPage } from './pages/Settings/InviteEmailPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { EditNotePage } from './pages/Notes/EditNotePage';
 import { CreateNotePage } from './pages/Notes/CreateNotePage';
+import { Home } from './pages/Home';
 
 function App() {
   const { isLoggedIn, isInitiailized } = useAuth();
@@ -41,7 +41,7 @@ function App() {
           </Route>
           <Route path='/verify' element={<VerifyEmailPage />} />
           <Route path='/reset-password' element={<ResetPasswordPage />} />
-          <Route path="/invite" element={<InviteEmailPage />} />
+          <Route path='/invite' element={<InviteEmailPage />} />
         </Routes>
         <Toaster richColors />
       </>
