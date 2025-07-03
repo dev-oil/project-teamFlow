@@ -1,6 +1,10 @@
+// import { useSortable } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Pin } from 'lucide-react';
 import { useState } from 'react';
 
+// import { useSortableActivation } from '@/hooks/useSortableActivation';
 import type { Boxtype, Cardtype } from '@/types/board';
 
 import { Boardmodal } from '../../components/Modal/boardmodal';
@@ -32,26 +36,41 @@ export function Boardcard({ box, card }: BoardcardProps) {
   const [pinned, setPinned] = useState(card.pinned);
   // cards.sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
-  // if (!card) {
-  //   console.warn('Boardcard: card prop이 없습니다!');
-  // } else {
-  //   console.log('Boardcard: card prop 잘 받았습니다', card);
-  // }
-
   const formatMD = (dateStr: string) => {
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}.${date.getDate()}`;
   };
 
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: card.id,
+  });
+  // } = useSortableActivation({
+  //   id: card.id,
+  //   activationConstraint: {
+  //     distance: 3, // 8px 이상 움직여야 드래그
+  //   },
+  // });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1, // 드래그 중엔 반투명 처리
+    // visibility: isDragging ? 'hidden' : 'visible',
+    zIndex: isDragging ? 0 : 1, // 드래그 중 카드가 밑으로 깔리게
+  };
+
   return (
-    <>
+    <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
       <Dialog key={card.id}>
         <DialogTrigger asChild className='text-left w-full block'>
-          <div
-            className='relative mb-[20px] cursor-pointer'
-            role='button'
-            tabIndex={0}
-          >
+          <div className='relative cursor-pointer' role='button' tabIndex={0}>
             <div
               className={`w-[10px] h-full rounded-l-md absolute`}
               style={{ backgroundColor: card.color }}
@@ -132,6 +151,6 @@ export function Boardcard({ box, card }: BoardcardProps) {
           />
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

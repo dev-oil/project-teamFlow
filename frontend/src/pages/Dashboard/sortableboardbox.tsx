@@ -1,3 +1,5 @@
+// DnD 테스트 컴포넌트
+
 // import {
 //   DndContext,
 //   closestCenter,
@@ -102,7 +104,7 @@
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
   DndContext,
-  closestCenter,
+  // closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
@@ -145,6 +147,7 @@ import type { BoxtypeWithCards, Cardtype } from '@/types/board';
 //     </div>
 //   );
 // };
+
 const CardItem = ({ card }: { card: Cardtype }) => {
   const {
     setNodeRef,
