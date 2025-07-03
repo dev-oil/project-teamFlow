@@ -16,17 +16,17 @@ import { VerifyEmailPage } from './pages/Auth/VerifyEmailPage';
 
 import { CalendarPage } from './pages/CalendarPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { Home } from './pages/Home';
+import { CreateNotePage } from './pages/Notes/CreateNotePage';
+import { EditNotePage } from './pages/Notes/EditNotePage';
 import { NotesPage } from './pages/Notes/NotesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { InviteEmailPage } from './pages/Settings/InviteEmailPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { EditNotePage } from './pages/Notes/EditNotePage';
-import { CreateNotePage } from './pages/Notes/CreateNotePage';
-import { Home } from './pages/Home';
 
 function App() {
-  const { isLoggedIn, isInitiailized } = useAuth();
   useAuthInitializer();
+  const { isLoggedIn, isInitiailized } = useAuth();
   if (!isInitiailized) return null;
   if (!isLoggedIn) {
     return (
