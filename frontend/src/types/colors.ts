@@ -22,3 +22,24 @@ export type ColorOption = {
   name: ColorName;
   engName: ColorEngName;
 };
+
+export const colorOptions: ColorOption[] = [
+  { code: '#FF6B6B', name: '빨강', engName: 'red' },
+  { code: '#FFD43B', name: '노랑', engName: 'yellow' },
+  { code: '#51CF66', name: '초록', engName: 'green' },
+  { code: '#38BDF8', name: '파랑', engName: 'blue' },
+  { code: '#845EF7', name: '보라', engName: 'purple' },
+  { code: '#FFA8D4', name: '분홍', engName: 'pink' },
+];
+
+
+// 예시
+// import { colorOptions, ColorOption, ColorCode } from '@/types/colors';
+// const handleClick = (color: ColorCode) => {
+//   console.log('선택된 색상:', color);
+// };
+// colorOptions.map((opt) => (
+//   <button key={opt.code} onClick={() => handleClick(opt.code)}>
+//     {opt.name} ({opt.engName})
+//   </button>
+// ));

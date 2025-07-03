@@ -53,10 +53,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   useEffect(() => {
     if (workspaces.length === 0) return;
 
-    const exists = workspaces.some((ws) => ws.id === workspace?.id);
+   const exists = workspaces.some((ws) => ws.id === workspace?.id);
 
     // 선택값이 없거나 유효하지 않으면 첫 번째 워크스페이스로 설정
-    if (!workspace || !exists) {
+      if (!workspace || !exists) {
       setWorkspace(workspaces[0]);
     }
   }, [workspaces, workspace, setWorkspace]);
