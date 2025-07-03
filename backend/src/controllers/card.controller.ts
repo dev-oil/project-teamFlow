@@ -31,12 +31,25 @@ export const getCardById = async (req:Request, res:Response) => {
 
 /** 카드 수정 */ 
 export const updateCard = async (req: Request, res: Response) => {
-  const cardId = Number(req.params.cardId);  
+  const cardId = Number(req.params.cardId);
   const { start, end } = req.body;
+
+  //1. 유효성 검사
+  if (!start || !end) {
+    res.status(400).json({ error: '시작일과 종료일이 필요합니다.' });
+    return ;
+  }
+
+  if (isNaN(cardId)) {
+    res.status(400).json({ error: '올바른 카드 ID가 필요합니다.' });
+    return ;
+  }
+
   try {
     const updated = await cardService.updateCardDate(cardId, start, end);
     res.json(updated);
   } catch (err) {
+    console.error('카드 수정 오류:', err); //2. 에러 로그 출력
     res.status(500).json({ error: '일정 수정 실패' });
   }
 };

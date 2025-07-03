@@ -1,8 +1,5 @@
-//드래그 앤 드랍 캘린더 렌더
+//드래그 앤 드랍 캘린더
 //components/Calendar/CalendarBody
-
-import React from 'react';
-
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';

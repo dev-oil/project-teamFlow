@@ -14,10 +14,8 @@ export const SettingsPage = () => {
   
   const workspaceId = workspace?.id;
   const isHost = workspace?.role === 'host';
-  console.log('role:', workspace?.role);
-
+  //console.log(workspaceId, workspace?.role);
   if (!workspaceId || !workspace) return <div>로딩 중...</div>; 
-
 
   return (
     <div className="container mx-auto p-6 space-y-6">

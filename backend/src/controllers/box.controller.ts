@@ -6,14 +6,7 @@ export const getBoxes = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
   const userId = req.user?.userId; 
 
-  // try {
-  //   const boxes = await boxService.findBoxesByWorkspace(workspaceId);
-  //   res.json(boxes);
-  // } catch {
-  //   res.status(500).json({ error: '박스 목록 조회 실패' });
-  // }
-
-   try {
+  try {
     const boxes = await boxService.findBoxes(userId, workspaceId);
     res.json(boxes);
   } catch {
