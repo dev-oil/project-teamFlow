@@ -17,7 +17,11 @@ type Props = {
   date: Date;
   onDateChange: (date: Date) => void;
   onEventDrop: (args: { event: CalendarEvent; start: Date; end: Date }) => void;
-  onEventResize: (args: { event: CalendarEvent; start: Date; end: Date }) => void;
+  onEventResize: (args: {
+    event: CalendarEvent;
+    start: Date;
+    end: Date;
+  }) => void;
   eventStyleGetter: (event: CalendarEvent) => any;
 };
 const localizer = dateFnsLocalizer({
@@ -30,24 +34,32 @@ const localizer = dateFnsLocalizer({
 
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
-export const CalendarBody = ({ 
-  events, 
-  date, 
-  onDateChange, 
-  onEventDrop, 
-  onEventResize, 
-  eventStyleGetter 
+export const CalendarBody = ({
+  events,
+  date,
+  onDateChange,
+  onEventDrop,
+  onEventResize,
+  eventStyleGetter,
 }: Props) => {
+  const dayPropGetter = (date: Date) => {
+    const day = date.getDay();
+
+    if (day === 0) return { className: 'rbc-day-sunday' };
+    if (day === 6) return { className: 'rbc-day-saturday' };
+    return {};
+  };
 
   return (
     <DragAndDropCalendar
       localizer={localizer}
       events={events}
-      startAccessor="start"
-      endAccessor="end"
+      startAccessor='start'
+      endAccessor='end'
       date={date}
       onNavigate={onDateChange}
       views={['month']}
+      popup={true}
       toolbar={false}
       eventPropGetter={eventStyleGetter}
       onEventDrop={onEventDrop}
@@ -55,6 +67,26 @@ export const CalendarBody = ({
       draggableAccessor={() => true}
       resizable
       style={{ height: 600 }}
+      dayPropGetter={dayPropGetter}
+      components={{
+        month: {
+          dateHeader: ({ date, label }) => {
+            const day = date.getDay();
+            const color =
+              day === 0 ? '#dc2626' : day === 6 ? '#2563eb' : undefined;
+            return (
+              <span
+                style={{
+                  color,
+                  fontWeight: day === 0 || day === 6 ? 'bold' : undefined,
+                }}
+              >
+                {label}
+              </span>
+            );
+          },
+        },
+      }}
     />
   );
 };

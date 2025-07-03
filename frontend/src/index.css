@@ -124,4 +124,11 @@
   button {
     @apply cursor-pointer;
   }
+
+ /* 캘린더 오늘 파란 배경 제거 */
+  @layer base {
+  .rbc-today {
+    background-color: transparent !important;  /*background-color: #fefce8 !important;  연노랑 */
+  }
+ }
 }
