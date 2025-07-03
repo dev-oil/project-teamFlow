@@ -27,6 +27,3 @@ pnpm-debug.log*
 .vscode/
 *.swp
 *.swo
-
-/src/generated/prisma
-
