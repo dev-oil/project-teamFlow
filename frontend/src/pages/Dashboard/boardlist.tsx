@@ -1,8 +1,9 @@
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
   rectIntersection,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -15,7 +16,7 @@ import { ScrollAreaViewport } from '@radix-ui/react-scroll-area';
 import { useCallback, useRef, useState } from 'react';
 
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { useBoardData } from '@/hooks/useBoarddata';
+import { useBoardData } from '@/hooks/useBoardData';
 import { Boardbox } from '@/pages/Dashboard/boardbox';
 import { ScrollTopBtn } from '@/pages/Dashboard/scrolltop';
 import type { Cardtype } from '@/types/board';
@@ -33,7 +34,6 @@ export function Boardlist({ page }: BoardlistProps) {
 
   const { boxes, moveCard, moveBox } = useBoardData();
 
-  const sensors = useSensors(useSensor(PointerSensor));
   const [activeCard, setActiveCard] = useState<Cardtype | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -56,6 +56,21 @@ export function Boardlist({ page }: BoardlistProps) {
       }
     },
     [boxes, moveBox, moveCard]
+  );
+
+  // const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 3,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
   );
 
   return (

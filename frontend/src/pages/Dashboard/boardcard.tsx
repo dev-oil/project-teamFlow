@@ -1,10 +1,8 @@
-// import { useSortable } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Pin } from 'lucide-react';
 import { useState } from 'react';
 
-// import { useSortableActivation } from '@/hooks/useSortableActivation';
 import type { Boxtype, Cardtype } from '@/types/board';
 
 import { Boardmodal } from '../../components/Modal/boardmodal';
@@ -51,12 +49,6 @@ export function Boardcard({ box, card }: BoardcardProps) {
   } = useSortable({
     id: card.id,
   });
-  // } = useSortableActivation({
-  //   id: card.id,
-  //   activationConstraint: {
-  //     distance: 3, // 8px 이상 움직여야 드래그
-  //   },
-  // });
 
   const style = {
     transform: CSS.Transform.toString(transform),

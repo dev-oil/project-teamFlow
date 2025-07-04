@@ -1,12 +1,10 @@
 import {
   SortableContext,
   useSortable,
-  // useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-// import { useSortableActivation } from '@/hooks/useSortableActivation';
 import type { BoxtypeWithCards } from '@/types/board';
 
 import { Boardcard } from './boardcard';
@@ -30,24 +28,10 @@ type BoardboxProps = {
 };
 
 export function Boardbox({ box }: BoardboxProps) {
-  // if (!box) {
-  //   console.warn('Boardbox: box prop이 없습니다!');
-  // } else {
-  //   console.log('Boardbox: box prop 잘 받았습니다', box);
-  // }
   const { setNodeRef, attributes, listeners, transform, transition } =
     useSortable({
       id: box.id,
-      // activationConstraint: {
-      //   distance: 3, // 8px 이상 움직여야 드래그
-      // },
     });
-  // useSortableActivation({
-  //   id: box.id,
-  //   activationConstraint: {
-  //     distance: 3, // 8px 이상 움직여야 드래그
-  //   },
-  // });
 
   const style = {
     transform: CSS.Transform.toString(transform),
