@@ -40,7 +40,7 @@ export function VerifyEmailPage() {
             로그인 후 서비스를 이용해보세요.
           </p>
           <Button onClick={() => navigate('/login', { replace: true })}>
-            로그인 하러가기
+            로그인하러 가기
           </Button>
         </>
       ) : (

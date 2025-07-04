@@ -66,37 +66,37 @@ export function ForgotPasswordPage() {
 
   return (
     <div className='w-1/2 flex items-center justify-center'>
-      <Card className='w-full max-w-sm'>
+      <Card className='w-full max-w-md'>
         <CardHeader>
-          <CardTitle className='text-2xl'>Forgot your password?</CardTitle>
+          <CardTitle className='text-2xl'>비밀번호를 잊으셨나요?</CardTitle>
           <CardDescription>
-            We’ll send you a reset link to your email.
+            가입하신 이메일 주소로 비밀번호 재설정 링크를 보내드립니다
           </CardDescription>
         </CardHeader>
         <CardContent>
           {submitted ? (
             <p className='text-sm text-muted-foreground'>
-              If an account exists for{' '}
-              <span className='font-medium'>{email}</span>, you’ll receive an
-              email with a reset link.
+              <span className='font-medium'>{email}</span> 주소로 비밀번호
+              재설정 메일을 보냈어요
+              <br />곧 메일함에서 확인하실 수 있어요.
             </p>
           ) : (
             <form onSubmit={handleSubmit} className='grid gap-4'>
               <div className='grid gap-2'>
-                <Label htmlFor='email'>Email</Label>
+                <Label htmlFor='email'>이메일 주소</Label>
                 <Input
                   id='email'
                   type='text'
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder='email@example.com'
+                  placeholder='example@teamflow.com'
                   required
                 />
                 {error && <p className='text-sm text-red-500'>{error}</p>}
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
                 {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
-                Send Reset Link
+                재설정 링크 보내기
               </Button>
             </form>
           )}
@@ -107,7 +107,7 @@ export function ForgotPasswordPage() {
             className='text-blue-600'
             onClick={() => navigate('/login')}
           >
-            Back to Login
+            로그인으로 돌아가기
           </Button>
         </CardFooter>
       </Card>

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -45,6 +45,7 @@ export function ResetPasswordPage() {
   const [invalidToken, setInvalidToken] = useState(false);
   const [done, setDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!token) setInvalidToken(true);
@@ -82,7 +83,7 @@ export function ResetPasswordPage() {
   if (invalidToken) {
     return (
       <p className='text-center mt-10 text-red-500'>
-        유효하지 않은 토큰입니다.
+        유효하지 않은 링크입니다. 다시 시도해주세요.
       </p>
     );
   }
@@ -90,24 +91,47 @@ export function ResetPasswordPage() {
   if (done) {
     return (
       <div className='flex flex-col items-center justify-center h-screen'>
-        <h2 className='text-2xl font-bold mb-4'>비밀번호 재설정 완료</h2>
-        <Button onClick={() => navigate('/login')}>로그인 하러가기</Button>
+        <h2 className='text-2xl font-bold mb-4'>
+          비밀번호가 성공적으로 변경되었어요
+        </h2>
+        <Button onClick={() => navigate('/login')}>로그인하러 가기</Button>
       </div>
     );
   }
 
   return (
     <div className='flex justify-center items-center h-screen'>
-      <Card className='w-full max-w-sm'>
+      <Card className='w-full max-w-md'>
         <CardHeader>
-          <CardTitle className='text-2xl'>Reset Password</CardTitle>
-          <CardDescription>Enter your new password below.</CardDescription>
+          <CardTitle className='text-2xl'>비밀번호 재설정</CardTitle>
+          <CardDescription>새로운 비밀번호를 입력해주세요</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='password'>New Password</Label>
-              <Input type='password' id='password' {...register('password')} />
+              <Label htmlFor='password'>새 비밀번호</Label>
+              <div className='relative'>
+                <Input
+                  id='password'
+                  type={showPassword ? 'text' : 'password'}
+                  {...register('password')}
+                  className='pr-10'
+                  placeholder='비밀번호는 최소 6자 이상'
+                />
+                <button
+                  type='button'
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className='absolute inset-y-0 right-0 px-3 flex items-center text-muted-foreground'
+                  tabIndex={-1}
+                  aria-label='비밀번호 보기 토글'
+                >
+                  {showPassword ? (
+                    <EyeOff className='w-4 h-4' />
+                  ) : (
+                    <Eye className='w-4 h-4' />
+                  )}
+                </button>
+              </div>
               {errors.password && (
                 <p className='text-sm text-red-500'>
                   {errors.password.message}
@@ -115,12 +139,29 @@ export function ResetPasswordPage() {
               )}
             </div>
             <div className='grid gap-2'>
-              <Label htmlFor='confirmPassword'>Confirm Password</Label>
-              <Input
-                type='password'
-                id='confirmPassword'
-                {...register('confirmPassword')}
-              />
+              <Label htmlFor='confirmPassword'>비밀번호 확인</Label>
+              <div className='relative'>
+                <Input
+                  id='confirmPassword'
+                  type={showPassword ? 'text' : 'password'}
+                  {...register('confirmPassword')}
+                  className='pr-10'
+                  placeholder='비밀번호 다시 입력'
+                />
+                <button
+                  type='button'
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className='absolute inset-y-0 right-0 px-3 flex items-center text-muted-foreground'
+                  tabIndex={-1}
+                  aria-label='비밀번호 보기 토글'
+                >
+                  {showPassword ? (
+                    <EyeOff className='w-4 h-4' />
+                  ) : (
+                    <Eye className='w-4 h-4' />
+                  )}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className='text-sm text-red-500'>
                   {errors.confirmPassword.message}
@@ -129,7 +170,7 @@ export function ResetPasswordPage() {
             </div>
             <Button type='submit' className='w-full' disabled={isLoading}>
               {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
-              Reset Password
+              비밀번호 변경
             </Button>
           </form>
         </CardContent>

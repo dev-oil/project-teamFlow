@@ -1,4 +1,3 @@
-import { Home } from 'lucide-react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppSidebar } from '@/components/Sidebar/index';
@@ -17,16 +16,17 @@ import { VerifyEmailPage } from './pages/Auth/VerifyEmailPage';
 
 import { CalendarPage } from './pages/CalendarPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { Home } from './pages/Home';
+import { CreateNotePage } from './pages/Notes/CreateNotePage';
+import { EditNotePage } from './pages/Notes/EditNotePage';
 import { NotesPage } from './pages/Notes/NotesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { InviteEmailPage } from './pages/Settings/InviteEmailPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { EditNotePage } from './pages/Notes/EditNotePage';
-import { CreateNotePage } from './pages/Notes/CreateNotePage';
 
 function App() {
-  const { isLoggedIn, isInitiailized } = useAuth();
   useAuthInitializer();
+  const { isLoggedIn, isInitiailized } = useAuth();
   if (!isInitiailized) return null;
   if (!isLoggedIn) {
     return (
@@ -41,7 +41,7 @@ function App() {
           </Route>
           <Route path='/verify' element={<VerifyEmailPage />} />
           <Route path='/reset-password' element={<ResetPasswordPage />} />
-          <Route path="/invite" element={<InviteEmailPage />} />
+          <Route path='/invite' element={<InviteEmailPage />} />
         </Routes>
         <Toaster richColors />
       </>

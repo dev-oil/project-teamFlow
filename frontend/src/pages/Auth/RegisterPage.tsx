@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -36,6 +36,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const {
     register,
@@ -79,11 +80,11 @@ export function RegisterPage() {
 
   return (
     <div className='w-1/2 flex items-center justify-center'>
-      <Card className='w-full max-w-sm'>
+      <Card className='w-full max-w-md'>
         <CardHeader>
-          <CardTitle className='text-2xl'>Create an Account</CardTitle>
+          <CardTitle className='text-2xl'>만나서 반가워요 👋</CardTitle>
           <CardDescription>
-            Enter your information below to create your account
+            아래 정보를 입력해 회원가입을 완료해주세요
           </CardDescription>
         </CardHeader>
 
@@ -91,14 +92,14 @@ export function RegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
             <div className='grid gap-5'>
               <div className='grid gap-2'>
-                <Label htmlFor='name'>Name</Label>
+                <Label htmlFor='name'>이름</Label>
                 <Input id='name' placeholder='홍길동' {...register('name')} />
                 {errors.name && (
                   <p className='text-sm text-red-500'>{errors.name.message}</p>
                 )}
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='phone'>Phone</Label>
+                <Label htmlFor='phone'>전화번호</Label>
                 <Input
                   id='phone'
                   placeholder='01012345678'
@@ -109,10 +110,10 @@ export function RegisterPage() {
                 )}
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='email'>Email</Label>
+                <Label htmlFor='email'>이메일 주소</Label>
                 <Input
                   id='email'
-                  placeholder='email@example.com'
+                  placeholder='example@teamflow.com'
                   {...register('email')}
                 />
                 {errors.email && (
@@ -120,13 +121,29 @@ export function RegisterPage() {
                 )}
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='password'>Password</Label>
-                <Input
-                  id='password'
-                  type='password'
-                  placeholder='●●●●●●●●●'
-                  {...register('password')}
-                />
+                <Label htmlFor='password'>비밀번호</Label>
+                <div className='relative'>
+                  <Input
+                    id='password'
+                    type={showPassword ? 'text' : 'password'}
+                    {...register('password')}
+                    className='pr-10'
+                    placeholder='비밀번호는 최소 6자 이상'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className='absolute inset-y-0 right-0 px-3 flex items-center text-muted-foreground'
+                    tabIndex={-1}
+                    aria-label='비밀번호 보기 토글'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='w-4 h-4' />
+                    ) : (
+                      <Eye className='w-4 h-4' />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className='text-sm text-red-500'>
                     {errors.password.message}
@@ -134,13 +151,29 @@ export function RegisterPage() {
                 )}
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='confirmPassword'>Confirm Password</Label>
-                <Input
-                  id='confirmPassword'
-                  type='password'
-                  placeholder='●●●●●●●●●'
-                  {...register('confirmPassword')}
-                />
+                <Label htmlFor='confirmPassword'>비밀번호 확인</Label>
+                <div className='relative'>
+                  <Input
+                    id='confirmPassword'
+                    type={showPassword ? 'text' : 'password'}
+                    {...register('confirmPassword')}
+                    className='pr-10'
+                    placeholder='비밀번호 다시 입력'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className='absolute inset-y-0 right-0 px-3 flex items-center text-muted-foreground'
+                    tabIndex={-1}
+                    aria-label='비밀번호 보기 토글'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='w-4 h-4' />
+                    ) : (
+                      <Eye className='w-4 h-4' />
+                    )}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
                   <p className='text-sm text-red-500'>
                     {errors.confirmPassword.message}
@@ -150,7 +183,7 @@ export function RegisterPage() {
             </div>
             <Button type='submit' className='w-full' disabled={isLoading}>
               {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
-              Sign Up
+              회원가입
             </Button>
           </form>
         </CardContent>
@@ -158,13 +191,13 @@ export function RegisterPage() {
         <CardFooter>
           <CardAction className='w-full'>
             <p className='text-center text-sm text-muted-foreground'>
-              Already have an account?
+              이미 계정이 있으신가요?
               <Button
                 variant='link'
                 className='text-blue-600'
                 onClick={() => navigate('/login', { replace: true })}
               >
-                Login
+                로그인하러 가기
               </Button>
             </p>
           </CardAction>

@@ -37,7 +37,7 @@ export const createNote = async (req: Request, res: Response) => {
 
   try {
     const newNote = await notesService.createNote({
-       users_id: userId,
+      users_id: userId,
       workspace_id: workspaceId,
       title,
       content,
