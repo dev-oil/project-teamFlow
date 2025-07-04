@@ -47,11 +47,30 @@ export const renameWorkspace = async (workspaceId: number, name: string) => {
 
 /**  워크스페이스 삭제 */
 export const deleteWorkspace = async (workspaceId: number, userId: number) => {
-  const workspace = await prisma.workspaces.findUnique({
+  // 1. 워크스페이스 개수 체크
+  const count = await prisma.workspaces.count({
+    where: { users_id: userId },
+  });
+  if (count <= 1) {
+    throw new Error('워크스페이스가 1개만 남았습니다. 삭제할 수 없습니다.');
+  }
+
+  // 2. 권한 체크 (host 여부)
+  const isHost = await prisma.members.findFirst({
+    where: {
+      workspaces_id: workspaceId,
+      users_id: userId,
+      role: 'host',
+    },
+  });
+  if (!isHost) {
+    throw new Error('호스트만 워크스페이스를 삭제할 수 있습니다.');
+  }
+
+  // 3. 삭제 (일단 cascade 사용을..)
+  return await prisma.workspaces.delete({
     where: { id: workspaceId },
   });
-
-  return await prisma.workspaces.delete({ where: { id: workspaceId } });
 };
 
 /**  워크스페이스 리스트 */   
