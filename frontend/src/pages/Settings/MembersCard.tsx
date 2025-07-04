@@ -37,9 +37,10 @@ type PendingGuest = {
 type Props = {
   isHost: boolean;
   workspaceId: number;
+  accessToken: string; 
 };
 
-const MembersCard = ({ isHost, workspaceId }: Props) => {
+const MembersCard = ({ isHost, workspaceId, accessToken  }: Props) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [pendingGuests, setPendingGuests] = useState<PendingGuest[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -50,7 +51,10 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await fetch(`/api/workspaces/${workspaceId}/members`);
+        const res = await fetch(`/api/workspaces/${workspaceId}/members`,{ headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
         const data = await res.json();
         setMembers(data);
       } catch (err) {
@@ -60,7 +64,11 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
 
     const fetchPendingGuests = async () => {
       try {
-        const res = await fetch(`/api/invite/${workspaceId}/pending`);
+        const res = await fetch(`/api/invite/${workspaceId}/pending`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
         const data = await res.json();
         const formatted = data.pending.map((item: PendingGuest) => ({
           ...item,
@@ -75,7 +83,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
 
     fetchMembers();
     fetchPendingGuests();
-  }, [workspaceId]);
+  }, [workspaceId, accessToken]);
 
   // 초대 삭제
   const handleDeleteInvitation = async (token: string) => {

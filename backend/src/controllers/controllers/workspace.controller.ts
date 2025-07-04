@@ -115,13 +115,13 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
 /**  워크스페이스 삭제 */ 
 export const deleteWorkspace = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
-  const userId = (req as any).user?.userId;
-
   if (isNaN(workspaceId)) {
-    return res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+    res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+    return;
   }
+
   try {
-    await workspaceService.removeWorkspace(workspaceId, userId);
+    await workspaceService.removeWorkspace(workspaceId);
     res.json({ success: true });
   } catch (error: unknown) {
     res.status(500).json({
