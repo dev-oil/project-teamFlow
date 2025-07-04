@@ -11,3 +11,5 @@ export const useWorkspaceStore = create<WorkspaceState>((set) => ({
   workspace: { id: 0, name: '', created_at: '', updated_at: '' },
   setWorkspace: (ws) => set({ workspace: ws }),
 }));
+
+

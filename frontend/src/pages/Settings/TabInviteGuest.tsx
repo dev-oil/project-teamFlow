@@ -1,7 +1,11 @@
-import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
+import { customFetch } from '@/lib/customFetch';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 type PendingGuest = {
   id: number;
@@ -36,10 +40,13 @@ const TabInviteGuest = ({
   setInviteError,
   setPendingGuests,
 }: Props) => {
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  const isValidEmail = (email: string): boolean =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isMaxReached = members.length >= 5;
+
+  const [isLoading, setIsLoading] = useState(false);
 
   //대기중 -> 참여중
   useEffect(() => {
@@ -53,15 +60,22 @@ const TabInviteGuest = ({
     syncPendingWithMembers();
   }, [members, setPendingGuests]);
 
-  //최대 인원 초과 여부 계산
-  const isMaxReached = members.length >= 5;
+  //워크스페이스 이동 시 메시지 초기화
+  useEffect(() => {
+  setInviteMessage('');
+  setInviteError(false);
+}, [workspaceId]);
+
 
   const handleInvite = async () => {
-    if (!isValidEmail(inviteEmail)) {
+    const trimmedEmail = inviteEmail.trim();
+    if (!isValidEmail(trimmedEmail)) {
       setInviteMessage('유효한 이메일 주소를 입력해주세요.');
       setInviteError(true);
       return;
     }
+
+    setIsLoading(true);
 
     try {
       //초대장 보내기
@@ -69,27 +83,38 @@ const TabInviteGuest = ({
       const fromEmail = host?.user?.email;
       const fromName = host?.user?.name;
 
-      const res = await fetch('/api/invite/create', {
+      const res = await customFetch('/api/invite/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({
           fromName,
           fromEmail,
-          toEmail: inviteEmail,
+          toEmail: trimmedEmail,
           workspaceId,
         }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        const msg = data?.message || '초대 처리 중 오류가 발생했습니다.';
-        throw new Error(msg);
-      }
 
       const data = await res.json();
-      setPendingGuests((prev) => [
+
+      if (!res.ok) {
+        if (
+          res.status === 400 &&
+          data?.message === '이미 초대된 이메일입니다.'
+        ) {
+          setInviteMessage('이미 초대한 이메일입니다.');
+          setInviteError(true);
+          return;
+        }
+        throw new Error(data.message || '초대 처리 중 오류 발생');
+      }
+
+        setPendingGuests((prev) => [
         {
           id: Date.now(),
-          email: inviteEmail,
+          email:trimmedEmail,
           invited_at: new Date().toLocaleDateString('ko-KR'),
           expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
           token: data.token,
@@ -97,7 +122,7 @@ const TabInviteGuest = ({
         ...prev,
       ]);
 
-      setInviteMessage(`${inviteEmail}로 초대장을 보냈습니다.`);
+      setInviteMessage(`${trimmedEmail}로 초대장을 보냈습니다.`);
       setInviteEmail('');
       setInviteError(false);
     } catch (error: unknown) {
@@ -105,17 +130,23 @@ const TabInviteGuest = ({
 
       let message = '초대 처리 중 오류가 발생했습니다.';
 
-  if (error instanceof Error) {
-    message = error.message;
-  } else if (typeof error === 'string') {
-    message = error;
-  } else if (typeof error === 'object' && error !== null && 'message' in error) {
-    message = String(error.message);
-  }
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error
+      ) {
+        message = String(error.message);
+      }
 
-  setInviteMessage(message);
-  setInviteError(true);
-}
+      setInviteMessage(message);
+      setInviteError(true);
+    } finally {
+      setIsLoading(false); // 요청 끝나면 false
+    }
   };
 
   return (
@@ -125,12 +156,18 @@ const TabInviteGuest = ({
           type='email'
           placeholder='이메일 주소 입력'
           value={inviteEmail}
-          onChange={(e) => setInviteEmail(e.target.value)}
+          onChange={(e) => {
+            setInviteEmail(e.target.value);
+            setInviteMessage('');
+            setInviteError(false);
+          }}
           disabled={isMaxReached}
         />
-        <Button onClick={handleInvite}>초대</Button>
+        <Button onClick={handleInvite} disabled={isLoading || isMaxReached}>
+          {isLoading && <Loader2 className='h-4 w-4 mr-2 animate-spin' />}
+          초대
+        </Button>
       </div>
-
       {isMaxReached && (
         <p className='text-sm text-red-500'>
           최대 5명의 멤버까지만 초대할 수 있습니다.
