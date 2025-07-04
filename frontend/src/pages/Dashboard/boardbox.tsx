@@ -1,3 +1,10 @@
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
 import type { BoxtypeWithCards } from '@/types/board';
 
 import { Boardcard } from './boardcard';
@@ -21,42 +28,57 @@ type BoardboxProps = {
 };
 
 export function Boardbox({ box }: BoardboxProps) {
-  // if (!box) {
-  //   console.warn('Boardbox: box prop이 없습니다!');
-  // } else {
-  //   console.log('Boardbox: box prop 잘 받았습니다', box);
-  // }
+  const { setNodeRef, attributes, listeners, transform, transition } =
+    useSortable({
+      id: box.id,
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   return (
-    <Card className='max-w-100 min-w-xs !bg-neutral-50 rounded-md border-0 py-0 pt-6'>
-      <CardHeader>
-        <CardTitle className='text-lg'>{box.title}</CardTitle>
-        <Dialog>
-          <DialogTrigger asChild>
-            <CardAction>
-              <Button className='text-m' variant='outline'>
-                + 카드 생성
-              </Button>
-            </CardAction>
-          </DialogTrigger>
+    <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
+      <Card className='max-w-100 min-w-xs !bg-neutral-50 rounded-md border-0'>
+        <SortableContext
+          items={box.cards.map((c) => c.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <CardHeader>
+            <CardTitle className='text-lg'>{box.title}</CardTitle>
+            <Dialog>
+              <DialogTrigger asChild>
+                <CardAction>
+                  <Button className='text-m' variant='outline'>
+                    + 카드 생성
+                  </Button>
+                </CardAction>
+              </DialogTrigger>
 
-          <DialogContent>
-            <Boardmodal mode='create' box={box} />
-          </DialogContent>
-        </Dialog>
-      </CardHeader>
-      <CardContent>
-        {box.cards.length === 0
-          ? null
-          : box.cards.map((card) => (
-              <Boardcard
-                key={card.id}
-                box={box}
-                card={card}
-                // updateCard={updateCard}
-              />
-            ))}
-      </CardContent>
-    </Card>
+              <DialogContent>
+                <Boardmodal mode='create' box={box} />
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent className=' flex flex-col gap-6'>
+            {box.cards.length === 0 ? (
+              <div className='p-4 border-dashed border-2 border-gray-400 rounded-md text-center text-sm text-gray-500'>
+                카드를 추가해 주세요
+              </div>
+            ) : (
+              box.cards.map((card) => (
+                <Boardcard
+                  key={card.id}
+                  box={box}
+                  card={card}
+                  // updateCard={updateCard}
+                />
+              ))
+            )}
+          </CardContent>
+        </SortableContext>
+      </Card>
+    </div>
   );
 }
