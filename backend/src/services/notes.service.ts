@@ -1,22 +1,20 @@
 import { prisma } from '../db/prisma';
 
-export const findNotesByWorkspace = async (workspaceId: number) => {
+export const findNotesByWorkspace = async (
+  userId: number,
+  workspaceId: number
+) => {
   return prisma.meeting_notes.findMany({
     where: {
+      workspaces_id: workspaceId,
+      users_id: userId,
+    },
+    include: {
       users: {
-        members: {
-          some: { workspaces_id: workspaceId },
-        },
+        select: { name: true },
       },
     },
     orderBy: { created_at: 'desc' },
-    include: {
-      users: {
-        select: {
-          name: true,
-        },
-      },
-    },
   });
 };
 
@@ -26,12 +24,22 @@ export const findNoteById = async (noteId: number) => {
 
 export const createNote = async (data: {
   users_id: number;
+  workspace_id: number;
   title: string;
   content?: string;
-  participant: any;
-  file?: any;
+  participant: string[];
+  file?: any[];
 }) => {
-  return prisma.meeting_notes.create({ data });
+  return prisma.meeting_notes.create({
+    data: {
+      users_id: data.users_id,
+      workspaces_id: data.workspace_id,
+      title: data.title,
+      content: data.content,
+      participant: data.participant,
+      file: data.file,
+    },
+  });
 };
 
 export const updateNote = async (

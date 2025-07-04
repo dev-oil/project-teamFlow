@@ -1,7 +1,5 @@
 import { Check, ChevronsUpDown, GalleryVerticalEnd } from 'lucide-react';
 
-import * as React from 'react';
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +12,13 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
+import type { WorkspaceListItem } from '@/types/workspace';
 
-export function VersionSwitcher({ versions }: { versions: string[] }) {
+export function VersionSwitcher({
+  versions,
+}: {
+  versions: WorkspaceListItem[];
+}) {
   const { workspace, setWorkspace } = useWorkspaceStore();
 
   return (
@@ -32,7 +35,9 @@ export function VersionSwitcher({ versions }: { versions: string[] }) {
               </div>
               <div className='flex flex-col gap-1 leading-none'>
                 <span className='font-medium'>워크스페이스 선택하기</span>
-                <span className='text-xs text-gray-500'>{workspace}</span>
+                <span className='text-xs text-gray-500'>
+                  {workspace?.name ?? '선택 안됨'}
+                </span>
               </div>
               <ChevronsUpDown className='ml-auto' />
             </SidebarMenuButton>
@@ -43,11 +48,11 @@ export function VersionSwitcher({ versions }: { versions: string[] }) {
           >
             {versions.map((version) => (
               <DropdownMenuItem
-                key={version}
+                key={version.id}
                 onSelect={() => setWorkspace(version)}
               >
-                {version}{' '}
-                {version === workspace && <Check className='ml-auto' />}
+                {version.name}{' '}
+                {workspace?.id === version.id && <Check className='ml-auto' />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

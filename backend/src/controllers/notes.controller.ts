@@ -1,11 +1,13 @@
+// controllers/notes.controller.ts
 import { Request, Response } from 'express';
 import * as notesService from '../services/notes.service';
 
 export const getNotes = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
+  const userId = req.user?.userId;
 
   try {
-    const notes = await notesService.findNotesByWorkspace(workspaceId);
+    const notes = await notesService.findNotesByWorkspace(userId, workspaceId);
     res.json(notes);
   } catch (error) {
     res.status(500).json({ error: '노트 목록을 불러오지 못했습니다.' });
@@ -26,11 +28,17 @@ export const getNoteById = async (req: Request, res: Response) => {
 
 export const createNote = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
-  const { users_id, title, content, participant, file } = req.body;
+  const userId = req.user?.userId;
+  const { title, content, participant, file } = req.body;
+
+  if (!userId || !workspaceId) {
+    res.status(400).json({ error: '필수 정보 누락' });
+  }
 
   try {
     const newNote = await notesService.createNote({
-      users_id,
+      users_id: userId,
+      workspace_id: workspaceId,
       title,
       content,
       participant,

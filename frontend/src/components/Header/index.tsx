@@ -43,7 +43,9 @@ export function Header() {
           <BreadcrumbList>
             <BreadcrumbItem className='hidden md:block'>
               <BreadcrumbLink asChild>
-                <Link to='/'>{workspace}</Link>
+                <Link to='/'>
+                  {workspace?.name ?? '워크스페이스 선택 안됨'}
+                </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className='hidden md:block' />
