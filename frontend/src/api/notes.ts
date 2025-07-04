@@ -9,7 +9,7 @@ export const fetchNotes = async (
       Authorization: `Bearer ${accessToken}`,
     },
   });
-
+  
   if (!res.ok) throw new Error('회의록 불러오기 실패');
   return res.json();
 };

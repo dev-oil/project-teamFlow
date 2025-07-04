@@ -23,7 +23,7 @@ export const verifyAccessToken = (
       token,
       process.env.ACCESS_TOKEN_SECRET!
     ) as JwtPayload;
-    req.user = { userId: decoded.userId };
+  req.user = { userId: decoded.userId };
     next();
   } catch (err: unknown) {
     if (err instanceof Error)

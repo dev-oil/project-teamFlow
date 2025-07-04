@@ -33,7 +33,7 @@ export function NotesPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['notes', workspace?.id],
+      queryKey: ['notes', workspace?.id],
     queryFn: () => fetchNotes(accessToken!, workspace!.id),
     enabled: !!accessToken && !!workspace?.id,
   });

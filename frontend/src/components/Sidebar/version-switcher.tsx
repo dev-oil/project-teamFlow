@@ -35,7 +35,7 @@ export function VersionSwitcher({
               </div>
               <div className='flex flex-col gap-1 leading-none'>
                 <span className='font-medium'>워크스페이스 선택하기</span>
-                <span className='text-xs text-gray-500'>
+                            <span className='text-xs text-gray-500'>
                   {workspace?.name ?? '선택 안됨'}
                 </span>
               </div>
@@ -51,7 +51,7 @@ export function VersionSwitcher({
                 key={version.id}
                 onSelect={() => setWorkspace(version)}
               >
-                {version.name}{' '}
+                 {version.name}{' '}
                 {workspace?.id === version.id && <Check className='ml-auto' />}
               </DropdownMenuItem>
             ))}

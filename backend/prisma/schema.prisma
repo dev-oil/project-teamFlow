@@ -43,7 +43,7 @@ model invitations {
   id            Int        @id @default(autoincrement())
   workspaces_id Int
   users_id      Int
-  email         String     @db.VarChar(100)  // 여기서는 @unique 제거
+  email         String     @db.VarChar(100)  
   token         String     @unique(map: "token_UNIQUE") @db.VarChar(64)
   expires_at    DateTime   @db.DateTime(0)
   used          Int        @default(0) @db.TinyInt
@@ -51,7 +51,7 @@ model invitations {
   users         users      @relation(fields: [users_id], references: [id], onUpdate: Restrict, map: "fk_invitations_users1")
   workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitations_workspaces1")
 
-  @@unique([email, workspaces_id], name: "email_workspace_unique") //타 워크스페이스에서 이메일 초대 가능
+  @@unique([email, workspaces_id], name: "email_workspace_unique") 
   @@index([users_id], map: "fk_invitations_users1_idx")
   @@index([workspaces_id], map: "fk_invitations_workspaces1_idx") 
 }

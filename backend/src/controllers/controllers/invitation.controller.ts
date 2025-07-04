@@ -1,4 +1,4 @@
-// controllers/invitation.controller.ts
+// src/controllers/invitation.controller.ts
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import * as invitationService from '../services/invitation.service';
@@ -8,11 +8,8 @@ const prisma = new PrismaClient();
 /** 초대 */
 export const createInvitation = async (req: Request, res: Response) => {
   const { fromName, fromEmail, toEmail, workspaceId } = req.body;
-  const userId = req.user?.userId;
-
   if (!fromName || !fromEmail || !toEmail || !workspaceId) {
-    res.status(400).json({ message: '필수 항목이 누락되었습니다.' });
-    return ;
+    return res.status(400).json({ message: '필수 항목이 누락되었습니다.' });
   }
 
   try {
@@ -20,11 +17,9 @@ export const createInvitation = async (req: Request, res: Response) => {
       fromName,
       fromEmail,
       toEmail,
-      workspaceId, 
-      userId,
+      workspaceId
     );
-    res.json({ success: true, token, expires_at });
-    return ;
+    return res.json({ success: true, token, expires_at });
   } catch (error: unknown) {
     console.error('초대 생성 실패:', error);
 
@@ -35,8 +30,7 @@ export const createInvitation = async (req: Request, res: Response) => {
         ? error
         : '서버 오류';
 
-        res.status(400).json({ message }); // 프론트에서 받기 쉬운 키 이름
-    return ;
+    return res.status(400).json({ message }); // 프론트에서 받기 쉬운 키 이름
   }
 };
 
@@ -47,7 +41,6 @@ export const verifyInvitationToken = async (req: Request, res: Response) => {
   if (!token || typeof token !== 'string') {
     console.log(`토큰 없음`);
     res.status(400).json({ error: '토큰이 필요합니다.' });
-    return;
   }
 
   try {

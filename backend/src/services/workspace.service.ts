@@ -46,35 +46,13 @@ export const renameWorkspace = async (workspaceId: number, name: string) => {
 };
 
 /**  워크스페이스 삭제 */
-export const removeWorkspace = (workspaceId: number) => {
-  return prisma.workspaces.delete({ where: { id: workspaceId } });
+export const deleteWorkspace = async (workspaceId: number, userId: number) => {
+  const workspace = await prisma.workspaces.findUnique({
+    where: { id: workspaceId },
+  });
+
+  return await prisma.workspaces.delete({ where: { id: workspaceId } });
 };
-
-// dev
-// export const findUserWorkspaces = (userId: number) => {
-//   return prisma.workspaces.findMany({
-//     where: {
-//       members: {
-//         some: {
-//           users_id: userId,
-//         },
-//       },
-//     },
-//   });
-// };
-
-// export const findUserWorkspace = (userId: number, workspaceId: number) => {
-//   return prisma.workspaces.findFirst({
-//     where: {
-//       id: workspaceId,
-//       members: {
-//         some: {
-//           users_id: userId,
-//         },
-//       },
-//     },
-//   });
-// };
 
 /**  워크스페이스 리스트 */   
 export const findUserWorkspaces = (userId: number) => {

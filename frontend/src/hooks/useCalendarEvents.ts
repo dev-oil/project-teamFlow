@@ -36,7 +36,7 @@ export function useCalendarEvents(
     fetch(`/api/workspaces/${workspaceId}/cards`, { headers })
       .then((res) => res.json())
       .then((data) => {
-        console.log('API 응답 데이터:', data);
+        //console.log('API 응답 데이터:', data);
         if (Array.isArray(data)) {
            // API에서 받은 데이터의 start, end를 Date 객체로 변환
           const eventsWithDateObjects = data.map((event) => ({

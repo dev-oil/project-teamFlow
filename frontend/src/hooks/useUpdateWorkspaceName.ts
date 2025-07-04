@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 export const useUpdateWorkspaceName = (workspaceId: number) => {

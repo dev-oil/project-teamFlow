@@ -13,6 +13,7 @@ const DeleteWorkspaceCard = ({ workspaceId, onDeleted }: Props) => {
     try {
       const res = await fetch(`/api/workspaces/${workspaceId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!res.ok) throw new Error('삭제 실패');
@@ -26,17 +27,6 @@ const DeleteWorkspaceCard = ({ workspaceId, onDeleted }: Props) => {
   };
 
   return (
-    // <Card className="border-red-200">
-    //   <CardHeader>
-    //     <CardTitle className="text-red-600">워크스페이스 삭제</CardTitle>
-    //   </CardHeader>
-    //   <CardContent>
-    //     <p>워크스페이스를 삭제하면 모든 데이터가 영구적으로 제거됩니다. 이 작업은 되돌릴 수 없습니다.</p>
-    //     <div className="flex justify-end mt-4">
-    //       <Button variant="outline" onClick={handleDelete} className="text-red-600" >워크스페이스 삭제하기</Button>
-    //     </div>
-    //   </CardContent>
-    // </Card>
     <Card className="border-red-200">
   <CardHeader>
     <CardTitle className="text-red-700 text-lg font-bold"> 워크스페이스 삭제</CardTitle>

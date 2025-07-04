@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+import { useAuthStore } from '@/stores/useAuthStore';
+
 type PendingGuest = {
   id: number;
   email: string;
@@ -27,6 +29,8 @@ type Props = {
   setPendingGuests: React.Dispatch<React.SetStateAction<PendingGuest[]>>;
 };
 
+
+
 const TabInviteGuest = ({
   workspaceId,
   members,
@@ -36,10 +40,10 @@ const TabInviteGuest = ({
   setInviteError,
   setPendingGuests,
 }: Props) => {
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+const accessToken = useAuthStore((state) => state.accessToken);
+
+const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isMaxReached = members.length >= 5;
 
   //대기중 -> 참여중
   useEffect(() => {
@@ -53,9 +57,7 @@ const TabInviteGuest = ({
     syncPendingWithMembers();
   }, [members, setPendingGuests]);
 
-  //최대 인원 초과 여부 계산
-  const isMaxReached = members.length >= 5;
-
+ 
   const handleInvite = async () => {
     if (!isValidEmail(inviteEmail)) {
       setInviteMessage('유효한 이메일 주소를 입력해주세요.');
@@ -71,7 +73,10 @@ const TabInviteGuest = ({
 
       const res = await fetch('/api/invite/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({
           fromName,
           fromEmail,
@@ -79,13 +84,18 @@ const TabInviteGuest = ({
           workspaceId,
         }),
       });
-      if (!res.ok) {
+      
         const data = await res.json();
-        const msg = data?.message || '초대 처리 중 오류가 발생했습니다.';
-        throw new Error(msg);
+
+          if (!res.ok) {
+        if (res.status === 400 && data?.message === '이미 초대된 이메일입니다.') {
+          setInviteMessage('이미 초대한 이메일입니다.');
+          setInviteError(true);
+          return;
+        }
+        throw new Error(data.message || '초대 처리 중 오류 발생');
       }
 
-      const data = await res.json();
       setPendingGuests((prev) => [
         {
           id: Date.now(),
@@ -105,17 +115,21 @@ const TabInviteGuest = ({
 
       let message = '초대 처리 중 오류가 발생했습니다.';
 
-  if (error instanceof Error) {
-    message = error.message;
-  } else if (typeof error === 'string') {
-    message = error;
-  } else if (typeof error === 'object' && error !== null && 'message' in error) {
-    message = String(error.message);
-  }
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error
+      ) {
+        message = String(error.message);
+      }
 
-  setInviteMessage(message);
-  setInviteError(true);
-}
+      setInviteMessage(message);
+      setInviteError(true);
+    }
   };
 
   return (
@@ -125,7 +139,7 @@ const TabInviteGuest = ({
           type='email'
           placeholder='이메일 주소 입력'
           value={inviteEmail}
-          onChange={(e) => setInviteEmail(e.target.value)}
+          onChange={(e) => setInviteEmail(e.target.value.trim())}
           disabled={isMaxReached}
         />
         <Button onClick={handleInvite}>초대</Button>
