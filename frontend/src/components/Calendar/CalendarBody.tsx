@@ -1,4 +1,3 @@
-//드래그 앤 드랍 캘린더
 //components/Calendar/CalendarBody
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
@@ -44,9 +43,7 @@ export const CalendarBody = ({
   onEventResize,
   eventStyleGetter,
 }: Props) => {
-
   const { holidays, loading, error } = usePublicHolidays(date.getFullYear());
-
 
   const dayPropGetter = (date: Date) => {
     const day = date.getDay();
@@ -61,11 +58,8 @@ export const CalendarBody = ({
 
   const isHoliday = (date: Date) => {
     const formatted = format(date, 'yyyyMMdd');
-    return holidays.some(h => String(h.locdate) === formatted);
+    return holidays.some((h) => String(h.locdate) === formatted);
   };
-
- console.log(format(new Date('2025-01-01'), 'yyyyMMdd'));
- console.log(holidays.map(h => h.locdate)); 
 
   return (
     <DragAndDropCalendar
@@ -92,11 +86,18 @@ export const CalendarBody = ({
             const holiday = isHoliday(date);
 
             let color;
-            if (holiday || day === 0) color = '#dc2626'; // 빨강 (공휴일 또는 일요일)
+            if (holiday || day === 0)
+              color = '#dc2626'; // 빨강 (공휴일 또는 일요일)
             else if (day === 6) color = '#2563eb'; // 파랑 (토요일)
 
             return (
-             <span style={{ color, fontWeight: holiday || day === 0 || day === 6 ? 'bold' : undefined }}>
+              <span
+                style={{
+                  color,
+                  fontWeight:
+                    holiday || day === 0 || day === 6 ? 'bold' : undefined,
+                }}
+              >
                 {label}
               </span>
             );

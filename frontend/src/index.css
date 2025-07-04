@@ -124,9 +124,4 @@
   button {
     @apply cursor-pointer;
   }
-
- /* 캘린더 오늘 파란 배경 제거 */
-  @layer base {
-
- }
 }
