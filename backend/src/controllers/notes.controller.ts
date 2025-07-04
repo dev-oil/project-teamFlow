@@ -3,7 +3,7 @@ import * as notesService from '../services/notes.service';
 
 export const getNotes = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
-
+  console.log(workspaceId);
   try {
     const notes = await notesService.findNotesByWorkspace(workspaceId);
     res.json(notes);
