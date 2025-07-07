@@ -25,6 +25,6 @@ export const findBoxes = (
 };
 
 /** 박스 가져오기 */  
-export const findBoxById = async (boxId :number) => {
+export const findBoxById = async (boxId :string) => {
   return prisma.boxes.findUnique({where: { id: boxId }});
 }
