@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import type { DateRange } from 'react-day-picker';
 
+import { useBoardData } from '@/hooks/useBoardData';
 import type { Boxtype, Cardtype } from '@/types/board';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -75,9 +76,6 @@ type BoardmodalProps = {
 };
 
 export function Boardmodal({ mode, box, card }: BoardmodalProps) {
-  // 데이터를 usestate에 저장한 뒤에 데이터를 보여준다 => 어차피 저장해서 쓸거니까 ? 저장해서 하는게 맞다?
-  // or 어차피 데이터는 받아오니까 바로 뿌려줘도 된다 ?
-
   // 제목
   const [cardtitle, setCardtitle] = useState(card?.title ?? '');
   // 색상
@@ -124,7 +122,49 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  console.log(mode);
+  // 카드 생성
+  const { addCard } = useBoardData();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!box?.id) {
+      alert('박스 정보가 없습니다.');
+      return;
+    }
+    console.log(box.id);
+
+    if (!cardtitle.trim()) {
+      alert('카드 제목을 입력해주세요.');
+      return;
+    }
+
+    if (!selectedColor) {
+      alert('색상을 선택해주세요.');
+      return;
+    }
+
+    if (!range?.from || !range?.to) {
+      alert('시작일과 종료일을 모두 선택해주세요.');
+      return;
+    }
+
+    try {
+      console.log('addCard 호출 전');
+      await addCard(box.id, {
+        title: cardtitle.trim(),
+        description: description.trim() || undefined,
+        color: selectedColor ?? undefined,
+        start_date: range?.from ? formatDate(range.from) : undefined,
+        end_date: range?.to ? formatDate(range.to) : undefined,
+      });
+      console.log('addCard 호출 후');
+      // 성공 후 상태 반영은 useBoardData에서 이미 처리함
+    } catch (err) {
+      alert('카드 생성에 실패했습니다.');
+    }
+  };
+
   return (
     <>
       <DialogHeader className='flex-row'>
@@ -134,7 +174,7 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
         <DialogDescription>in {box?.title ?? '알 수 없음'}</DialogDescription>
       </DialogHeader>
 
-      <form action='' className='grid gap-4'>
+      <form action='' className='grid gap-4' onSubmit={handleSubmit}>
         <div className='grid gap-4'>
           {/* 제목 영역 */}
           <div className='grid gap-3'>
@@ -338,14 +378,13 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
           </div>
           {/* </div> */}
         </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant='outline'>삭제하기</Button>
+          </DialogClose>
+          <Button type='submit'>저장하기</Button>
+        </DialogFooter>
       </form>
-
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button variant='outline'>삭제하기</Button>
-        </DialogClose>
-        <Button type='submit'>저장하기</Button>
-      </DialogFooter>
     </>
   );
 }

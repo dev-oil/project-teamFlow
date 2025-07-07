@@ -1,7 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Pin } from 'lucide-react';
-import { useState } from 'react';
 
 import type { Boxtype, Cardtype } from '@/types/board';
 
@@ -28,10 +27,11 @@ import {
 type BoardcardProps = {
   box: Boxtype;
   card: Cardtype;
+  togglePin: (cardId: string) => void;
 };
 
-export function Boardcard({ box, card }: BoardcardProps) {
-  const [pinned, setPinned] = useState(card.pinned);
+export function Boardcard({ box, card, togglePin }: BoardcardProps) {
+  // const [pinned, setPinned] = useState(card.pinned);
   // cards.sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   const formatMD = (dateStr: string) => {
@@ -48,6 +48,7 @@ export function Boardcard({ box, card }: BoardcardProps) {
     isDragging,
   } = useSortable({
     id: card.id,
+    disabled: card.pinned,
   });
 
   const style = {
@@ -78,10 +79,12 @@ export function Boardcard({ box, card }: BoardcardProps) {
                     type='button'
                     onClick={(e) => {
                       e.stopPropagation();
-                      setPinned((prev) => !prev);
+                      // setPinned((prev) => !prev);
+                      togglePin(card.id);
+                      console.log(card.pinned);
                     }}
                   >
-                    {pinned ? (
+                    {card.pinned ? (
                       <Pin className='opacity-100 fill-rose-500 text-rose-500' />
                     ) : (
                       <Pin className='opacity-20 fill-gray-700 text-gray-700' />

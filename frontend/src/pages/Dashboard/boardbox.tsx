@@ -25,9 +25,10 @@ import {
 
 type BoardboxProps = {
   box: BoxtypeWithCards;
+  togglePin: (cardId: string) => void;
 };
 
-export function Boardbox({ box }: BoardboxProps) {
+export function Boardbox({ box, togglePin }: BoardboxProps) {
   const { setNodeRef, attributes, listeners, transform, transition } =
     useSortable({
       id: box.id,
@@ -38,11 +39,18 @@ export function Boardbox({ box }: BoardboxProps) {
     transition,
   };
 
+  const orderedCards = [...box.cards].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return a.order - b.order;
+  });
+
   return (
     <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
       <Card className='max-w-100 min-w-xs !bg-neutral-50 rounded-md border-0'>
         <SortableContext
-          items={box.cards.map((c) => c.id)}
+          // items={box.cards.map((c) => c.id)}
+          items={orderedCards.map((c) => c.id)}
           strategy={verticalListSortingStrategy}
         >
           <CardHeader>
@@ -62,16 +70,17 @@ export function Boardbox({ box }: BoardboxProps) {
             </Dialog>
           </CardHeader>
           <CardContent className=' flex flex-col gap-6'>
-            {box.cards.length === 0 ? (
+            {orderedCards.length === 0 ? (
               <div className='p-4 border-dashed border-2 border-gray-400 rounded-md text-center text-sm text-gray-500'>
                 카드를 추가해 주세요
               </div>
             ) : (
-              box.cards.map((card) => (
+              orderedCards.map((card) => (
                 <Boardcard
                   key={card.id}
                   box={box}
                   card={card}
+                  togglePin={togglePin}
                   // updateCard={updateCard}
                 />
               ))
