@@ -22,7 +22,12 @@ export function InviteEmailPage() {
         if (!res.ok) throw new Error('Invalid token');
         setStatus('success');
       })
-      .catch(() => setStatus('error'));
+      .catch(async (err) => {
+  const msg = await err?.response?.json?.() ?? '초대 토큰 검증 실패';
+  console.error(msg);
+  setStatus('error');
+});
+
   }, [searchParams]);
 
   // 초대 수락 

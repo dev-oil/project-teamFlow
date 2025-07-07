@@ -19,8 +19,10 @@ import {
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { Note } from '@/types/note';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export function NotesPage() {
+  const accessToken = useAuthStore((state) => state.accessToken);
   const { workspace } = useWorkspaceStore();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [open, setOpen] = useState(false);
@@ -31,9 +33,9 @@ export function NotesPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['notes', workspace],
-    queryFn: () => fetchNotes(),
-    enabled: !!workspace,
+      queryKey: ['notes', workspace?.id],
+    queryFn: () => fetchNotes(accessToken!, workspace!.id),
+    enabled: !!accessToken && !!workspace?.id,
   });
 
   const handleNoteClick = (note: Note) => {

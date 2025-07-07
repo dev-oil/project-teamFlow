@@ -18,7 +18,7 @@ type Props = {
 
 const TabPendingGuests = ({ guests, onDelete, onResend }: Props) => {
   return (
-    <ScrollArea className="h-[300px]">
+    <ScrollArea className='h-[300px]'>
       <DataTable
         columns={columns({
           onDelete,

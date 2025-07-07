@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useUpdateWorkspaceName } from '@/hooks/useUpdateWorkspaceName';
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 type Props = {
   isHost: boolean;
@@ -10,52 +12,17 @@ type Props = {
 };
 
 const WorkspaceNameCard = ({ isHost, workspaceId }: Props) => {
-  const [workspaceName, setWorkspaceName] = useState('');
+  const { workspace } = useWorkspaceStore();
   const [isEditing, setIsEditing] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
-
-  useEffect(() => {
-    const fetchWorkspaceName = async () => {
-      try {
-        const response = await fetch(
-          `/api/workspaces/${workspaceId}/name`
-        );
-        if (!response.ok)
-          throw new Error('워크스페이스 이름을 불러오지 못했습니다.');
-
-        const data = await response.json();
-        setWorkspaceName(data.name);
-        setNewWorkspaceName(data.name);
-      } catch (error) {
-        console.error('워크스페이스 이름 불러오기 실패:', error);
-      }
-    };
-
-    fetchWorkspaceName();
-  }, [workspaceId]);
+  const updateMutation = useUpdateWorkspaceName(workspaceId);
 
   //워크스페이스 이름 변경
-  const handleUpdate = async () => {
-    try {
-      const response = await fetch(
-        `/api/workspaces/${workspaceId}/name`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name: newWorkspaceName }), 
-        }
-      );
-      if (!response.ok) {
-        throw new Error('워크스페이스 이름 변경 실패');
-      }
-      setWorkspaceName(newWorkspaceName);
-      setIsEditing(false);
-    } catch (err) {
-      console.error('워크스페이스 이름 변경 오류:', err);
-      alert('이름 변경 중 오류가 발생했습니다.');
-    }
+  const handleUpdate = () => {
+    updateMutation.mutate(newWorkspaceName, {
+      onSuccess: () => setIsEditing(false),
+      onError: () => alert('이름 변경 실패!'),
+    });
   };
 
   return (
@@ -80,7 +47,7 @@ const WorkspaceNameCard = ({ isHost, workspaceId }: Props) => {
               </>
             ) : (
               <>
-                <span className='text-lg'>{workspaceName}</span>
+                <span className='text-lg'>{workspace.name}</span>
                 <Button variant='outline' onClick={() => setIsEditing(true)}>
                   변경
                 </Button>
@@ -88,7 +55,7 @@ const WorkspaceNameCard = ({ isHost, workspaceId }: Props) => {
             )}
           </div>
         ) : (
-          <span className='text-lg'>{workspaceName}</span>
+          <span className='text-lg'>{workspace.name}</span>
         )}
       </CardContent>
     </Card>

@@ -1,4 +1,4 @@
-import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
+import { IconCirclePlusFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
@@ -46,24 +46,24 @@ const navMain = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = React.useState(false);
-  const { setWorkspaceList, setWorkspace, workspace } = useWorkspaceStore();
+  const { setWorkspace, workspace } = useWorkspaceStore();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
-  const { data: workspaces = [], refetch } = useQuery<WorkspaceListItem[]>({
+  const { data: workspaces = [] } = useQuery<WorkspaceListItem[]>({
     queryKey: ['workspaces'],
-    queryFn: fetchWorkspaces,
+    queryFn: () => fetchWorkspaces(accessToken!),
   });
 
   useEffect(() => {
     if (workspaces.length === 0) return;
 
-    // 목록 상태 저장
-    setWorkspaceList(workspaces);
-
-    const exists = workspaces.some((ws) => ws.name === workspace);
+    const exists = workspaces.some((ws) => ws.id === workspace?.id);
 
     // 선택값이 없거나 유효하지 않으면 첫 번째 워크스페이스로 설정
-    if (!workspace || !exists) setWorkspace(workspaces[0].name);
-  }, [workspaces, workspace, setWorkspace, setWorkspaceList]);
+    if (!workspace || !exists) {
+      setWorkspace(workspaces[0]);
+    }
+  }, [workspaces, workspace, setWorkspace]);
 
   const location = useLocation();
 
@@ -77,10 +77,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       });
       if (res.ok) {
         const newWorkspace: WorkspaceListItem = await res.json();
-        setWorkspace(newWorkspace.name);
+        navigate('/');
+        setWorkspace(newWorkspace);
 
         // await refetch();
-        navigate('/');
         toast.success('새 워크스페이스가 생성되었습니다');
       } else {
         const errData = await res.json();
@@ -109,7 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarHeader>
-        <VersionSwitcher versions={workspaces.map((ws) => ws.name)} />
+        <VersionSwitcher versions={workspaces} />
       </SidebarHeader>
 
       <SidebarContent>

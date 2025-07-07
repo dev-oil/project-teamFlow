@@ -1,7 +1,15 @@
 import type { Note } from '@/types/note';
 
-export const fetchNotes = async (): Promise<Note[]> => {
-  const res = await fetch(`/api/1/workspace/1/notes`); // 임시로 1 넣어두었습니다.
+export const fetchNotes = async (
+  accessToken: string,
+  workspaceId: number
+): Promise<Note[]> => {
+  const res = await fetch(`/api/workspace/${workspaceId}/notes`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  
   if (!res.ok) throw new Error('회의록 불러오기 실패');
   return res.json();
 };

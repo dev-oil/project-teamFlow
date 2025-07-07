@@ -1,5 +1,5 @@
 import 'express';
-import { JwtPayload } from './jwt';
+import { JwtPayload } from '../../types/jwt';
 
 declare module 'express' {
   export interface Request {

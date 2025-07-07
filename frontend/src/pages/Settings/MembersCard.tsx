@@ -4,6 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { customFetch } from '@/lib/customFetch';
+
 import TabInviteGuest from './TabInviteGuest';
 import TabMemberList from './TabMemberList';
 import TabPendingGuest from './TabPendingGuest';
@@ -46,11 +48,11 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
   const [inviteMessage, setInviteMessage] = useState('');
   const [inviteError, setInviteError] = useState(false);
 
-  // 데이터 불러오기
   useEffect(() => {
+    /** 멤버 불러오기 */
     const fetchMembers = async () => {
       try {
-        const res = await fetch(`/api/workspaces/${workspaceId}/members`);
+        const res = await customFetch(`/api/workspaces/${workspaceId}/members`);
         const data = await res.json();
         setMembers(data);
       } catch (err) {
@@ -58,9 +60,10 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
       }
     };
 
+    /** 대기중 불러오기 */
     const fetchPendingGuests = async () => {
       try {
-        const res = await fetch(`/api/invite/${workspaceId}/pending`);
+        const res = await customFetch(`/api/invite/${workspaceId}/pending`);
         const data = await res.json();
         const formatted = data.pending.map((item: PendingGuest) => ({
           ...item,
@@ -77,28 +80,30 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     fetchPendingGuests();
   }, [workspaceId]);
 
-  // 초대 삭제
+ /**초대 삭제 */
   const handleDeleteInvitation = async (token: string) => {
     try {
-      await fetch(`/api/invite/${token}`, { method: 'DELETE' });
+      await customFetch(`/api/invite/${token}`, {
+        method: 'DELETE',
+      });
+
       setPendingGuests((prev) => prev.filter((g) => g.token !== token));
     } catch (err) {
       console.error('초대 삭제 오류:', err);
     }
   };
 
-  // 다시 초대
+  /**다시 초대 */
   const handleResendInvite = async (email: string) => {
     try {
       const hostMember = members.find((m) => m.role === 'host');
       const fromEmail = hostMember?.user?.email;
       const fromName = hostMember?.user?.name;
 
-      const res = await fetch('/api/invite/resend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, workspaceId, fromName, fromEmail }),
-      });
+       const res = await customFetch('/api/invite/resend', {
+      method: 'POST',
+      body: JSON.stringify({ email, workspaceId, fromName, fromEmail }),
+    });
 
       if (!res.ok) throw new Error('다시 초대 실패');
 

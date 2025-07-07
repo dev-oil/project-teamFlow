@@ -1,13 +1,13 @@
-export interface Box {
+export type Box = {
   id: string;
-  workspaces_id: string;
+  workspaces_id: number;
   order: number;
   title: string;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface Card {
+export type Card = {
   id: string;
   boxes_id: string;
   order: number;
@@ -18,7 +18,11 @@ export interface Card {
   start_date: string | null;
   end_date: string | null;
   assignee: string | null;
-  file: string | null;
+  file?: {
+    id: number;
+    file_name: string;
+    file_path: string;
+  } | null;
   created_at: string;
   updated_at: string;
-}
+};

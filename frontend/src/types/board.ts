@@ -1,13 +1,13 @@
-export interface Boxtype {
+export type Boxtype = {
   id: string;
   workspaces_id: string;
   order: number;
   title: string;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface Cardtype {
+export type Cardtype = {
   id: string;
   boxes_id: string;
   order: number;
@@ -18,11 +18,15 @@ export interface Cardtype {
   start_date: string | null;
   end_date: string | null;
   assignee: string | null;
-  file: string | null;
+  file?: {
+    id: number;
+    file_name: string;
+    file_path: string;
+  } | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface BoxtypeWithCards extends Boxtype {
+export type BoxtypeWithCards = Boxtype & {
   cards: Cardtype[];
-}
+};
