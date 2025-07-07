@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import { boxes } from '../mock/boxes';
-import { cards } from '../mock/cards';
 
 import * as boardService from '../services/board.service';
 
