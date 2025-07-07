@@ -39,7 +39,7 @@ export const findCards = async (userId: number, workspaceId: number) => {
 };
 
 /** 카드 가져오기 */
-export const findCardById = async (userId: number, cardId: number) => {
+export const findCardById = async (userId: number, cardId: string) => {
   const card = await prisma.cards.findFirst({
     where: {
       id: cardId,
@@ -77,7 +77,7 @@ export const findCardById = async (userId: number, cardId: number) => {
 
 /** 카드 수정 */
 export const updateCardDate = async (
-  cardId: number,
+  cardId: string,
   start: string,
   end: string
 ) => {

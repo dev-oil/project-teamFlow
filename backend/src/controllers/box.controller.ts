@@ -16,7 +16,7 @@ export const getBoxes = async (req: Request, res: Response) => {
 
 /** 박스 가져오기 */  
 export const getBoxById = async (req: Request, res: Response) => {
-  const boxId = Number(req.params.noteId);
+  const boxId =  req.params.boxId; 
 
   try {
     const box = await boxService.findBoxById(boxId);

@@ -21,6 +21,7 @@ export function usePublicHolidays(year: number) {
       })
       .then((data: HolidayItem[]) => {
         setHolidays(data);
+        //console.log(data);
         setLoading(false);
       })
       .catch((e) => {
