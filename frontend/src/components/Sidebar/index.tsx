@@ -1,10 +1,10 @@
 import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
-        
+
 import { toast } from 'sonner';
 import { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 // import { fetchWorkspaces } from '@/api/workspaces';
 import { VersionSwitcher } from '@/components/Sidebar/version-switcher';
@@ -27,6 +27,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { WorkspaceListItem } from '@/types/workspace';
 import { fetchWorkspaces } from '@/api/workspaces';
+import { customFetch } from '@/lib/customFetch';
+import { Loader2 } from 'lucide-react';
 
 const navMain = [
   {
@@ -42,9 +44,11 @@ const navMain = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = React.useState(false);
   const { setWorkspaceList, setWorkspace, workspace } = useWorkspaceStore();
 
-  const { data: workspaces = [] } = useQuery<WorkspaceListItem[]>({
+  const { data: workspaces = [], refetch } = useQuery<WorkspaceListItem[]>({
     queryKey: ['workspaces'],
     queryFn: fetchWorkspaces,
   });
@@ -63,10 +67,43 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const location = useLocation();
 
+  const handleCreateWorkspace = async () => {
+    setIsLoading(true);
+    try {
+      const res = await customFetch('/api/workspaces', {
+        method: 'POST',
+        body: JSON.stringify({ name: '새 워크스페이스' }),
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const newWorkspace: WorkspaceListItem = await res.json();
+        setWorkspace(newWorkspace.name);
+
+        // await refetch();
+        navigate('/');
+        toast.success('새 워크스페이스가 생성되었습니다');
+      } else {
+        const errData = await res.json();
+        toast.success(errData.title, {
+          description: errData.description,
+        });
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.warning(err.name, {
+          description: err.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <Button>
+        <Button onClick={handleCreateWorkspace} disabled={isLoading}>
+          {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
           <IconCirclePlusFilled /> 새 워크스페이스
         </Button>
       </SidebarHeader>

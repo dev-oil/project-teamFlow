@@ -7,7 +7,22 @@ import {
   getWorkspaceNameById,
   renameWorkspace,
   removeWorkspace,
+  createNewWorkspace,
 } from '../services/workspace.service';
+
+/** 워크스페이스 생성 */
+export const createWorkspace = async (req: Request, res: Response) => {
+  const { name } = req.body;
+  try {
+    const result = await createNewWorkspace(req.user!.userId, name);
+    res.status(200).json(result);
+  } catch (err: unknown) {
+    res.status(500).json({
+      title: err,
+      description: '워크스페이스 생성 실패',
+    });
+  }
+};
 
 export const getWorkspaces = async (req: Request, res: Response) => {
   const userId = parseInt(req.params.userId);

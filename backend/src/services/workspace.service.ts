@@ -1,6 +1,6 @@
 import { prisma } from '../db/prisma';
 
-/** 멤버 조회 */ 
+/** 멤버 조회 */
 export const fetchMembersByWorkspaceId = async (workspaceId: number) => {
   const members = await prisma.members.findMany({
     where: { workspaces_id: workspaceId },
@@ -24,19 +24,32 @@ export const fetchMembersByWorkspaceId = async (workspaceId: number) => {
   }));
 };
 
-/** 멤버 추방 */  
+/** 멤버 추방 */
 export const deleteMember = async (workspaceId: number, userId: number) => {
   return await prisma.members.deleteMany({
     where: { workspaces_id: workspaceId, users_id: userId },
   });
 };
 
-/**  워크스페이스 이름 조회 */  
+export const createNewWorkspace = async (userId: number, name: string) => {
+  return await prisma.workspaces.create({
+    data: {
+      users_id: Number(userId),
+      name,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+};
+
+/**  워크스페이스 이름 조회 */
 export const getWorkspaceNameById = async (workspaceId: number) => {
   return await prisma.workspaces.findUnique({ where: { id: workspaceId } });
 };
 
-/**  워크스페이스 이름 변경 */   
+/**  워크스페이스 이름 변경 */
 export const renameWorkspace = async (workspaceId: number, name: string) => {
   return await prisma.workspaces.update({
     where: { id: workspaceId },
@@ -44,7 +57,7 @@ export const renameWorkspace = async (workspaceId: number, name: string) => {
   });
 };
 
-/**  워크스페이스 삭제 */ 
+/**  워크스페이스 삭제 */
 export const removeWorkspace = async (workspaceId: number) => {
   return await prisma.workspaces.delete({ where: { id: workspaceId } });
 };
