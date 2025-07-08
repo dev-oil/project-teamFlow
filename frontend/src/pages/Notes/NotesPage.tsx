@@ -20,6 +20,8 @@ import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { Note } from '@/types/note';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { deleteNote } from '@/api/notes';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function NotesPage() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -27,13 +29,14 @@ export function NotesPage() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     data: notes = [],
     isLoading,
     isError,
   } = useQuery({
-      queryKey: ['notes', workspace?.id],
+    queryKey: ['notes', workspace?.id],
     queryFn: () => fetchNotes(accessToken!, workspace!.id),
     enabled: !!accessToken && !!workspace?.id,
   });
@@ -41,6 +44,18 @@ export function NotesPage() {
   const handleNoteClick = (note: Note) => {
     setSelectedNote(note);
     setOpen(true);
+  };
+
+  const handleDelete = async (noteId: number) => {
+    if (!confirm('이 회의록을 정말 삭제하시겠습니까?')) return;
+
+    try {
+      await deleteNote(accessToken!, workspace.id, noteId);
+      await queryClient.invalidateQueries({ queryKey: ['notes'] });
+    } catch (err) {
+      alert('삭제 실패');
+      console.error(err);
+    }
   };
 
   if (isLoading) return <div className='p-4'>불러오는 중...</div>;
@@ -102,11 +117,15 @@ export function NotesPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                       <DropdownMenuItem
-                        onClick={() => navigate(`/notes/edit/${note.id}`)}
+                        onClick={() => {
+                          navigate(`/notes/edit/${note.id}`);
+                        }}
                       >
                         수정하기
                       </DropdownMenuItem>
-                      <DropdownMenuItem>삭제하기</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDelete(note.id)}>
+                        삭제하기
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
