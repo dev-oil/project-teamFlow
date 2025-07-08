@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import {
@@ -38,6 +39,7 @@ export function ProfilePage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const navigate = useNavigate();
   // 폼 상태
   const [editForm, setEditForm] = useState<UpdateProfileData>({
     name: '',
@@ -57,7 +59,7 @@ export function ProfilePage() {
   // 프로필 수정
   const handleProfileUpdate = async () => {
     try {
-      const updatedProfile = await updateUserProfile(accessToken!, editForm);
+      const updatedProfile = await updateUserProfile(editForm);
       setProfile(updatedProfile);
       setIsEditing(false);
       toast.success('프로필이 성공적으로 수정되었습니다.');
@@ -69,7 +71,7 @@ export function ProfilePage() {
   // 비밀번호 변경
   const handlePasswordChange = async () => {
     try {
-      await changePassword(accessToken!, passwordForm);
+      await changePassword(passwordForm);
       setPasswordForm({ currentPassword: '', newPassword: '' });
       setIsChangingPassword(false);
       toast.success('비밀번호가 성공적으로 변경되었습니다.');
@@ -86,10 +88,10 @@ export function ProfilePage() {
     }
 
     try {
-      await deleteAccount(accessToken!);
+      await deleteAccount();
       clearAccessToken(); // 삭제 성공 후 토큰 제거
       toast.success('계정이 삭제되었습니다.');
-      window.location.href = '/login';
+      navigate('/login')
     } catch {
       toast.error('계정 삭제에 실패했습니다.');
     }
@@ -98,7 +100,7 @@ export function ProfilePage() {
   // 프로필 정보 로드
   const loadProfile = async () => {
     try {
-      const userProfile = await fetchUserProfile(accessToken!);
+      const userProfile = await fetchUserProfile();
       setProfile(userProfile);
       setEditForm({
         name: userProfile.name,
@@ -182,21 +184,21 @@ export function ProfilePage() {
                 {profile.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-             {/* 편집 모드일 때만 이미지 변경 버튼 */}
-          {isEditing && (
-            <>
-              <Button asChild variant='outline' size='sm'>
-                <label htmlFor='file'>이미지 변경</label>
-              </Button>
-              <input
-                id='file'
-                type='file'
-                accept='image/*'
-                className='hidden'
-                onChange={handleFileChange}
-              />
-            </>
-          )}
+            {/* 편집 모드일 때만 이미지 변경 버튼 */}
+            {isEditing && (
+              <>
+                <Button asChild variant='outline' size='sm'>
+                  <label htmlFor='file'>이미지 변경</label>
+                </Button>
+                <input
+                  id='file'
+                  type='file'
+                  accept='image/*'
+                  className='hidden'
+                  onChange={handleFileChange}
+                />
+              </>
+            )}
           </div>
 
           <Separator />
@@ -245,10 +247,7 @@ export function ProfilePage() {
                     id='email'
                     type='email'
                     value={editForm.email}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, email: e.target.value })
-                    }
-                    placeholder='이메일을 입력하세요'
+                    disabled
                   />
                 </div>
                 <div>

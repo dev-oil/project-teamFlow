@@ -51,27 +51,14 @@ export const updateProfile = async (req: Request, res: Response) => {
       return;
     }
 
-    const { name, email, phone } = req.body;
+    const { name, phone } = req.body;
 
     // 이메일 중복 확인 (자신의 이메일 제외)
-    if (email) {
-      const existingUser = await prisma.users.findFirst({
-        where: {
-          email,
-          id: { not: userId },
-        },
-      });
-      if (existingUser) {
-        res.status(400).json({ message: '이미 사용 중인 이메일입니다.' });
-        return;
-      }
-    }
-
+   
     const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: {
         ...(name && { name }),
-        ...(email && { email }),
         ...(phone && { phone }),
         updated_at: new Date(),
       },
@@ -98,7 +85,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 //(비밀번호 재설정  resetPassword 이메일 발송 forgotPassword)
 export const changePassword = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.userId;
     if (!userId) {
       res.status(403).json({ message: '인증되지 않은 요청입니다.' });
       return;
@@ -145,7 +132,7 @@ export const changePassword = async (req: Request, res: Response) => {
 /** 계정 삭제 */
 export const deleteAccount = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.userId;
     if (!userId) {
       res.status(403).json({ message: '인증되지 않은 요청입니다.' });
       return;

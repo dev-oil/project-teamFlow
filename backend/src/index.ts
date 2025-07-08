@@ -10,7 +10,7 @@ import { connRedis } from './utils/redis';
 import getBoard from './routes/board';
 import cardRouter from './routes/card.routes'; // 캘린더
 import boxRouter from './routes/box.routes'; // 캘린더 - 카테고리
-import calendarRoutes from './routes/calendar.routes'; // 캘린더 - 공휴일
+import holidaysRoutes from './routes/calendar.routes'; // 캘린더 - 공휴일
 import profileRouter from './routes/profile.routes';
 
 const app = express();
@@ -38,7 +38,7 @@ app.use('/api/board', getBoard);
 //캘린더
 app.use('/api/workspaces/:workspaceId/boxes', boxRouter);
 app.use('/api/workspaces/:workspaceId/cards', cardRouter);
-//app.use('/api/holidays', calendarRoutes);
+app.use('/api/holidays', holidaysRoutes);
 
 //프로필
 app.use('/api', profileRouter); 
