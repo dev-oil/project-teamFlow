@@ -105,7 +105,7 @@ export const acceptInvitationService = async (token: string) => {
     }),
   ]);
 
-  return { success: true, message: '초대 수락 완료' };
+  return { success: true, message: '초대 수락 완료', workspaceId: invitation.workspaces_id  };
 };
 
 /** 대기중 초대 조회 */

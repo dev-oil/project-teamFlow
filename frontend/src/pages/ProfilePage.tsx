@@ -91,7 +91,7 @@ export function ProfilePage() {
       await deleteAccount();
       clearAccessToken(); // 삭제 성공 후 토큰 제거
       toast.success('계정이 삭제되었습니다.');
-      navigate('/login')
+      navigate('/login');
     } catch {
       toast.error('계정 삭제에 실패했습니다.');
     }
@@ -209,28 +209,24 @@ export function ProfilePage() {
               // 읽기 전용 모드
               <div className='space-y-4'>
                 <div>
-                  <Label className='text-sm font-medium text-gray-500'>
-                    이름
-                  </Label>
+                  <h3 className='text-sm font-medium text-gray-500'>이름</h3>
                   <div className='mt-1 text-lg'>{profile.name}</div>
                 </div>
                 <div>
-                  <Label className='text-sm font-medium text-gray-500'>
-                    이메일
-                  </Label>
+                  <h3 className='text-sm font-medium text-gray-500'>이메일</h3>
                   <div className='mt-1 text-lg'>{profile.email}</div>
                 </div>
                 <div>
-                  <Label className='text-sm font-medium text-gray-500'>
+                  <h3 className='text-sm font-medium text-gray-500'>
                     전화번호
-                  </Label>
+                  </h3>
                   <div className='mt-1 text-lg'>{profile.phone}</div>
                 </div>
               </div>
             ) : (
               // 편집 모드
               <div className='space-y-4'>
-                <div>
+                <div className='grid w-full items-center gap-3'>
                   <Label htmlFor='name'>이름</Label>
                   <Input
                     id='name'
@@ -241,7 +237,7 @@ export function ProfilePage() {
                     placeholder='이름을 입력하세요'
                   />
                 </div>
-                <div>
+                <div className='grid w-full items-center gap-3'>
                   <Label htmlFor='email'>이메일</Label>
                   <Input
                     id='email'
@@ -250,7 +246,7 @@ export function ProfilePage() {
                     disabled
                   />
                 </div>
-                <div>
+                <div className='grid w-full items-center gap-3'>
                   <Label htmlFor='phone'>전화번호</Label>
                   <Input
                     id='phone'
@@ -292,7 +288,7 @@ export function ProfilePage() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className='space-y-4'>
-                      <div>
+                      <div className='grid w-full items-center gap-3'>
                         <Label htmlFor='currentPassword'>현재 비밀번호</Label>
                         <Input
                           id='currentPassword'
@@ -307,7 +303,7 @@ export function ProfilePage() {
                           placeholder='현재 비밀번호'
                         />
                       </div>
-                      <div>
+                      <div className='grid w-full items-center gap-3'>
                         <Label htmlFor='newPassword'>새 비밀번호</Label>
                         <Input
                           id='newPassword'
@@ -353,7 +349,7 @@ export function ProfilePage() {
                         계속하려면 아래에 "탈퇴"를 입력해주세요.
                       </DialogDescription>
                     </DialogHeader>
-                    <div>
+                    <div className='grid w-full items-center gap-3'>
                       <Label htmlFor='deleteConfirm'>확인 입력</Label>
                       <Input
                         id='deleteConfirm'

@@ -122,7 +122,8 @@ export const deleteWorkspace = async (req: Request, res: Response) => {
   const userId = (req as any).user?.userId;
   //console.log('userId:', userId);
   if (isNaN(workspaceId)) {
-    return res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+    res.status(400).json({ error: '유효한 ID가 아닙니다.' });
+    return ;
   }
   try {
     await workspaceService.deleteWorkspace(workspaceId, userId);
