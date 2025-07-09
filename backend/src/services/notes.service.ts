@@ -6,15 +6,22 @@ export const findNotesByWorkspace = async (
 ) => {
   return prisma.meeting_notes.findMany({
     where: {
-       workspaces_id: workspaceId,
-      users_id: userId,
+      workspaces_id: workspaceId,
+      workspaces: {
+        id: workspaceId,
+        members: {
+          some: {
+            users_id: userId,
+          },
+        },
+      },
     },
     include: {
       users: {
-         select: { name: true },
+        select: { name: true },
       },
     },
-     orderBy: { created_at: 'desc' },
+    orderBy: { created_at: 'desc' },
   });
 };
 
@@ -24,13 +31,13 @@ export const findNoteById = async (noteId: number) => {
 
 export const createNote = async (data: {
   users_id: number;
-    workspace_id: number;
+  workspace_id: number;
   title: string;
   content?: string;
   participant: string[];
   file?: any[];
 }) => {
-   return prisma.meeting_notes.create({
+  return prisma.meeting_notes.create({
     data: {
       users_id: data.users_id,
       workspaces_id: data.workspace_id,
