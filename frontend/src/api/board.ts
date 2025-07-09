@@ -62,3 +62,25 @@ export const createCard = async (
 
   return res.json();
 };
+
+// 첨부파일 업로드
+export const uploadCardFiles = async (
+  workspaceId: string,
+  cardId: string,
+  files: File[]
+) => {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
+
+  const res = await customFetch(
+    `/api/workspace/${workspaceId}/board/${cardId}/files`,
+    {
+      method: 'POST',
+      body: formData,
+    }
+  );
+
+  if (!res.ok) throw new Error('파일 업로드 실패');
+};

@@ -21,6 +21,8 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Textarea } from '../ui/textarea';
+import { toast } from 'sonner';
+import { uploadCardFiles } from '@/api/board';
 
 export type ColorOption =
   | '#FF6B6B'
@@ -75,6 +77,32 @@ type BoardmodalProps = {
   card?: Cardtype;
 };
 
+const acceptExtension = `
+  .jpg,.jpeg,.png,.gif,
+  .pdf,
+  .doc,.docx,
+  .xls,.xlsx,
+  .ppt,.pptx,
+  .csv,
+  .zip
+`;
+
+const allowedExtensions = [
+  'jpg',
+  'jpeg',
+  'png',
+  'gif',
+  'pdf',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'csv',
+  'zip',
+];
+
 export function Boardmodal({ mode, box, card }: BoardmodalProps) {
   // 제목
   const [cardtitle, setCardtitle] = useState(card?.title ?? '');
@@ -105,8 +133,21 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
 
+      const filteredFiles = newFiles.filter((file) => {
+        console.log(typeof file);
+        console.log(file);
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        if (!ext || !allowedExtensions.includes(ext)) {
+          toast.warning('허용되지 않은 파일 형식입니다', {
+            description: file.name,
+          });
+          return false;
+        }
+        return true;
+      });
+
       // 중복 방지 & 최대 5개 제한
-      const mergedFiles = [...attachedFiles, ...newFiles]
+      const mergedFiles = [...attachedFiles, ...filteredFiles]
         .filter(
           (file, index, self) =>
             index === self.findIndex((f) => f.name === file.name)
@@ -151,7 +192,7 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
 
     try {
       console.log('addCard 호출 전');
-      await addCard(box.id, {
+      const newCard = await addCard(box.id, {
         title: cardtitle.trim(),
         description: description.trim() || undefined,
         color: selectedColor ?? undefined,
@@ -160,6 +201,11 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
       });
       console.log('addCard 호출 후');
       // 성공 후 상태 반영은 useBoardData에서 이미 처리함
+
+      // 2️⃣ 첨부파일 업로드 (파일이 있을 때만)
+      if (attachedFiles.length > 0 && newCard) {
+        await uploadCardFiles(box.workspaces_id, newCard.id, attachedFiles);
+      }
     } catch (err) {
       alert('카드 생성에 실패했습니다.');
     }
@@ -292,13 +338,13 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
               key='userid'
               className={`w-6 h-6 rounded-full border-2 transition-colors ${
                 selectedColor === color
-								? 'border-black scale-110'
-								: 'border-transparent'
-								}`}
-								style={{ backgroundColor: color }}
-								onClick={() => setSelectedColor(color)}
-								type='button'
-								/> */}
+                        ? 'border-black scale-110'
+                        : 'border-transparent'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setSelectedColor(color)}
+                        type='button'
+                        /> */}
             <div className='flex items-start gap-3'>
               {users.map((user) => {
                 const isSelected = selectedUserid.includes(user.id);
@@ -351,6 +397,7 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
               <Input
                 id='file-upload'
                 type='file'
+                accept={acceptExtension}
                 multiple // 다중 업로드
                 className='hidden'
                 onChange={handleFileChange}

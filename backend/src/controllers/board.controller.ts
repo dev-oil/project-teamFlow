@@ -63,3 +63,30 @@ export const createCard = async (req: Request, res: Response) => {
     res.status(500).json({ error: '카드를 생성하지 못했습니다.' });
   }
 };
+
+export const uploadFiles = async (req: Request, res: Response) => {
+  try {
+    const { workspaceId, cardId } = req.params;
+    const files = req.files as Express.Multer.File[];
+
+    const filePaths = files.map((f) => f.path);
+
+    // DB에 파일 경로 추가
+    await prisma.card.update({
+      where: { id: cardId },
+      data: {
+        attachments: {
+          push: filePaths, // Prisma 배열에 파일 경로 추가
+        },
+      },
+    });
+
+    res.status(200).json({
+      message: '파일 업로드 완료',
+      files: filePaths,
+    });
+  } catch (error) {
+    console.error('파일 업로드 오류:', error);
+    res.status(500).json({ message: '파일 업로드 실패' });
+  }
+};

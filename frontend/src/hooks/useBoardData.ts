@@ -192,10 +192,11 @@ export function useBoardData() {
     if (!accessToken) return;
 
     try {
-      await createCard(workspace.id, boxId, cardData);
+      const newCard = await createCard(workspace.id, boxId, cardData);
 
       const updatedBoxes = await fetchBoard(workspace.id);
       setBoxes(updatedBoxes);
+      return newCard;
     } catch (err) {
       console.error('카드 생성 중 오류 발생:', err);
       throw err; // 필요시 호출하는 쪽에서 캐치하게 던짐
