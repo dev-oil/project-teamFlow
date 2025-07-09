@@ -4,7 +4,12 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
+import { Input } from '@/components/ui/input';
+import { customFetch } from '@/lib/customFetch';
 import type { BoxtypeWithCards } from '@/types/board';
 
 import { Boardcard } from './boardcard';
@@ -26,13 +31,22 @@ import {
 type BoardboxProps = {
   box: BoxtypeWithCards;
   togglePin: (cardId: string) => void;
+  deleteBox: (deletedBoxId: string) => void;
+  editBox: (editBoxId: string, title: string) => void;
 };
 
-export function Boardbox({ box, togglePin }: BoardboxProps) {
+export function Boardbox({
+  box,
+  togglePin,
+  deleteBox,
+  editBox,
+}: BoardboxProps) {
   const { setNodeRef, attributes, listeners, transform, transition } =
     useSortable({
       id: box.id,
     });
+  const [isEdit, setIsEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -45,29 +59,123 @@ export function Boardbox({ box, togglePin }: BoardboxProps) {
     return a.order - b.order;
   });
 
+  const handleEditTitle = async () => {
+    setIsLoading(true);
+    try {
+      const res = await customFetch(
+        `/api/workspaces/${box.workspaces_id}/boxes/${box.id}`,
+        { method: 'PATCH', body: JSON.stringify({ title: box.title }) }
+      );
+      const result = await res.json();
+      if (res.ok) {
+        editBox(box.id, result.title);
+      } else {
+        toast.warning(result.title, {
+          description: result.description,
+        });
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.warning(err.name, {
+          description: err.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+      setIsEdit(!isEdit);
+    }
+  };
+
+  const handleDeleteBox = async () => {
+    setIsLoading(true);
+    try {
+      const res = await customFetch(
+        `/api/workspaces/${box.workspaces_id}/boxes/${box.id}`,
+        { method: 'Delete' }
+      );
+      const result = await res.json();
+      if (res.ok) {
+        deleteBox(box.id);
+        toast.success(result.title, {
+          description: result.description,
+        });
+      } else {
+        toast.warning(result.title, {
+          description: result.description,
+        });
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.warning(err.name, {
+          description: err.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+      setIsEdit(!isEdit);
+    }
+  };
+
   return (
     <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
       <Card className='max-w-100 min-w-xs !bg-neutral-50 rounded-md border-0'>
         <SortableContext
-          // items={box.cards.map((c) => c.id)}
           items={orderedCards.map((c) => c.id)}
           strategy={verticalListSortingStrategy}
         >
           <CardHeader>
-            <CardTitle className='text-lg'>{box.title}</CardTitle>
-            <Dialog>
-              <DialogTrigger asChild>
-                <CardAction>
-                  <Button className='text-m' variant='outline'>
-                    + 카드 생성
-                  </Button>
-                </CardAction>
-              </DialogTrigger>
+            <CardTitle className='text-lg'>
+              <div className='flex justify-between'>
+                {isEdit ? (
+                  <Input
+                    type='text'
+                    value={box.title}
+                    onChange={(e) => editBox(box.id, e.target.value)}
+                    className='mr-2'
+                  />
+                ) : (
+                  box.title
+                )}
+                {isEdit ? (
+                  <>
+                    <Button
+                      onClick={handleEditTitle}
+                      disabled={isLoading}
+                      className='mr-1'
+                    >
+                      {isLoading && (
+                        <Loader2 className='h-4 w-4 animate-spin' />
+                      )}
+                      수정
+                    </Button>
+                    <Button
+                      onClick={handleDeleteBox}
+                      disabled={isLoading}
+                      variant='destructive'
+                    >
+                      삭제
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={() => setIsEdit(!isEdit)}>📝</Button>
+                )}
+              </div>
+            </CardTitle>
+            <div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <CardAction>
+                    <Button className='text-m w-full' variant='outline'>
+                      + 카드 생성
+                    </Button>
+                  </CardAction>
+                </DialogTrigger>
 
-              <DialogContent>
-                <Boardmodal mode='create' box={box} />
-              </DialogContent>
-            </Dialog>
+                <DialogContent>
+                  <Boardmodal mode='create' box={box} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardHeader>
           <CardContent className=' flex flex-col gap-6'>
             {orderedCards.length === 0 ? (

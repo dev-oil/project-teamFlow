@@ -1,14 +1,14 @@
 import express from 'express';
 
 import {
+  createWorkspace,
+  deleteWorkspace,
+  getWorkspace,
+  getWorkspaceMembers,
   getWorkspaceName,
+  getWorkspaces,
   removeMember,
   updateWorkspaceName,
-  getWorkspaceMembers,
-  deleteWorkspace,
-  getWorkspaces,
-  getWorkspace,
-  createWorkspace,
 } from '../controllers/workspace.controller';
 
 import { verifyAccessToken } from '../middlewares/auth.middleware';

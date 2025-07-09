@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import express from 'express';
 import * as boardController from '../controllers/board.controller';
 import { verifyAccessToken } from '../middlewares/auth.middleware';

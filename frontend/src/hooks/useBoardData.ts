@@ -166,6 +166,19 @@ export function useBoardData() {
     }
   };
 
+  const editBox = async (editBoxId: string, title: string) => {
+    if (!workspace?.id) return;
+    const newBoxes = boxes.map((b) =>
+      b.id === editBoxId ? { ...b, title } : b
+    );
+    setBoxes(newBoxes);
+  };
+
+  const deleteBox = async (deletedBoxId: string) => {
+    if (!accessToken || !workspace?.id) return;
+    setBoxes((prev) => prev.filter((b) => b.id !== deletedBoxId));
+  };
+
   const addCard = async (
     boxId: string,
     cardData: {
@@ -197,5 +210,7 @@ export function useBoardData() {
     togglePin,
     addBox,
     addCard,
+    deleteBox,
+    editBox,
   };
 }
