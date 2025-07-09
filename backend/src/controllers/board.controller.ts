@@ -1,24 +1,70 @@
 import { Request, Response } from 'express';
-import { boxes } from '../mock/boxes';
-import { cards } from '../mock/cards';
 
-export function getBoard(req: Request, res: Response) {
-  // 차후 업데이트
-  // const { workspace } = req.query;
+import * as boardService from '../services/board.service';
 
-  // if (!workspace || typeof workspace !== 'string') {
-  //   res.status(400).json({ message: '워크스페이스 이름이 필요합니다.' });
-  //   return;
-  // }
+export const getBoard = async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  const workspaceId = Number(req.params.workspaceId);
 
-  const workspaceId = 'ws-1';
+  try {
+    const boxes = await boardService.findBoardWidthCard(userId, workspaceId);
 
-  const filterBoxes = boxes.filter((box) => box.workspaces_id == workspaceId);
+    res.json(boxes);
+  } catch (error) {
+    res.status(500).json({ error: '노트 목록을 불러오지 못했습니다.' });
+  }
+};
 
-  const enriched = filterBoxes.map((box) => ({
-    ...box,
-    cards: cards.filter((card) => card.boxes_id == box.id),
-  }));
+// 박스 생성
+export const createBox = async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  const workspaceId = Number(req.params.workspaceId);
+  const { title } = req.body;
 
-  res.json({ workspaceId, boxes: enriched });
-}
+  if (!title || typeof title !== 'string') {
+    res.status(400).json({ error: '박스 제목이 필요합니다.' });
+  }
+
+  try {
+    const newBox = await boardService.createBox(userId, workspaceId, title);
+    res.status(201).json(newBox);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '박스를 생성하지 못했습니다.' });
+  }
+};
+
+// 카드 생성
+export const createCard = async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  const workspaceId = Number(req.params.workspaceId);
+  const boxId = req.params.boxId;
+  const { title, description, color, start_date, end_date, assignee } =
+    req.body;
+
+  console.log(boxId);
+  if (!title || typeof title !== 'string') {
+    res.status(400).json({ error: '카드 제목이 필요합니다.' });
+    return;
+  }
+
+  try {
+    const newCard = await boardService.postCard(userId, workspaceId, boxId, {
+      title,
+      description,
+      color,
+      start_date,
+      end_date,
+      assignee,
+    });
+
+    res.status(201).json(newCard);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '카드를 생성하지 못했습니다.' });
+  }
+};
+
+// 박스 삭제
+
+// 카드 삭제

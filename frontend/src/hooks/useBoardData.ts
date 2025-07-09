@@ -1,146 +1,158 @@
 import { arrayMove } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
 
+import { createBox, createCard, fetchBoard } from '@/api/board';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { BoxtypeWithCards } from '@/types/board';
 
 export function useBoardData() {
   const [boxes, setBoxes] = useState<BoxtypeWithCards[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 초기 데이터 로딩
-  // useEffect(() => {
-  //   fetch('/api/board')
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       // console.log(data);
-  //       setBoxes(data.boxes);
-  //     })
-  //     .catch(console.error);
-  // }, []);
-
-  // useEffect(() => {
-  // fetch('/api/board')
-  //   .then((res) => res.json())
-  //   .then((data) => {
-  //     const sortedBoxes = data.boxes
-  //       .map((box: BoxtypeWithCards) => ({
-  //         ...box,
-  //         cards: box.cards.sort((a, b) => a.order - b.order),
-  //       }))
-  //       .sort((a, b) => a.order - b.order);
-  //     setBoxes(sortedBoxes);
-  //   });
-  // }, []);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { workspace } = useWorkspaceStore();
 
   useEffect(() => {
-    const fetchBoxes = async () => {
-      try {
-        const res = await fetch('/api/board');
-        const data = await res.json();
+    if (!accessToken || !workspace?.id) return;
 
-        const boxes: BoxtypeWithCards[] = data.boxes;
-        const sorted = boxes
-          .map((box) => ({
-            ...box,
-            cards: box.cards.sort((a, b) => a.order - b.order),
-          }))
-          .sort((a, b) => a.order - b.order);
+    fetchBoard(workspace?.id)
+      .then(setBoxes)
+      .catch((err) => {
+        console.error('보드 데이터를 불러오지 못했습니다:', err);
+      })
+      .finally(() => setIsLoading(false));
+  }, [accessToken, workspace?.id]);
 
-        setBoxes(sorted);
-      } catch (error) {
-        console.error('Error fetching board data:', error);
-      }
-    };
+  const moveCard = useCallback(
+    (activeId: string, overId: string) => {
+      if (!boxes) return;
+      const updated = [...boxes];
 
-    fetchBoxes();
-  }, []);
-
-  const moveCard = useCallback((activeId: string, overId: string) => {
-    setBoxes((prev) => {
-      const updatedBoxes = [...prev];
-
-      const sourceBox = updatedBoxes.find((b) =>
+      const sourceBox = updated.find((b) =>
         b.cards.some((c) => c.id === activeId)
       );
-      const targetBox = updatedBoxes.find((b) =>
+      const targetBox = updated.find((b) =>
         b.cards.some((c) => c.id === overId)
       );
 
-      if (!sourceBox) return prev;
-      const fromBoxIndex = updatedBoxes.findIndex((b) => b.id === sourceBox.id);
+      if (!sourceBox) return;
+      const fromBoxIndex = updated.findIndex((b) => b.id === sourceBox.id);
       const toBoxIndex = targetBox
-        ? updatedBoxes.findIndex((b) => b.id === targetBox.id)
-        : updatedBoxes.findIndex((b) => b.id === overId);
+        ? updated.findIndex((b) => b.id === targetBox.id)
+        : updated.findIndex((b) => b.id === overId);
 
-      const activeCardIndex = updatedBoxes[fromBoxIndex].cards.findIndex(
+      const activeCardIndex = updated[fromBoxIndex].cards.findIndex(
         (c) => c.id === activeId
       );
 
       let insertIndex = targetBox
-        ? updatedBoxes[toBoxIndex].cards.findIndex((c) => c.id === overId)
-        : updatedBoxes[toBoxIndex].cards.length;
+        ? updated[toBoxIndex].cards.findIndex((c) => c.id === overId)
+        : updated[toBoxIndex].cards.length;
 
-      if (insertIndex === -1)
-        insertIndex = updatedBoxes[toBoxIndex].cards.length;
+      if (insertIndex === -1) insertIndex = updated[toBoxIndex].cards.length;
 
-      // if (sourceBox.id === targetBox?.id && activeCardIndex < insertIndex) {
-      //   console.log(insertIndex);
-      //   console.log('아래로가제발---');
-      //   insertIndex += 1;
-      //   console.log(insertIndex);
-      // }
-
-      const [movingCard] = updatedBoxes[fromBoxIndex].cards.splice(
+      const [movingCard] = updated[fromBoxIndex].cards.splice(
         activeCardIndex,
         1
       );
 
-      // console.log('--- drag event ---');
-      // console.log('activeId', activeId);
-      // console.log('overId', overId);
-      // console.log('fromBox', sourceBox?.title, '→ toBox', targetBox?.title);
-      // console.log(
-      //   'activeCardIndex',
-      //   activeCardIndex,
-      //   '→ insertIndex',
-      //   insertIndex
-      // );
+      updated[toBoxIndex].cards.splice(insertIndex, 0, movingCard);
 
-      updatedBoxes[toBoxIndex].cards.splice(insertIndex, 0, movingCard);
-
-      // 정렬 업데이트
-      updatedBoxes[toBoxIndex].cards = updatedBoxes[toBoxIndex].cards.map(
+      updated[toBoxIndex].cards = updated[toBoxIndex].cards.map(
         (card, idx) => ({
           ...card,
           order: idx,
-          boxes_id: updatedBoxes[toBoxIndex].id,
+          boxes_id: updated[toBoxIndex].id,
         })
       );
 
-      updatedBoxes[fromBoxIndex].cards = updatedBoxes[fromBoxIndex].cards.map(
+      updated[fromBoxIndex].cards = updated[fromBoxIndex].cards.map(
         (card, idx) => ({
           ...card,
           order: idx,
         })
       );
+      setBoxes(updated);
+    },
+    [boxes]
+  );
 
-      return updatedBoxes;
-    });
-  }, []);
+  const moveBox = useCallback(
+    (activeId: string, overId: string) => {
+      if (!boxes) return;
 
-  const moveBox = useCallback((activeId: string, overId: string) => {
-    setBoxes((prev) => {
-      const fromIndex = prev.findIndex((b) => b.id === activeId);
-      const toIndex = prev.findIndex((b) => b.id === overId);
-      if (fromIndex === -1 || toIndex === -1) return prev;
+      const fromIndex = boxes.findIndex((b) => b.id === activeId);
+      const toIndex = boxes.findIndex((b) => b.id === overId);
+      if (fromIndex === -1 || toIndex === -1) return;
 
-      const moved = arrayMove(prev, fromIndex, toIndex).map((box, idx) => ({
+      const moved = arrayMove(boxes, fromIndex, toIndex).map((box, idx) => ({
         ...box,
         order: idx,
       }));
+      setBoxes(moved);
 
       return moved;
-    });
-  }, []);
+    },
+    [boxes]
+  );
 
-  return { boxes, moveCard, moveBox };
+  const togglePin = (cardId: string) => {
+    setBoxes((prev) =>
+      prev.map((box) => ({
+        ...box,
+        cards: box.cards.map((card) =>
+          card.id === cardId ? { ...card, pinned: !card.pinned } : card
+        ),
+      }))
+    );
+    // console.log('업데이트');
+  };
+
+  const addBox = async (title: string) => {
+    if (!accessToken || !workspace?.id) return;
+
+    try {
+      await createBox(workspace.id, title);
+
+      const updatedBoxes = await fetchBoard(workspace.id);
+      setBoxes(updatedBoxes);
+    } catch (err) {
+      console.error('박스 생성 중 오류 발생:', err);
+    }
+  };
+
+  const addCard = async (
+    boxId: string,
+    cardData: {
+      title: string;
+      description?: string;
+      color?: string;
+      start_date?: string;
+      end_date?: string;
+      assignee?: { id: string; name: string; profile_image: string }[];
+    }
+  ) => {
+    if (!accessToken) return;
+
+    try {
+      await createCard(workspace.id, boxId, cardData);
+
+      const updatedBoxes = await fetchBoard(workspace.id);
+      setBoxes(updatedBoxes);
+    } catch (err) {
+      console.error('카드 생성 중 오류 발생:', err);
+      throw err;
+    }
+  };
+
+  return {
+    boxes: boxes ?? [],
+    isLoading,
+    moveCard,
+    moveBox,
+    togglePin,
+    addBox,
+    addCard,
+  };
 }

@@ -15,6 +15,9 @@ import {
 import { ScrollAreaViewport } from '@radix-ui/react-scroll-area';
 import { useCallback, useRef, useState } from 'react';
 
+import BoardModalProvider from '@/components/Modal/boardmodalprovider';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useBoardData } from '@/hooks/useBoardData';
 import { Boardbox } from '@/pages/Dashboard/boardbox';
@@ -30,12 +33,15 @@ export function Boardlist({ page }: BoardlistProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollHeight =
-    page === 'dashpage' ? 'h-[calc(100vh-64px)]' : 'h-[calc(500px-64px)]';
+    page === 'dashpage' ? 'h-[calc(100vh-172px)]' : 'h-[calc(500px-172px)]';
 
-  const { boxes, moveCard, moveBox } = useBoardData();
+  const { boxes, togglePin, isLoading, moveCard, moveBox, addBox } =
+    useBoardData();
 
   const [activeCard, setActiveCard] = useState<Cardtype | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  const [title, setTitle] = useState('');
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -73,8 +79,39 @@ export function Boardlist({ page }: BoardlistProps) {
     })
   );
 
+  // if (isLoading) return <div className='p-4'>불러오는 중...</div>;
+  // if (isError)
+  //   return <div className='p-4 text-red-500'>데이터 불러오기 실패</div>;
+  if (isLoading) return <div>로딩 중...</div>;
+
   return (
-    <>
+    <div className='p-6'>
+      <div className='mb-6 flex justify-end'>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+
+            if (!title.trim()) {
+              alert('박스 이름을 입력해주세요.');
+              return;
+            }
+
+            addBox(title);
+            setTitle('');
+          }}
+          className='flex w-full max-w-sm items-center gap-2'
+        >
+          <Input
+            type='text'
+            placeholder='박스이름'
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Button type='submit' variant='default'>
+            + 박스 추가하기
+          </Button>
+        </form>
+      </div>
       <DndContext
         sensors={sensors}
         // collisionDetection={closestCenter}
@@ -109,13 +146,20 @@ export function Boardlist({ page }: BoardlistProps) {
                 items={boxes.map((b) => b.id)}
                 strategy={horizontalListSortingStrategy}
               >
-                <div className='p-8 flex items-start gap-5'>
+                <div className='flex items-start gap-5'>
                   {boxes.length === 0 ? (
                     <div className='p-4 text-center text-gray-500'>
                       작업 보드를 추가해 보세요
                     </div>
                   ) : (
-                    boxes.map((box) => <Boardbox key={box.id} box={box} />)
+                    boxes.map((box) => (
+                      <Boardbox
+                        key={box.id}
+                        // box={{ ...box, cards: [...box.cards] }}
+                        box={box}
+                        togglePin={togglePin}
+                      />
+                    ))
                   )}
                 </div>
               </SortableContext>
@@ -137,6 +181,8 @@ export function Boardlist({ page }: BoardlistProps) {
           ) : null}
         </DragOverlay>
       </DndContext>
-    </>
+
+      <BoardModalProvider />
+    </div>
   );
 }

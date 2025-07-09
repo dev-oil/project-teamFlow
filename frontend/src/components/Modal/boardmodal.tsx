@@ -1,9 +1,13 @@
 import { ChevronDownIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { DateRange } from 'react-day-picker';
 
+import { useBoardData } from '@/hooks/useBoardData';
+import { customFetch } from '@/lib/customFetch';
 import type { Boxtype, Cardtype } from '@/types/board';
+
+import { colorOptions, type ColorCode } from '@/types/colors';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -21,68 +25,30 @@ import { Label } from '../ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Textarea } from '../ui/textarea';
 
-export type ColorOption =
-  | '#FF6B6B'
-  | '#FFD43B'
-  | '#51CF66'
-  | '#38BDF8'
-  | '#845EF7'
-  | '#FFA8D4';
-
-const colorOptions: ColorOption[] = [
-  '#FF6B6B',
-  '#FFD43B',
-  '#51CF66',
-  '#38BDF8',
-  '#845EF7',
-  '#FFA8D4',
-];
-
-export type User = {
-  id: string;
-  name: string;
-  image: string;
-};
-
-// 임시 데이터
-const users: User[] = [
-  {
-    id: 'user1',
-    name: '김유화',
-    image: 'https://github.com/evilrabbit.png',
-  },
-  {
-    id: 'user2',
-    name: '이주희',
-    image: 'https://github.com/octocat.png',
-  },
-  {
-    id: 'user3',
-    name: '손형수',
-    image: 'https://github.com/octocat.png',
-  },
-  {
-    id: 'user4',
-    name: '홍민경',
-    image: 'https://github.com/octocat.png',
-  },
-];
-
 type BoardmodalProps = {
   mode: 'create' | 'edit';
   box?: Boxtype;
   card?: Cardtype;
+  open: boolean;
+};
+type Usertype = {
+  id: string;
+  name: string;
+  profile_image: string;
 };
 
-export function Boardmodal({ mode, box, card }: BoardmodalProps) {
-  // 데이터를 usestate에 저장한 뒤에 데이터를 보여준다 => 어차피 저장해서 쓸거니까 ? 저장해서 하는게 맞다?
-  // or 어차피 데이터는 받아오니까 바로 뿌려줘도 된다 ?
+export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
+  useEffect(() => {
+    if (mode === 'edit' && card?.assignee) {
+      setSelectedUserid(card.assignee.map((user) => user.id));
+    }
+  }, [mode, card]);
 
   // 제목
   const [cardtitle, setCardtitle] = useState(card?.title ?? '');
   // 색상
-  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(
-    (card?.color as ColorOption) ?? null
+  const [selectedColor, setSelectedColor] = useState<ColorCode | null>(
+    (card?.color as ColorCode) ?? null
   );
   // 일정
   const [range, setRange] = useState<DateRange | undefined>(() => {
@@ -99,6 +65,28 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
   const [description, setDescription] = useState(card?.description ?? '');
   // 담당자
   const [selectedUserid, setSelectedUserid] = useState<string[]>([]);
+
+  const [users, setUsers] = useState<Usertype[]>([]); // user state 정의
+
+  useEffect(() => console.log(box?.workspaces_id), [box?.workspaces_id]);
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchUsers = async () => {
+      try {
+        const res = await customFetch(
+          `/api/workspaces/${box?.workspaces_id}/members`
+        );
+
+        const data = (await res.json()) as { user: Usertype }[];
+        setUsers(data.map((d) => d.user));
+      } catch (err) {
+        console.error('멤버 조회 실패:', err);
+      }
+    };
+
+    fetchUsers();
+  }, [open, box?.workspaces_id]);
 
   // 첨부파일
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -124,7 +112,57 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  console.log(mode);
+  // 카드 생성
+  const { addCard } = useBoardData();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!box?.id) {
+      alert('박스 정보가 없습니다.');
+      return;
+    }
+    console.log(box.id);
+
+    if (!cardtitle.trim()) {
+      alert('카드 제목을 입력해주세요.');
+      return;
+    }
+
+    if (!selectedColor) {
+      alert('색상을 선택해주세요.');
+      return;
+    }
+
+    if (!range?.from || !range?.to) {
+      alert('시작일과 종료일을 모두 선택해주세요.');
+      return;
+    }
+
+    try {
+      console.log('addCard 호출 전');
+      const selectedAssignees = users
+        .filter((u) => selectedUserid.includes(u.id))
+        .map(({ id, name, profile_image }) => ({
+          id,
+          name,
+          profile_image: profile_image,
+        }));
+      await addCard(box.id, {
+        title: cardtitle.trim(),
+        description: description.trim() || undefined,
+        color: selectedColor ?? undefined,
+        start_date: range?.from ? formatDate(range.from) : undefined,
+        end_date: range?.to ? formatDate(range.to) : undefined,
+        assignee: selectedAssignees,
+      });
+      console.log('addCard 호출 후');
+      // 성공 후 상태 반영은 useBoardData에서 이미 처리함
+    } catch (err) {
+      alert('카드 생성에 실패했습니다.');
+    }
+  };
+
   return (
     <>
       <DialogHeader className='flex-row'>
@@ -134,7 +172,7 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
         <DialogDescription>in {box?.title ?? '알 수 없음'}</DialogDescription>
       </DialogHeader>
 
-      <form action='' className='grid gap-4'>
+      <form action='' className='grid gap-4' onSubmit={handleSubmit}>
         <div className='grid gap-4'>
           {/* 제목 영역 */}
           <div className='grid gap-3'>
@@ -159,17 +197,21 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
               </Label>
               <div className='flex items-center gap-2'>
                 {colorOptions.map((color) => (
-                  <button
-                    key={color}
-                    className={`w-6 h-6 rounded-full border-2 transition-colors ${
-                      selectedColor === color
-                        ? 'border-black scale-110'
-                        : 'border-transparent'
-                    }`}
-                    style={{ backgroundColor: color }}
-                    onClick={() => setSelectedColor(color)}
-                    type='button'
-                  />
+                  <div className='flex flex-col content-center gap-1'>
+                    <button
+                      key={color.code}
+                      className={`w-6 h-6 rounded-full border-2 transition-colors ${
+                        selectedColor === color.code
+                          ? 'border-black scale-110'
+                          : 'border-transparent'
+                      }`}
+                      style={{ backgroundColor: color.code }}
+                      onClick={() => setSelectedColor(color.code)}
+                      type='button'
+                      title={color.name}
+                    />
+                    <label className='text-xs'>{color.name}</label>
+                  </div>
                 ))}
               </div>
             </div>
@@ -248,17 +290,6 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
                 />
               </div>
             </div>
-            {/* <button
-              key='userid'
-              className={`w-6 h-6 rounded-full border-2 transition-colors ${
-                selectedColor === color
-								? 'border-black scale-110'
-								: 'border-transparent'
-								}`}
-								style={{ backgroundColor: color }}
-								onClick={() => setSelectedColor(color)}
-								type='button'
-								/> */}
             <div className='flex items-start gap-3'>
               {users.map((user) => {
                 const isSelected = selectedUserid.includes(user.id);
@@ -276,13 +307,17 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
                     }}
                   >
                     <span
-                      className={`flex flex-col items-center grow transition-all ${isSelected ? 'opacity-100 font-bold' : 'opacity-50 grayscale-100 font-light '}`}
+                      className={`flex flex-col items-center grow transition-all ${isSelected ? 'opacity-100' : 'opacity-50 grayscale font-light '}`}
                     >
                       <Avatar>
-                        <AvatarImage src={user.image} alt={user.name} />
-                        <AvatarFallback>{user.name}</AvatarFallback>
+                        <AvatarImage src={user.profile_image} alt={user.name} />
+                        <AvatarFallback>
+                          {user.name?.charAt(0) ?? '?'}
+                        </AvatarFallback>
                       </Avatar>
-                      <strong className='text-xs pt-1 '>{user.name}</strong>
+                      <strong className='text-xs pt-1 '>
+                        {user.name ?? '?'}
+                      </strong>
                     </span>
                   </button>
                 );
@@ -338,14 +373,13 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
           </div>
           {/* </div> */}
         </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant='outline'>삭제하기</Button>
+          </DialogClose>
+          <Button type='submit'>저장하기</Button>
+        </DialogFooter>
       </form>
-
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button variant='outline'>삭제하기</Button>
-        </DialogClose>
-        <Button type='submit'>저장하기</Button>
-      </DialogFooter>
     </>
   );
 }
