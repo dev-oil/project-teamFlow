@@ -1,4 +1,6 @@
 //년,월,이동,필터 컨트롤
+import { ChevronDown, Check } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -8,7 +10,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { colorOptions } from '@/types/colors';
-
 type Props = {
   date: Date;
   onDateChange: (date: Date) => void;
@@ -79,16 +80,16 @@ export const CalendarHeader = ({
       <div className="flex gap-2 flex-1 justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">카테고리별 ▽</Button>
+            <Button variant="outline">카테고리별 <ChevronDown /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setCategory('')}>
-             전체보기 {category === '' && <span>✔ </span>} 
+             전체보기 {category === '' && <span><Check /></span>} 
             </DropdownMenuItem>
             {categories.map((cat) => (
               <DropdownMenuItem key={cat} onClick={() => setCategory(cat)}>
                 {cat}
-                {category === cat && <span>✔ </span>}
+                {category === cat && <span><Check /></span>}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -96,11 +97,11 @@ export const CalendarHeader = ({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">색상별 ▽</Button>
+            <Button variant="outline">색상별 <ChevronDown /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setSelectedColor(null)}>
-             전체보기 {selectedColor === null && <span>✔ </span>} 
+             전체보기 {selectedColor === null && <span><Check /> </span>} 
             </DropdownMenuItem>
             {colorOptions.map((col) => (
               
@@ -116,7 +117,7 @@ export const CalendarHeader = ({
                   }}
                 />
                 {col.name}
-                {selectedColor === col.code && <span>✔</span>}
+                {selectedColor === col.code && <span><Check /></span>}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
