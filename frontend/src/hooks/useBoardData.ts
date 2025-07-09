@@ -7,47 +7,6 @@ import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { BoxtypeWithCards } from '@/types/board';
 
 export function useBoardData() {
-  // useEffect(() => {
-  //   const fetchBoxes = async () => {
-  //     try {
-  //       const res = await customFetch('/api/board');
-  //       const data = await res.json();
-
-  //       const boxes: BoxtypeWithCards[] = data.boxes;
-  //       const sorted = boxes
-  //         .map((box) => ({
-  //           ...box,
-  //           cards: box.cards.sort((a, b) => a.order - b.order),
-  //         }))
-  //         .sort((a, b) => a.order - b.order);
-
-  //       setBoxes(sorted);
-  //     } catch (error) {
-  //       console.error('Error fetching board data:', error);
-  //     }
-  //   };
-
-  //   fetchBoxes();
-  // }, []);
-
-  // const {
-  //   data,
-  //   isLoading,
-  //   isError,
-  // } = useQuery<BoxtypeWithCards[]>({
-  //   queryKey: ['board', workspace?.id],
-  //   queryFn: () => fetchBoard(accessToken!, workspace!.id),
-  //   enabled: !!accessToken && !!workspace?.id,
-  //   staleTime: 1000 * 60, // optional
-  // });
-
-  // const { data, isLoading, isError } = useQuery({
-  //   queryKey: ['board', workspace?.id],
-  //   queryFn: () => fetchBoard(accessToken!, workspace!.id),
-  //   enabled: !!accessToken && !!workspace?.id,
-  //   staleTime: 1000 * 60,
-  // });
-
   const [boxes, setBoxes] = useState<BoxtypeWithCards[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -115,9 +74,6 @@ export function useBoardData() {
         })
       );
       setBoxes(updated);
-
-      // 데이터는 업데이트되지만, 실제 상태(setBoxes)는 없으니
-      // 여기선 이후 API 연동 또는 optimistic update 적용 필요
     },
     [boxes]
   );
@@ -150,7 +106,7 @@ export function useBoardData() {
         ),
       }))
     );
-    console.log('업데이트');
+    // console.log('업데이트');
   };
 
   const addBox = async (title: string) => {
@@ -174,6 +130,7 @@ export function useBoardData() {
       color?: string;
       start_date?: string;
       end_date?: string;
+      assignee?: { id: string; name: string; profile_image: string }[];
     }
   ) => {
     if (!accessToken) return;
@@ -185,7 +142,7 @@ export function useBoardData() {
       setBoxes(updatedBoxes);
     } catch (err) {
       console.error('카드 생성 중 오류 발생:', err);
-      throw err; // 필요시 호출하는 쪽에서 캐치하게 던짐
+      throw err;
     }
   };
 

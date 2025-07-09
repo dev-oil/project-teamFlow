@@ -46,7 +46,7 @@ export const createCard = async (
     start_date?: string;
     end_date?: string;
     color?: string;
-    // users_ids?: string[];
+    assignees?: { id: string; name: string; profile_image: string }[];
     // file?: File[]
   }
 ): Promise<Cardtype> => {

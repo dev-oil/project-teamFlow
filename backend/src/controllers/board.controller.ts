@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import { boxes } from '../mock/boxes';
-import { cards } from '../mock/cards';
 
 import * as boardService from '../services/board.service';
 
@@ -41,7 +39,8 @@ export const createCard = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   const workspaceId = Number(req.params.workspaceId);
   const boxId = req.params.boxId;
-  const { title, description, color, start_date, end_date } = req.body;
+  const { title, description, color, start_date, end_date, assignee } =
+    req.body;
 
   console.log(boxId);
   if (!title || typeof title !== 'string') {
@@ -56,7 +55,7 @@ export const createCard = async (req: Request, res: Response) => {
       color,
       start_date,
       end_date,
-      // users_ids,
+      assignee,
     });
 
     res.status(201).json(newCard);
@@ -65,3 +64,7 @@ export const createCard = async (req: Request, res: Response) => {
     res.status(500).json({ error: '카드를 생성하지 못했습니다.' });
   }
 };
+
+// 박스 삭제
+
+// 카드 삭제

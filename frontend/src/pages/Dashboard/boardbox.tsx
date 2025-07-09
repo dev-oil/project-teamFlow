@@ -5,10 +5,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+import { useModalStore } from '@/stores/useModalStore';
 import type { BoxtypeWithCards } from '@/types/board';
 
 import { Boardcard } from './boardcard';
-import { Boardmodal } from '../../components/Modal/boardmodal';
 import { Button } from '../../components/ui/button';
 import {
   Card,
@@ -17,11 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../../components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from '../../components/ui/dialog';
 
 type BoardboxProps = {
   box: BoxtypeWithCards;
@@ -33,6 +28,7 @@ export function Boardbox({ box, togglePin }: BoardboxProps) {
     useSortable({
       id: box.id,
     });
+  const { openModal } = useModalStore();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -55,19 +51,14 @@ export function Boardbox({ box, togglePin }: BoardboxProps) {
         >
           <CardHeader>
             <CardTitle className='text-lg'>{box.title}</CardTitle>
-            <Dialog>
-              <DialogTrigger asChild>
-                <CardAction>
-                  <Button className='text-m' variant='outline'>
-                    + 카드 생성
-                  </Button>
-                </CardAction>
-              </DialogTrigger>
-
-              <DialogContent>
-                <Boardmodal mode='create' box={box} />
-              </DialogContent>
-            </Dialog>
+            <CardAction>
+              <Button
+                variant='outline'
+                onClick={() => openModal('create', box)}
+              >
+                + 카드 생성
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent className=' flex flex-col gap-6'>
             {orderedCards.length === 0 ? (

@@ -49,9 +49,10 @@ export const createBox = async (
     throw new Error('잘못된 접근입니다.');
   }
 
-  const order = await prisma.boxes.count({
-    where: { workspaces_id: workspaceId },
-  });
+  const order =
+    (await prisma.boxes.count({
+      where: { workspaces_id: workspaceId },
+    })) + 1;
 
   const newBox = await prisma.boxes.create({
     data: {
@@ -80,12 +81,13 @@ export const postCard = async (
     color?: string;
     start_date?: string;
     end_date?: string;
+    assignee?: { id: string; name: string; profile_image: string }[];
   }
 ) => {
-  // 박스 내 카드 개수 세기 → 새 카드 order 설정
-  const cardCount = await prisma.cards.count({
-    where: { boxes_id: boxId },
-  });
+  const cardCount =
+    (await prisma.cards.count({
+      where: { boxes_id: boxId },
+    })) + 1;
 
   return prisma.cards.create({
     data: {
@@ -95,6 +97,7 @@ export const postCard = async (
       color: data.color,
       start_date: data.start_date ? new Date(data.start_date) : undefined,
       end_date: data.end_date ? new Date(data.end_date) : undefined,
+      assignee: data.assignee,
       order: cardCount,
     },
   });

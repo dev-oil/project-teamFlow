@@ -1,10 +1,13 @@
 import { ChevronDownIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { DateRange } from 'react-day-picker';
 
 import { useBoardData } from '@/hooks/useBoardData';
+import { customFetch } from '@/lib/customFetch';
 import type { Boxtype, Cardtype } from '@/types/board';
+
+import { colorOptions, type ColorCode } from '@/types/colors';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -22,65 +25,30 @@ import { Label } from '../ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Textarea } from '../ui/textarea';
 
-export type ColorOption =
-  | '#FF6B6B'
-  | '#FFD43B'
-  | '#51CF66'
-  | '#38BDF8'
-  | '#845EF7'
-  | '#FFA8D4';
-
-const colorOptions: ColorOption[] = [
-  '#FF6B6B',
-  '#FFD43B',
-  '#51CF66',
-  '#38BDF8',
-  '#845EF7',
-  '#FFA8D4',
-];
-
-export type User = {
-  id: string;
-  name: string;
-  image: string;
-};
-
-// 임시 데이터
-const users: User[] = [
-  {
-    id: 'user1',
-    name: '김유화',
-    image: 'https://github.com/evilrabbit.png',
-  },
-  {
-    id: 'user2',
-    name: '이주희',
-    image: 'https://github.com/octocat.png',
-  },
-  {
-    id: 'user3',
-    name: '손형수',
-    image: 'https://github.com/octocat.png',
-  },
-  {
-    id: 'user4',
-    name: '홍민경',
-    image: 'https://github.com/octocat.png',
-  },
-];
-
 type BoardmodalProps = {
   mode: 'create' | 'edit';
   box?: Boxtype;
   card?: Cardtype;
+  open: boolean;
+};
+type Usertype = {
+  id: string;
+  name: string;
+  profile_image: string;
 };
 
-export function Boardmodal({ mode, box, card }: BoardmodalProps) {
+export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
+  useEffect(() => {
+    if (mode === 'edit' && card?.assignee) {
+      setSelectedUserid(card.assignee.map((user) => user.id));
+    }
+  }, [mode, card]);
+
   // 제목
   const [cardtitle, setCardtitle] = useState(card?.title ?? '');
   // 색상
-  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(
-    (card?.color as ColorOption) ?? null
+  const [selectedColor, setSelectedColor] = useState<ColorCode | null>(
+    (card?.color as ColorCode) ?? null
   );
   // 일정
   const [range, setRange] = useState<DateRange | undefined>(() => {
@@ -97,6 +65,28 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
   const [description, setDescription] = useState(card?.description ?? '');
   // 담당자
   const [selectedUserid, setSelectedUserid] = useState<string[]>([]);
+
+  const [users, setUsers] = useState<Usertype[]>([]); // user state 정의
+
+  useEffect(() => console.log(box?.workspaces_id), [box?.workspaces_id]);
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchUsers = async () => {
+      try {
+        const res = await customFetch(
+          `/api/workspaces/${box?.workspaces_id}/members`
+        );
+
+        const data = (await res.json()) as { user: Usertype }[];
+        setUsers(data.map((d) => d.user));
+      } catch (err) {
+        console.error('멤버 조회 실패:', err);
+      }
+    };
+
+    fetchUsers();
+  }, [open, box?.workspaces_id]);
 
   // 첨부파일
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -151,12 +141,20 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
 
     try {
       console.log('addCard 호출 전');
+      const selectedAssignees = users
+        .filter((u) => selectedUserid.includes(u.id))
+        .map(({ id, name, profile_image }) => ({
+          id,
+          name,
+          profile_image: profile_image,
+        }));
       await addCard(box.id, {
         title: cardtitle.trim(),
         description: description.trim() || undefined,
         color: selectedColor ?? undefined,
         start_date: range?.from ? formatDate(range.from) : undefined,
         end_date: range?.to ? formatDate(range.to) : undefined,
+        assignee: selectedAssignees,
       });
       console.log('addCard 호출 후');
       // 성공 후 상태 반영은 useBoardData에서 이미 처리함
@@ -199,17 +197,21 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
               </Label>
               <div className='flex items-center gap-2'>
                 {colorOptions.map((color) => (
-                  <button
-                    key={color}
-                    className={`w-6 h-6 rounded-full border-2 transition-colors ${
-                      selectedColor === color
-                        ? 'border-black scale-110'
-                        : 'border-transparent'
-                    }`}
-                    style={{ backgroundColor: color }}
-                    onClick={() => setSelectedColor(color)}
-                    type='button'
-                  />
+                  <div className='flex flex-col content-center gap-1'>
+                    <button
+                      key={color.code}
+                      className={`w-6 h-6 rounded-full border-2 transition-colors ${
+                        selectedColor === color.code
+                          ? 'border-black scale-110'
+                          : 'border-transparent'
+                      }`}
+                      style={{ backgroundColor: color.code }}
+                      onClick={() => setSelectedColor(color.code)}
+                      type='button'
+                      title={color.name}
+                    />
+                    <label className='text-xs'>{color.name}</label>
+                  </div>
                 ))}
               </div>
             </div>
@@ -288,17 +290,6 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
                 />
               </div>
             </div>
-            {/* <button
-              key='userid'
-              className={`w-6 h-6 rounded-full border-2 transition-colors ${
-                selectedColor === color
-								? 'border-black scale-110'
-								: 'border-transparent'
-								}`}
-								style={{ backgroundColor: color }}
-								onClick={() => setSelectedColor(color)}
-								type='button'
-								/> */}
             <div className='flex items-start gap-3'>
               {users.map((user) => {
                 const isSelected = selectedUserid.includes(user.id);
@@ -316,13 +307,17 @@ export function Boardmodal({ mode, box, card }: BoardmodalProps) {
                     }}
                   >
                     <span
-                      className={`flex flex-col items-center grow transition-all ${isSelected ? 'opacity-100 font-bold' : 'opacity-50 grayscale-100 font-light '}`}
+                      className={`flex flex-col items-center grow transition-all ${isSelected ? 'opacity-100' : 'opacity-50 grayscale font-light '}`}
                     >
                       <Avatar>
-                        <AvatarImage src={user.image} alt={user.name} />
-                        <AvatarFallback>{user.name}</AvatarFallback>
+                        <AvatarImage src={user.profile_image} alt={user.name} />
+                        <AvatarFallback>
+                          {user.name?.charAt(0) ?? '?'}
+                        </AvatarFallback>
                       </Avatar>
-                      <strong className='text-xs pt-1 '>{user.name}</strong>
+                      <strong className='text-xs pt-1 '>
+                        {user.name ?? '?'}
+                      </strong>
                     </span>
                   </button>
                 );

@@ -17,7 +17,13 @@ export type Cardtype = {
   description: string;
   start_date: string | null;
   end_date: string | null;
-  assignee: string | null;
+  assignee?:
+    | {
+        id: string;
+        name: string;
+        profile_image: string;
+      }[]
+    | null;
   file?: {
     id: number;
     file_name: string;

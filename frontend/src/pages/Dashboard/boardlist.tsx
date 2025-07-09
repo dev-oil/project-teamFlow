@@ -15,6 +15,7 @@ import {
 import { ScrollAreaViewport } from '@radix-ui/react-scroll-area';
 import { useCallback, useRef, useState } from 'react';
 
+import BoardModalProvider from '@/components/Modal/boardmodalprovider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -180,6 +181,8 @@ export function Boardlist({ page }: BoardlistProps) {
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      <BoardModalProvider />
     </div>
   );
 }
