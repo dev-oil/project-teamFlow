@@ -48,26 +48,35 @@ function App() {
     );
   }
 
+  
   return (
-    <SidebarProvider className='overflow-hidden'>
-      <AppSidebar />
-      <SidebarInset className='overflow-hidden'>
-        <Header />
-        <div>
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/dashboard' element={<DashboardPage />} />
-            <Route path='/notes' element={<NotesPage />} />
-            <Route path='/notes/edit/:noteId' element={<EditNotePage />} />
-            <Route path='/notes/create' element={<CreateNotePage />} />
-            <Route path='/calendar' element={<CalendarPage />} />
-            <Route path='/profile' element={<ProfilePage />} />
-            <Route path='/settings' element={<SettingsPage />} />
-          </Routes>
-        </div>
-      </SidebarInset>
+    <>
+      {/* 사이드바 밖에 /invite 경로 추가 */}
+      <Routes>
+        <Route path='/invite' element={<InviteEmailPage />} />
+      </Routes>
+      
+      {/* 기존 사이드바 구조 */}
+      <SidebarProvider className='overflow-hidden'>
+        <AppSidebar />
+        <SidebarInset className='overflow-hidden'>
+          <Header />
+          <div>
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/dashboard' element={<DashboardPage />} />
+              <Route path='/notes' element={<NotesPage />} />
+              <Route path='/notes/edit/:noteId' element={<EditNotePage />} />
+              <Route path='/notes/create' element={<CreateNotePage />} />
+              <Route path='/calendar' element={<CalendarPage />} />
+              <Route path='/profile' element={<ProfilePage />} />
+              <Route path='/settings' element={<SettingsPage />} />
+            </Routes>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
       <Toaster richColors />
-    </SidebarProvider>
+    </>
   );
 }
 

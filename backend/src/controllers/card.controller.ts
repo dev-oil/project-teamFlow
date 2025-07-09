@@ -29,7 +29,7 @@ export const getCardById = async (req:Request, res:Response) => {
   }
 }  
 
-/** 카드 수정 */ 
+/** 카드 수정 (캘린더) */ 
 export const updateCard = async (req: Request, res: Response) => {
   const cardId = req.params.cardId; 
   const { start, end } = req.body;
@@ -41,10 +41,18 @@ export const updateCard = async (req: Request, res: Response) => {
   }
 
   try {
-    const updated = await cardService.updateCardDate(cardId, start, end);
+    // const startDate = new Date(start);
+    // const endDate = new Date(end);
+
+    // // 날짜 유효성 검사
+    // if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    //   return res.status(400).json({ error: '날짜 형식이 올바르지 않습니다.' });
+    // }
+
+     const updated = await cardService.updateCardDate(cardId, new Date(start), new Date(end));
     res.json(updated);
   } catch (err) {
-    console.error('카드 수정 오류:', err); // 2. 에러 로그 출력
+    console.error('카드 수정 오류:', err);
     res.status(500).json({ error: '일정 수정 실패' });
   }
 };

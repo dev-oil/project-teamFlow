@@ -1,4 +1,4 @@
-//캘린더 조회, 필터만 hooks/iseCalendarEvents.ts
+//캘린더 조회, 필터만 hooks/useCalendarEvents.ts
 import { useEffect, useState } from 'react';
 
 import type { CalendarEvent } from '../types/calendar';
@@ -13,7 +13,7 @@ export function useCalendarEvents(
   const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
-   if (!workspaceId || !accessToken) return;
+    if (!workspaceId || !accessToken) return;
 
     const headers = {
       Authorization: `Bearer ${accessToken}`,
@@ -38,12 +38,19 @@ export function useCalendarEvents(
       .then((data) => {
         //console.log('API 응답 데이터:', data);
         if (Array.isArray(data)) {
-           // API에서 받은 데이터의 start, end를 Date 객체로 변환
-          const eventsWithDateObjects = data.map((event) => ({
-            ...event,
-            start: new Date(event.start),
-            end: new Date(event.end),
-          }));
+          // API에서 받은 데이터의 start, end를 Date 객체로 변환
+          const eventsWithDateObjects = data.map((event) => {
+            const startDate = new Date(event.start);
+            const endDate = new Date(event.end);
+            //const adjustedEnd= new Date(endDate.getTime() + (24) * 60 * 60 * 1000);
+            const adjustedEnd= new Date(endDate.getTime() + (24-9) * 60 * 60 * 1000);
+            console.log(adjustedEnd);       
+            return {
+              ...event,
+              start: startDate,
+              end: adjustedEnd,
+            };
+          });
           setEvents(eventsWithDateObjects);
         } else {
           setEvents([]);
@@ -51,7 +58,7 @@ export function useCalendarEvents(
         }
       })
       .catch(console.error);
- }, [workspaceId, accessToken]);
+  }, [workspaceId, accessToken]);
 
   // 필터링된 이벤트만 반환
   const filteredEvents = events.filter((e) => {

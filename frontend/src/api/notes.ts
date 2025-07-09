@@ -1,17 +1,18 @@
+import { customFetch } from '@/lib/customFetch';
 import type { Note } from '@/types/note';
 
 export const fetchNotes = async (
   accessToken: string,
   workspaceId: number
 ): Promise<Note[]> => {
-  const res = await fetch(`/api/workspace/${workspaceId}/notes`, {
+  const res = await customFetch(`/api/workspace/${workspaceId}/notes`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
 
   if (!res.ok) throw new Error('회의록 불러오기 실패');
-  return res.json();
+  return await res.json();
 };
 
 export const fetchNoteById = async (
