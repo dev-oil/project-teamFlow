@@ -1,3 +1,4 @@
+//CalendarPage.tsx
 import { useState } from 'react';
 
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -25,92 +26,75 @@ export const CalendarPage = () => {
     selectedColor
   );
 
+  const formatDateKST = (date: Date): string => {
+  const kstDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return kstDate.toISOString().slice(0, 10);
+};
+
+//DB 저장
+const convertEndForDb = (start: Date, end: Date) => {
+
+  const adjustedStart = new Date(start);
+  const adjustedEnd = new Date(end);
+  // react-big-calendar가 end+1일로 주므로 무조건 -1일 처리
+  adjustedEnd.setDate(adjustedEnd.getDate() - 1);
+
+  const startStr = formatDateKST(adjustedStart);
+  const endStr = formatDateKST(adjustedEnd);
+
+  return { start: startStr, end: endStr };
+};
+  
   const { mutate: updateCardDate } = useUpdateCardDate();
 
-  const onEventDrop = ({ event, start, end }: any) => {
-    if (!accessToken) return;
-    console.log('일정이동');
-    console.log(start);
-    console.log(end);
+// 일정 이동
+ const onEventDrop = ({ event, start, end }: any) => {
+ // 1) 화면 상태 먼저 갱신
+  const updatedEvents = events.map((e) =>
+    e.id === event.id ? { ...e, start, end } : e
+  );
+  setEvents(updatedEvents);
 
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+  // 2) start/end를 '순수 날짜'로 정규화 (시간 제거)
+  const normStart = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const normEnd = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
-    // const isSingleDay =
-    //   startDate.toDateString() ===
-    //   new Date(endDate.getTime() - 86400000).toDateString();
-    // console.log('isSameDay:', isSingleDay);
+  // 3) DB 저장용으로 보정
+  const { start: startStr, end: endStr } = convertEndForDb(normStart, normEnd);
 
-    // // ✅ DB 저장용으로 보정
-    // const saveEnd = isSingleDay
-    //   ? new Date(startDate) // 당일치기면 start와 같은 날
-    //   : new Date(endDate); // 그 외엔 그대로
+  updateCardDate({
+    workspaceId: workspaceId!,
+    cardId: event.id,
+    start: startStr,
+    end: endStr,
+    accessToken: accessToken!,
+  });
+};
 
-    console.log('⏬ 이동 저장');
-    console.log('start →', startDate.toISOString());
-    console.log('end   →', endDate.toISOString());
 
-    // console.log('page.tsx', start, end, 'newEnd:', newEnd);
-    //console.log('page-Drop', start, saveEnd);
+// 일정 길이 조정
+const onEventResize = ({ event, start, end }: any) => {
+// 1) 화면 상태 먼저 갱신
+  const updatedEvents = events.map((e) =>
+    e.id === event.id ? { ...e, start, end } : e
+  );
+  setEvents(updatedEvents);
 
-    //이동시에는 날짜 그대로 저장
-    updateCardDate(
-      {
-        cardId: event.id,
-        start: startDate.toISOString(),
-        end: endDate.toISOString(), // ✅ 그대로 저장
-        workspaceId,
-        accessToken,
-      },
-      {
-        onSuccess: () => {
-          setEvents((prev) =>
-            prev.map((e) =>
-              e.id === event.id ? { ...e, start: startDate, end: endDate } : e
-            )
-          );
-        },
-      }
-    );
-  };
+  // 2) start/end를 '순수 날짜'로 정규화 (시간 제거)
+  const normStart = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const normEnd = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
-  const onEventResize = ({ event, start, end }: any) => {
-    if (!accessToken) return;
+  // 3) DB 저장용으로 보정
+  const { start: startStr, end: endStr } = convertEndForDb(normStart, normEnd);
 
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-
-    // const isSameDay =
-    //   startDate.toDateString() ===
-    //   new Date(endDate.getTime() - 1).toDateString();
-
-    // const saveEnd = isSameDay
-    //   ? new Date(startDate)
-    //   : new Date(endDate.getTime() - 24 * 60 * 60 * 1000); // ✅ -1일
-
-    console.log('⏬ 리사이즈 저장');
-    console.log('start →', startDate.toISOString());
-    console.log('end   →', endDate.toISOString());
-
-    updateCardDate(
-      {
-        cardId: event.id,
-         start: startDate.toISOString(),
-         end: endDate.toISOString(), // ✅ 그대로 저장
-        workspaceId,
-        accessToken,
-      },
-      {
-        onSuccess: () => {
-          setEvents((prev) =>
-            prev.map((e) =>
-              e.id === event.id ? { ...e, start: startDate, end: endDate } : e
-            )
-          );
-        },
-      }
-    );
-  };
+  updateCardDate({
+    workspaceId: workspaceId!,
+    cardId: event.id,
+    start: startStr,
+    end: endStr,
+    accessToken: accessToken!,
+  });
+};
 
   if (!workspaceId || !accessToken) return <div>로딩중</div>;
 
