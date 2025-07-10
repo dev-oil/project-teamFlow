@@ -1,12 +1,12 @@
 import { ChevronDownIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
 import type { DateRange } from 'react-day-picker';
+import { toast } from 'sonner';
 
+import { uploadCardFiles } from '@/api/board';
 import { useBoardData } from '@/hooks/useBoardData';
 import { customFetch } from '@/lib/customFetch';
 import type { Boxtype, Cardtype } from '@/types/board';
-
 import { colorOptions, type ColorCode } from '@/types/colors';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -24,25 +24,6 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Textarea } from '../ui/textarea';
-import { toast } from 'sonner';
-import { uploadCardFiles } from '@/api/board';
-
-export type ColorOption =
-  | '#FF6B6B'
-  | '#FFD43B'
-  | '#51CF66'
-  | '#38BDF8'
-  | '#845EF7'
-  | '#FFA8D4';
-
-const colorOptions: ColorOption[] = [
-  '#FF6B6B',
-  '#FFD43B',
-  '#51CF66',
-  '#38BDF8',
-  '#845EF7',
-  '#FFA8D4',
-];
 
 export type User = {
   id: string;
@@ -353,7 +334,6 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
             ></Textarea>
           </div>
 
-          {/* <div className=''> */}
           {/* 담당자 영역 */}
           {/* 유저 연결 시 작업 */}
           <div className='grid gap-3'>
