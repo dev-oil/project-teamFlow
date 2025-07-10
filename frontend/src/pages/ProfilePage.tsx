@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useUserStore } from '@/stores/useUserStore';
 import {
   type UserProfile,
   type UpdateProfileData,
@@ -61,6 +62,7 @@ export function ProfilePage() {
     try {
       const updatedProfile = await updateUserProfile(editForm);
       setProfile(updatedProfile);
+      useUserStore.getState().setProfile(updatedProfile);
       setIsEditing(false);
       toast.success('프로필이 성공적으로 수정되었습니다.');
     } catch {
@@ -101,12 +103,13 @@ export function ProfilePage() {
   const loadProfile = async () => {
     try {
       const userProfile = await fetchUserProfile();
-      setProfile(userProfile);
+      setProfile(userProfile); //로컬 state
       setEditForm({
         name: userProfile.name,
         email: userProfile.email,
         phone: userProfile.phone,
       });
+      useUserStore.getState().setProfile(userProfile); // 전역 state
     } catch {
       toast.error('프로필 정보를 불러오는데 실패했습니다.');
     } finally {
@@ -141,6 +144,7 @@ export function ProfilePage() {
       toast.error('이미지 업로드 실패');
     }
   };
+
   useEffect(() => {
     if (!accessToken) return;
     loadProfile();

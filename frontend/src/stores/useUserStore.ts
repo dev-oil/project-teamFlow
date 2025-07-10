@@ -1,0 +1,16 @@
+//stores/useUserStore.ts
+import { create } from 'zustand';
+
+import type { UserProfile } from '@/types/user';
+
+type UserStore = {
+  profile: UserProfile | null;
+  setProfile: (profile: UserProfile) => void;
+  clearProfile: () => void;
+};
+
+export const useUserStore = create<UserStore>((set) => ({
+  profile: null,
+  setProfile: (profile) => set({ profile }),
+  clearProfile: () => set({ profile: null }),
+}));

@@ -11,10 +11,13 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useUserStore } from '@/stores/useUserStore';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 export function Header() {
   const { workspace } = useWorkspaceStore();
+  const { profile } = useUserStore();
+
   const location = useLocation();
 
   const pathname = location.pathname;
@@ -25,7 +28,7 @@ export function Header() {
     '/notes': '회의록',
     '/calendar': '달력',
     '/profile': '프로필',
-    '/settings': '워크스페이스 설정',
+    '/settings': '워크스페이스 정보',
   };
 
   const currentPageName = pageNameMap[pathname];
@@ -58,8 +61,13 @@ export function Header() {
 
       <Avatar>
         <Link to='/profile'>
-          <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage
+            src={profile?.profile_image || undefined}
+            alt={profile?.name ?? '사용자'}
+          />
+          <AvatarFallback>
+            {profile?.name?.charAt(0).toUpperCase() ?? 'U'}
+          </AvatarFallback>
         </Link>
       </Avatar>
     </header>

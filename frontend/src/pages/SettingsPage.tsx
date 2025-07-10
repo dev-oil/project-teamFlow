@@ -21,7 +21,7 @@ export const SettingsPage = () => {
   return (
     <div className='container mx-auto p-6 space-y-6'>
       <h1 className='text-3xl font-bold mb-6'>
-        {isHost ? '워크스페이스 설정' : '워크스페이스 정보'}
+        {isHost ? '워크스페이스 정보' : '워크스페이스 정보'}
       </h1>
 
       <WorkspaceNameCard
@@ -31,12 +31,10 @@ export const SettingsPage = () => {
       <MembersCard
         isHost={isHost}
         workspaceId={workspaceId}
-        accessToken={accessToken}
       />
       {isHost && (
         <DeleteWorkspaceCard
           workspaceId={workspaceId}
-          accessToken={accessToken}
           onDeleted={() => navigate('/')}
         />
       )}
