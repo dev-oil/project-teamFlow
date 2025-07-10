@@ -3,9 +3,9 @@ import { useMutation } from '@tanstack/react-query';
 
 type UpdateCardDateArgs = {
   workspaceId: number;
-  cardId: number;
-  start: Date;
-  end: Date;
+   cardId: string;
+  start: string;
+  end: string;
   accessToken: string;
 };
 
@@ -18,9 +18,12 @@ export const useUpdateCardDate = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ start, end }),
+        body: JSON.stringify({ 
+          start: start.slice(0, 10),
+          end: end.slice(0, 10),
+        }),
       });
-
+      console.log('useupdate에서',start,end);
       if (!res.ok) throw new Error('일정 수정 실패');
       return res.json();
     },

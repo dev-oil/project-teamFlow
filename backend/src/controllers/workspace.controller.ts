@@ -20,7 +20,7 @@ export const createWorkspace = async (req: Request, res: Response) => {
 
 /**  워크스페이스 리스트 */
 export const getWorkspaces = async (req: Request, res: Response) => {
-  const userId = req.user!.userId;
+  const userId = req.user?.userId;
   try {
     const workspaces = await workspaceService.findUserWorkspaces(userId);
     res.json(workspaces);
@@ -31,7 +31,7 @@ export const getWorkspaces = async (req: Request, res: Response) => {
 
 /**  워크스페이스 한개 */
 export const getWorkspace = async (req: Request, res: Response) => {
-  const userId = req.user!.userId;
+  const userId = req.user?.userId;
   const workspaceId = parseInt(req.params.workspaceId);
   try {
     const workspace = await workspaceService.findUserWorkspace(

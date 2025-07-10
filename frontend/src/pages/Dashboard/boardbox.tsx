@@ -8,12 +8,12 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useModalStore } from '@/stores/useModalStore';
 import { Input } from '@/components/ui/input';
 import { customFetch } from '@/lib/customFetch';
 import type { BoxtypeWithCards } from '@/types/board';
 
 import { Boardcard } from './boardcard';
-import { Boardmodal } from '../../components/Modal/boardmodal';
 import { Button } from '../../components/ui/button';
 import {
   Card,
@@ -22,11 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../../components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from '../../components/ui/dialog';
 
 type BoardboxProps = {
   box: BoxtypeWithCards;
@@ -45,6 +40,7 @@ export function Boardbox({
     useSortable({
       id: box.id,
     });
+  const { openModal } = useModalStore();
   const [isEdit, setIsEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -162,19 +158,15 @@ export function Boardbox({
               </div>
             </CardTitle>
             <div>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <CardAction>
-                    <Button className='text-m w-full' variant='outline'>
-                      + 카드 생성
-                    </Button>
-                  </CardAction>
-                </DialogTrigger>
-
-                <DialogContent>
-                  <Boardmodal mode='create' box={box} />
-                </DialogContent>
-              </Dialog>
+              <CardAction>
+                <Button
+                  className='text-m w-full'
+                  variant='outline'
+                  onClick={() => openModal('create', box)}
+                >
+                  + 카드 생성
+                </Button>
+              </CardAction>
             </div>
           </CardHeader>
           <CardContent className=' flex flex-col gap-6'>

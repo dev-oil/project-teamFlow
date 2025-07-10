@@ -1,29 +1,45 @@
+import { customFetch } from '@/lib/customFetch';
 import type { Note } from '@/types/note';
 
 export const fetchNotes = async (
   accessToken: string,
   workspaceId: number
 ): Promise<Note[]> => {
-  const res = await fetch(`/api/workspace/${workspaceId}/notes`, {
+  const res = await customFetch(`/api/workspace/${workspaceId}/notes`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  
+
   if (!res.ok) throw new Error('회의록 불러오기 실패');
-  return res.json();
+  return await res.json();
 };
 
-export const fetchNoteById = async (id: number): Promise<Note> => {
-  const res = await fetch(`/api/1/workspace/1/notes/${id}`);
+export const fetchNoteById = async (
+  accessToken: string,
+  workspaceId: number,
+  noteId: number
+): Promise<Note> => {
+  const res = await fetch(`/api/workspace/${workspaceId}/notes/${noteId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
   if (!res.ok) throw new Error('회의록 상세 불러오기 실패');
   return res.json();
 };
 
-export const createNote = async (form: FormData): Promise<Note> => {
-  const res = await fetch(`/api/1/workspace/1/notes`, {
-    // 임시로 1 넣어두었습니다.
+export const createNote = async (
+  accessToken: string,
+  workspaceId: number,
+  form: FormData
+): Promise<Note> => {
+  const res = await fetch(`/api/workspace/${workspaceId}/notes`, {
     method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
     body: form,
   });
 
@@ -32,15 +48,34 @@ export const createNote = async (form: FormData): Promise<Note> => {
 };
 
 export const updateNote = async (
+  accessToken: string,
+  workspaceId: number,
   noteId: number,
   form: FormData
 ): Promise<Note> => {
-  const res = await fetch(`/api/1/workspace/1/notes/${noteId}`, {
-    // 임시로 1 넣어두었습니다.
+  const res = await fetch(`/api/workspace/${workspaceId}/notes/${noteId}`, {
     method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
     body: form,
   });
 
   if (!res.ok) throw new Error('회의록 수정 실패');
   return res.json();
+};
+
+export const deleteNote = async (
+  accessToken: string,
+  workspaceId: number,
+  noteId: number
+): Promise<void> => {
+  const res = await fetch(`/api/workspace/${workspaceId}/notes/${noteId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!res.ok) throw new Error('회의록 삭제 실패');
 };

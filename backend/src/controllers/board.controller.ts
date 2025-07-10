@@ -39,7 +39,8 @@ export const createCard = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   const workspaceId = Number(req.params.workspaceId);
   const boxId = req.params.boxId;
-  const { title, description, color, start_date, end_date } = req.body;
+  const { title, description, color, start_date, end_date, assignee } =
+    req.body;
 
   console.log(boxId);
   if (!title || typeof title !== 'string') {
@@ -54,7 +55,7 @@ export const createCard = async (req: Request, res: Response) => {
       color,
       start_date,
       end_date,
-      // users_ids,
+      assignee,
     });
 
     res.status(201).json(newCard);
