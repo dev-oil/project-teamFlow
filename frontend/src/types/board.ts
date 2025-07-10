@@ -25,9 +25,9 @@ export type Cardtype = {
       }[]
     | null;
   file?: {
-    id: number;
-    file_name: string;
-    file_path: string;
+    path: string;
+    filename: string;
+    originalName: string;
   } | null;
   created_at: string;
   updated_at: string;

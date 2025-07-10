@@ -4,7 +4,7 @@ import * as notesService from '../services/notes.service';
 
 export const getNotes = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
 
   try {
     const notes = await notesService.findNotesByWorkspace(userId, workspaceId);
@@ -28,7 +28,7 @@ export const getNoteById = async (req: Request, res: Response) => {
 
 export const createNote = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   const { title, content, participant, file } = req.body;
 
   if (!userId || !workspaceId) {

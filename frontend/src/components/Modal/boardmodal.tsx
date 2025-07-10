@@ -31,35 +31,16 @@ export type User = {
   image: string;
 };
 
-// 임시 데이터
-const users: User[] = [
-  {
-    id: 'user1',
-    name: '김유화',
-    image: 'https://github.com/evilrabbit.png',
-  },
-  {
-    id: 'user2',
-    name: '이주희',
-    image: 'https://github.com/octocat.png',
-  },
-  {
-    id: 'user3',
-    name: '손형수',
-    image: 'https://github.com/octocat.png',
-  },
-  {
-    id: 'user4',
-    name: '홍민경',
-    image: 'https://github.com/octocat.png',
-  },
-];
-
 type BoardmodalProps = {
   mode: 'create' | 'edit';
   box?: Boxtype;
   card?: Cardtype;
   open: boolean;
+};
+type Usertype = {
+  id: string;
+  name: string;
+  profile_image: string;
 };
 
 const acceptExtension = `
@@ -166,7 +147,6 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
             index === self.findIndex((f) => f.name === file.name)
         )
         .slice(0, 5); // 최대 5개 제한
-
       setAttachedFiles(mergedFiles);
       e.target.value = ''; // 같은 파일 선택불가
     }
@@ -212,7 +192,7 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
           name,
           profile_image: profile_image,
         }));
-      await addCard(box.id, {
+      const newCard = await addCard(box.id, {
         title: cardtitle.trim(),
         description: description.trim() || undefined,
         color: selectedColor ?? undefined,
@@ -227,7 +207,7 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
       if (attachedFiles.length > 0 && newCard) {
         await uploadCardFiles(box.workspaces_id, newCard.id, attachedFiles);
       }
-    } catch (err) {
+    } catch {
       alert('카드 생성에 실패했습니다.');
     }
   };

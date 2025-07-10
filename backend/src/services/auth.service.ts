@@ -6,6 +6,7 @@ import { redisClient } from '../utils/redis';
 import { sendResetEmail, sendVerificationEmail } from './email.service';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { JwtPayload } from '../types/jwt';
+import { createNewWorkspace } from './workspace.service';
 
 /**
  * 회원가입
@@ -47,10 +48,14 @@ export const verifyUserEmail = async (token: string): Promise<string> => {
 
   if (user.is_verified) return '이미 인증된 사용자입니다.';
 
-  await prisma.users.update({
+  const result = await prisma.users.update({
     where: { email },
     data: { is_verified: 1 },
+    select: {
+      id: true,
+    },
   });
+  await createNewWorkspace(result.id, '새 워크스페이스');
 
   await redisClient.del(`email:verify:${token}`);
   return '이메일 인증이 완료되었습니다.';

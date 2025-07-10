@@ -2,11 +2,11 @@
 import type { Request, Response } from 'express';
 import * as cardService from '../services/card.service';
 
-/** 카드 리스트 가져오기 (캘린더)  */   
+/** 카드 리스트 가져오기 (캘린더)  */
 export const getCards = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
-  const userId = req.user?.userId;
-  
+  const userId = req.user!.userId;
+
   try {
     const cards = await cardService.findCards(userId, workspaceId);
     res.json(cards);
@@ -16,9 +16,9 @@ export const getCards = async (req: Request, res: Response) => {
 };
 
 /** 카드 가져오기 */
-export const getCardById = async (req:Request, res:Response) => {
-  const cardId = req.params.cardId; 
-  const userId = req.user?.userId;
+export const getCardById = async (req: Request, res: Response) => {
+  const cardId = req.params.cardId;
+  const userId = req.user!.userId;
 
   try {
     const card = await cardService.findCardById(userId, cardId);
@@ -27,11 +27,11 @@ export const getCardById = async (req:Request, res:Response) => {
   } catch (error) {
     res.status(500).json({ error: '카드를 가져오지 못했습니다.' });
   }
-}  
+};
 
-/** 카드 수정 (캘린더) */ 
+/** 카드 수정 (캘린더) */
 export const updateCard = async (req: Request, res: Response) => {
-  const cardId = req.params.cardId; 
+  const cardId = req.params.cardId;
   const { start, end } = req.body;
 
   // 1. 유효성 검사
@@ -49,7 +49,11 @@ export const updateCard = async (req: Request, res: Response) => {
     //   return res.status(400).json({ error: '날짜 형식이 올바르지 않습니다.' });
     // }
 
-     const updated = await cardService.updateCardDate(cardId, new Date(start), new Date(end));
+    const updated = await cardService.updateCardDate(
+      cardId,
+      new Date(start),
+      new Date(end)
+    );
     res.json(updated);
   } catch (err) {
     console.error('카드 수정 오류:', err);

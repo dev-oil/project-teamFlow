@@ -49,7 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setWorkspace, workspace } = useWorkspaceStore();
   const accessToken = useAuthStore((state) => state.accessToken);
 
-  const { data: workspaces = [] } = useQuery<WorkspaceListItem[]>({
+  const { data: workspaces = [], refetch } = useQuery<WorkspaceListItem[]>({
     queryKey: ['workspaces'],
     queryFn: () => fetchWorkspaces(accessToken!),
   });
@@ -80,7 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         navigate('/');
         setWorkspace(newWorkspace);
 
-        // await refetch();
+        await refetch();
         toast.success('새 워크스페이스가 생성되었습니다');
       } else {
         const errData = await res.json();
@@ -139,7 +139,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <Button
           variant='outline'
-          asChild
           onClick={async () => {
             try {
               const res = await fetch('/api/auth/logout', {
@@ -149,6 +148,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
               if (!res.ok) throw new Error('로그아웃 실패');
               useAuthStore.getState().clearAccessToken();
+              window.location.href = '/';
             } catch (err: unknown) {
               if (err instanceof Error) {
                 toast.warning('로그아웃 실패', {
@@ -158,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             }
           }}
         >
-          <Link to='/'>Logout</Link>
+          로그아웃
         </Button>
       </SidebarFooter>
 

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import * as boardService from '../services/board.service';
 
 export const getBoard = async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   const workspaceId = Number(req.params.workspaceId);
 
   try {
@@ -17,7 +17,7 @@ export const getBoard = async (req: Request, res: Response) => {
 
 // 박스 생성
 export const createBox = async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   const workspaceId = Number(req.params.workspaceId);
   const { title } = req.body;
 
@@ -36,7 +36,7 @@ export const createBox = async (req: Request, res: Response) => {
 
 // 카드 생성
 export const createCard = async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   const workspaceId = Number(req.params.workspaceId);
   const boxId = req.params.boxId;
   const { title, description, color, start_date, end_date, assignee } =
@@ -68,24 +68,17 @@ export const createCard = async (req: Request, res: Response) => {
 export const uploadFiles = async (req: Request, res: Response) => {
   try {
     const { workspaceId, cardId } = req.params;
+    const userId = req.user!.userId;
     const files = req.files as Express.Multer.File[];
 
-    const filePaths = files.map((f) => f.path);
+    await boardService.uploadFilePath(
+      files,
+      Number(workspaceId),
+      cardId,
+      userId
+    );
 
-    // DB에 파일 경로 추가
-    await prisma.card.update({
-      where: { id: cardId },
-      data: {
-        attachments: {
-          push: filePaths, // Prisma 배열에 파일 경로 추가
-        },
-      },
-    });
-
-    res.status(200).json({
-      message: '파일 업로드 완료',
-      files: filePaths,
-    });
+    res.status(200).json({ message: '파일 업로드 완료' });
   } catch (error) {
     console.error('파일 업로드 오류:', error);
     res.status(500).json({ message: '파일 업로드 실패' });

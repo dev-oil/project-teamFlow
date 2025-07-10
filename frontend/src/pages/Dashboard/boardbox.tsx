@@ -121,7 +121,7 @@ export function Boardbox({
         >
           <CardHeader>
             <CardTitle className='text-lg'>
-              <div className='flex justify-between'>
+              <div className='flex justify-between mb-2'>
                 {isEdit ? (
                   <Input
                     type='text'
@@ -156,18 +156,18 @@ export function Boardbox({
                   <Button onClick={() => setIsEdit(!isEdit)}>📝</Button>
                 )}
               </div>
+              <div>
+                <CardAction>
+                  <Button
+                    className='text-m w-full'
+                    variant='outline'
+                    onClick={() => openModal('create', box)}
+                  >
+                    + 카드 생성
+                  </Button>
+                </CardAction>
+              </div>
             </CardTitle>
-            <div>
-              <CardAction>
-                <Button
-                  className='text-m w-full'
-                  variant='outline'
-                  onClick={() => openModal('create', box)}
-                >
-                  + 카드 생성
-                </Button>
-              </CardAction>
-            </div>
           </CardHeader>
           <CardContent className=' flex flex-col gap-6'>
             {orderedCards.length === 0 ? (

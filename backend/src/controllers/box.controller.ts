@@ -4,7 +4,7 @@ import * as boxService from '../services/box.service';
 /** 박스 리스트 가져오기 (캘린더 - 카테고리) */
 export const getBoxes = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
 
   try {
     const boxes = await boxService.findBoxes(userId, workspaceId);
@@ -29,7 +29,7 @@ export const getBoxById = async (req: Request, res: Response) => {
 
 export const editBoxName = async (req: Request, res: Response) => {
   const boxId = req.params.boxId;
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   const { title } = req.body;
 
   if (!title) {
@@ -50,7 +50,7 @@ export const editBoxName = async (req: Request, res: Response) => {
 
 export const deleteBox = async (req: Request, res: Response) => {
   const boxId = req.params.boxId;
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   try {
     await boxService.deleteBoxById(boxId, userId);
     res
