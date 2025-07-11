@@ -1,8 +1,8 @@
 import 'express';
-import { JwtPayload } from '../../types/jwt';
+import { JwtPayload } from './jwt';
 
 declare module 'express' {
   export interface Request {
- user?: JwtPayload;
+    user?: JwtPayload;
   }
 }

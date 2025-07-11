@@ -122,6 +122,19 @@ export function useBoardData() {
     }
   };
 
+  const editBox = async (editBoxId: string, title: string) => {
+    if (!workspace?.id) return;
+    const newBoxes = boxes.map((b) =>
+      b.id === editBoxId ? { ...b, title } : b
+    );
+    setBoxes(newBoxes);
+  };
+
+  const deleteBox = async (deletedBoxId: string) => {
+    if (!accessToken || !workspace?.id) return;
+    setBoxes((prev) => prev.filter((b) => b.id !== deletedBoxId));
+  };
+
   const addCard = async (
     boxId: string,
     cardData: {
@@ -136,10 +149,11 @@ export function useBoardData() {
     if (!accessToken) return;
 
     try {
-      await createCard(workspace.id, boxId, cardData);
+      const newCard = await createCard(workspace.id, boxId, cardData);
 
       const updatedBoxes = await fetchBoard(workspace.id);
       setBoxes(updatedBoxes);
+      return newCard;
     } catch (err) {
       console.error('카드 생성 중 오류 발생:', err);
       throw err;
@@ -154,5 +168,7 @@ export function useBoardData() {
     togglePin,
     addBox,
     addCard,
+    deleteBox,
+    editBox,
   };
 }

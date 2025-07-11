@@ -14,7 +14,8 @@ model boxes {
   title         String     @db.VarChar(200)
   created_at    DateTime   @default(now()) @db.Timestamp(0)
   updated_at    DateTime   @default(now()) @db.Timestamp(0)
-  workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_boxes_workspaces1")
+  workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: Cascade, map: "fk_boxes_workspaces1")
+  cards         cards[]
 
   @@index([workspaces_id], map: "fk_boxes_workspaces1_idx")
 }
@@ -33,6 +34,9 @@ model cards {
   file        Json?
   created_at  DateTime @default(now()) @db.Timestamp(0)
   updated_at  DateTime @default(now()) @db.Timestamp(0)
+  boxes       boxes    @relation(fields: [boxes_id], references: [id], onDelete: Cascade, map: "fk_cards_boxes1")
+
+  @@index([boxes_id], map: "fk_cards_boxes1_idx")
 }
 
 model invitations {
@@ -44,12 +48,12 @@ model invitations {
   expires_at    DateTime   @db.DateTime(0)
   used          Int        @default(0) @db.TinyInt
   created_at    DateTime   @default(now()) @db.Timestamp(0)
-  users         users      @relation(fields: [users_id], references: [id], onUpdate: Restrict, map: "fk_invitations_users1")
-  workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitations_workspaces1")
+  users         users      @relation(fields: [users_id], references: [id], onDelete: Cascade, map: "fk_invitations_users1")
+  workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: Cascade, map: "fk_invitations_workspaces1")
 
-  @@unique([email, workspaces_id], map: "email_workspace_unique") 
+  @@unique([email, workspaces_id], map: "email_workspace_unique")
   @@index([users_id], map: "fk_invitations_users1_idx")
-  @@index([workspaces_id], map: "fk_invitations_workspaces1_idx") 
+  @@index([workspaces_id], map: "fk_invitations_workspaces1_idx")
 }
 
 model meeting_notes {
@@ -62,8 +66,8 @@ model meeting_notes {
   content       String?    @db.Text
   file          Json?
   updated_at    DateTime   @default(now()) @db.Timestamp(0)
-  users         users      @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_users1")
-  workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meeting_notes_workspaces1")
+  users         users      @relation(fields: [users_id], references: [id], onDelete: Cascade, map: "fk_meeting_notes_users1")
+  workspaces    workspaces @relation(fields: [workspaces_id], references: [id], onDelete: Cascade, map: "fk_meeting_notes_workspaces1")
 
   @@index([users_id], map: "fk_meeting_notes_users1_idx")
   @@index([workspaces_id], map: "fk_meeting_notes_workspaces1_idx")
@@ -74,8 +78,8 @@ model members {
   users_id      Int
   workspaces_id Int
   role          members_role
-  users         users        @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_members_users")
-  workspaces    workspaces   @relation(fields: [workspaces_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_members_workspaces1")
+  users         users        @relation(fields: [users_id], references: [id], onDelete: Cascade, map: "fk_members_users")
+  workspaces    workspaces   @relation(fields: [workspaces_id], references: [id], onDelete: Cascade, map: "fk_members_workspaces1")
 
   @@index([users_id], map: "fk_members_users_idx")
   @@index([workspaces_id], map: "fk_members_workspaces1_idx")
@@ -107,7 +111,7 @@ model workspaces {
   invitations   invitations[]
   meeting_notes meeting_notes[]
   members       members[]
-  users         users           @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_workspaces_users1")
+  users         users           @relation(fields: [users_id], references: [id], onDelete: Cascade, map: "fk_workspaces_users1")
 
   @@index([users_id], map: "fk_workspaces_users1_idx")
 }

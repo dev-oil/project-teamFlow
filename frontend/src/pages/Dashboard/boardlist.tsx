@@ -35,8 +35,16 @@ export function Boardlist({ page }: BoardlistProps) {
   const scrollHeight =
     page === 'dashpage' ? 'h-[calc(100vh-172px)]' : 'h-[calc(500px-172px)]';
 
-  const { boxes, togglePin, isLoading, moveCard, moveBox, addBox } =
-    useBoardData();
+  const {
+    boxes,
+    togglePin,
+    isLoading,
+    moveCard,
+    moveBox,
+    addBox,
+    deleteBox,
+    editBox,
+  } = useBoardData();
 
   const [activeCard, setActiveCard] = useState<Cardtype | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -158,6 +166,8 @@ export function Boardlist({ page }: BoardlistProps) {
                         // box={{ ...box, cards: [...box.cards] }}
                         box={box}
                         togglePin={togglePin}
+                        deleteBox={deleteBox}
+                        editBox={editBox}
                       />
                     ))
                   )}

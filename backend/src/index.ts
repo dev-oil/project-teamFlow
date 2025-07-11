@@ -48,7 +48,7 @@ app.use('/api/workspaces/:workspaceId/cards', cardRouter);
 app.use('/api/holidays', holidaysRoutes);
 
 //프로필
-app.use('/api', profileRouter); 
+app.use('/api', profileRouter);
 
 //업로드
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'))); // 정적 파일 제공

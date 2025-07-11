@@ -1,9 +1,26 @@
 import { Request, Response } from 'express';
 import * as workspaceService from '../services/workspace.service';
 
+/** 워크스페이스 생성 */
+export const createWorkspace = async (req: Request, res: Response) => {
+  const { name } = req.body;
+  try {
+    const result = await workspaceService.createNewWorkspace(
+      req.user!.userId,
+      name
+    );
+    res.status(200).json(result);
+  } catch (err: unknown) {
+    res.status(500).json({
+      title: err,
+      description: '워크스페이스 생성 실패',
+    });
+  }
+};
+
 /**  워크스페이스 리스트 */
 export const getWorkspaces = async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   try {
     const workspaces = await workspaceService.findUserWorkspaces(userId);
     res.json(workspaces);
@@ -14,7 +31,7 @@ export const getWorkspaces = async (req: Request, res: Response) => {
 
 /**  워크스페이스 한개 */
 export const getWorkspace = async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
   const workspaceId = parseInt(req.params.workspaceId);
   try {
     const workspace = await workspaceService.findUserWorkspace(
@@ -119,11 +136,11 @@ export const updateWorkspaceName = async (req: Request, res: Response) => {
 /**  워크스페이스 삭제 */
 export const deleteWorkspace = async (req: Request, res: Response) => {
   const workspaceId = parseInt(req.params.workspaceId, 10);
-  const userId = (req as any).user?.userId;
-  //console.log('userId:', userId);
+  const userId = req.user!.userId;
+
   if (isNaN(workspaceId)) {
     res.status(400).json({ error: '유효한 ID가 아닙니다.' });
-    return ;
+    return;
   }
   try {
     await workspaceService.deleteWorkspace(workspaceId, userId);

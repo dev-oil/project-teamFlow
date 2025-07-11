@@ -5,7 +5,7 @@ import * as cardService from '../services/card.service';
 /** 카드 리스트 가져오기 (캘린더)  */
 export const getCards = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
 
   try {
     const cards = await cardService.findCards(userId, workspaceId);
@@ -18,7 +18,7 @@ export const getCards = async (req: Request, res: Response) => {
 /** 카드 가져오기 */
 export const getCardById = async (req: Request, res: Response) => {
   const cardId = req.params.cardId;
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
 
   try {
     const card = await cardService.findCardById(userId, cardId);

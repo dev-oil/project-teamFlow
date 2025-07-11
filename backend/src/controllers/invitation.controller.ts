@@ -8,11 +8,11 @@ const prisma = new PrismaClient();
 /** 초대 */
 export const createInvitation = async (req: Request, res: Response) => {
   const { fromName, fromEmail, toEmail, workspaceId } = req.body;
-  const userId = req.user?.userId;
+  const userId = req.user!.userId;
 
   if (!fromName || !fromEmail || !toEmail || !workspaceId) {
     res.status(400).json({ message: '필수 항목이 누락되었습니다.' });
-    return ;
+    return;
   }
 
   try {
@@ -20,11 +20,11 @@ export const createInvitation = async (req: Request, res: Response) => {
       fromName,
       fromEmail,
       toEmail,
-      workspaceId, 
-      userId,
+      workspaceId,
+      userId
     );
     res.json({ success: true, token, expires_at });
-    return ;
+    return;
   } catch (error: unknown) {
     console.error('초대 생성 실패:', error);
 
@@ -35,14 +35,14 @@ export const createInvitation = async (req: Request, res: Response) => {
         ? error
         : '서버 오류';
 
-        res.status(400).json({ message }); // 프론트에서 받기 쉬운 키 이름
-    return ;
+    res.status(400).json({ message }); // 프론트에서 받기 쉬운 키 이름
+    return;
   }
 };
 
 /** 초대 토큰 유효성 검사*/
 export const verifyInvitationToken = async (req: Request, res: Response) => {
-    const token = req.query.token as string;
+  const token = req.query.token as string;
 
   if (!token || typeof token !== 'string') {
     console.log(`토큰 없음`);
@@ -58,10 +58,8 @@ export const verifyInvitationToken = async (req: Request, res: Response) => {
       invite.used === 1 ||
       new Date(invite.expires_at) < new Date()
     ) {
-      res
-        .status(400)
-        .json({ error: '유효하지 않거나 만료된 토큰입니다.' });
-      return ;
+      res.status(400).json({ error: '유효하지 않거나 만료된 토큰입니다.' });
+      return;
     }
 
     res.status(200).json({ success: true });

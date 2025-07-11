@@ -1,10 +1,10 @@
-import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
+import { IconCirclePlusFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { toast } from 'sonner';
 import { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 // import { fetchWorkspaces } from '@/api/workspaces';
 import { VersionSwitcher } from '@/components/Sidebar/version-switcher';
@@ -27,6 +27,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { WorkspaceListItem } from '@/types/workspace';
 import { fetchWorkspaces } from '@/api/workspaces';
+import { customFetch } from '@/lib/customFetch';
+import { Loader2 } from 'lucide-react';
 
 const navMain = [
   {
@@ -42,10 +44,12 @@ const navMain = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = React.useState(false);
   const { setWorkspace, workspace } = useWorkspaceStore();
   const accessToken = useAuthStore((state) => state.accessToken);
 
-  const { data: workspaces = [] } = useQuery<WorkspaceListItem[]>({
+  const { data: workspaces = [], refetch } = useQuery<WorkspaceListItem[]>({
     queryKey: ['workspaces'],
     queryFn: () => fetchWorkspaces(accessToken!),
   });
@@ -53,20 +57,53 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   useEffect(() => {
     if (workspaces.length === 0) return;
 
-   const exists = workspaces.some((ws) => ws.id === workspace?.id);
+    const exists = workspaces.some((ws) => ws.id === workspace?.id);
 
     // 선택값이 없거나 유효하지 않으면 첫 번째 워크스페이스로 설정
-      if (!workspace || !exists) {
+    if (!workspace || !exists) {
       setWorkspace(workspaces[0]);
     }
   }, [workspaces, workspace, setWorkspace]);
 
   const location = useLocation();
 
+  const handleCreateWorkspace = async () => {
+    setIsLoading(true);
+    try {
+      const res = await customFetch('/api/workspaces', {
+        method: 'POST',
+        body: JSON.stringify({ name: '새 워크스페이스' }),
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const newWorkspace: WorkspaceListItem = await res.json();
+        navigate('/');
+        setWorkspace(newWorkspace);
+
+        await refetch();
+        toast.success('새 워크스페이스가 생성되었습니다');
+      } else {
+        const errData = await res.json();
+        toast.success(errData.title, {
+          description: errData.description,
+        });
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.warning(err.name, {
+          description: err.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <Button>
+        <Button onClick={handleCreateWorkspace} disabled={isLoading}>
+          {isLoading && <Loader2 className='h-4 w-4 animate-spin' />}
           <IconCirclePlusFilled /> 새 워크스페이스
         </Button>
       </SidebarHeader>
@@ -102,7 +139,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <Button
           variant='outline'
-          asChild
           onClick={async () => {
             try {
               const res = await fetch('/api/auth/logout', {
@@ -112,6 +148,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
               if (!res.ok) throw new Error('로그아웃 실패');
               useAuthStore.getState().clearAccessToken();
+              window.location.href = '/';
             } catch (err: unknown) {
               if (err instanceof Error) {
                 toast.warning('로그아웃 실패', {
@@ -121,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             }
           }}
         >
-          <Link to='/'>Logout</Link>
+          로그아웃
         </Button>
       </SidebarFooter>
 

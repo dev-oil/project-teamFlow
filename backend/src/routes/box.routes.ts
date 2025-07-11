@@ -7,5 +7,6 @@ const router = express.Router({ mergeParams: true });
 
 router.get('/', verifyAccessToken, boxController.getBoxes);
 router.get('/:boxId', verifyAccessToken, boxController.getBoxById);
+router.patch('/:boxId', verifyAccessToken, boxController.editBoxName);
+router.delete('/:boxId', verifyAccessToken, boxController.deleteBox);
 export default router;
-

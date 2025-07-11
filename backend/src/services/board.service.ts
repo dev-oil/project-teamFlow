@@ -99,6 +99,40 @@ export const postCard = async (
       end_date: data.end_date ? new Date(data.end_date) : undefined,
       assignee: data.assignee,
       order: cardCount,
+      file: [],
+    },
+  });
+};
+
+export const uploadFilePath = async (
+  files: Express.Multer.File[],
+  workspaceId: number,
+  cardId: string,
+  userId: number
+) => {
+  const filePaths = files.map((f) => {
+    const file = {
+      path: f.path,
+      filename: f.filename,
+      originalName: f.originalname,
+    };
+    return file;
+  });
+
+  await prisma.cards.updateMany({
+    where: {
+      id: cardId,
+      boxes: {
+        workspaces: {
+          id: workspaceId,
+          members: {
+            some: { users_id: userId },
+          },
+        },
+      },
+    },
+    data: {
+      file: { push: filePaths },
     },
   });
 };

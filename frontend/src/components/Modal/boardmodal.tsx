@@ -1,12 +1,12 @@
 import { ChevronDownIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
 import type { DateRange } from 'react-day-picker';
+import { toast } from 'sonner';
 
+import { uploadCardFiles } from '@/api/board';
 import { useBoardData } from '@/hooks/useBoardData';
 import { customFetch } from '@/lib/customFetch';
 import type { Boxtype, Cardtype } from '@/types/board';
-
 import { colorOptions, type ColorCode } from '@/types/colors';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -25,6 +25,12 @@ import { Label } from '../ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Textarea } from '../ui/textarea';
 
+export type User = {
+  id: string;
+  name: string;
+  image: string;
+};
+
 type BoardmodalProps = {
   mode: 'create' | 'edit';
   box?: Boxtype;
@@ -36,6 +42,32 @@ type Usertype = {
   name: string;
   profile_image: string;
 };
+
+const acceptExtension = `
+  .jpg,.jpeg,.png,.gif,
+  .pdf,
+  .doc,.docx,
+  .xls,.xlsx,
+  .ppt,.pptx,
+  .csv,
+  .zip
+`;
+
+const allowedExtensions = [
+  'jpg',
+  'jpeg',
+  'png',
+  'gif',
+  'pdf',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'csv',
+  'zip',
+];
 
 export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
   useEffect(() => {
@@ -95,14 +127,26 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
 
+      const filteredFiles = newFiles.filter((file) => {
+        console.log(typeof file);
+        console.log(file);
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        if (!ext || !allowedExtensions.includes(ext)) {
+          toast.warning('허용되지 않은 파일 형식입니다', {
+            description: file.name,
+          });
+          return false;
+        }
+        return true;
+      });
+
       // 중복 방지 & 최대 5개 제한
-      const mergedFiles = [...attachedFiles, ...newFiles]
+      const mergedFiles = [...attachedFiles, ...filteredFiles]
         .filter(
           (file, index, self) =>
             index === self.findIndex((f) => f.name === file.name)
         )
         .slice(0, 5); // 최대 5개 제한
-
       setAttachedFiles(mergedFiles);
       e.target.value = ''; // 같은 파일 선택불가
     }
@@ -148,7 +192,7 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
           name,
           profile_image: profile_image,
         }));
-      await addCard(box.id, {
+      const newCard = await addCard(box.id, {
         title: cardtitle.trim(),
         description: description.trim() || undefined,
         color: selectedColor ?? undefined,
@@ -158,7 +202,12 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
       });
       console.log('addCard 호출 후');
       // 성공 후 상태 반영은 useBoardData에서 이미 처리함
-    } catch (err) {
+
+      // 2️⃣ 첨부파일 업로드 (파일이 있을 때만)
+      if (attachedFiles.length > 0 && newCard) {
+        await uploadCardFiles(box.workspaces_id, newCard.id, attachedFiles);
+      }
+    } catch {
       alert('카드 생성에 실패했습니다.');
     }
   };
@@ -265,7 +314,6 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
             ></Textarea>
           </div>
 
-          {/* <div className=''> */}
           {/* 담당자 영역 */}
           {/* 유저 연결 시 작업 */}
           <div className='grid gap-3'>
@@ -346,6 +394,7 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
               <Input
                 id='file-upload'
                 type='file'
+                accept={acceptExtension}
                 multiple // 다중 업로드
                 className='hidden'
                 onChange={handleFileChange}

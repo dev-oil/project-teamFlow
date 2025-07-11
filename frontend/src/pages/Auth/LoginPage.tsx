@@ -43,7 +43,7 @@ export function LoginPage() {
     setIsLoading(true);
     // 로그인 요청 로직
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
