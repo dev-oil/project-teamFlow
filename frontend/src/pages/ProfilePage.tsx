@@ -125,7 +125,9 @@ export function ProfilePage() {
       if (!res.ok) throw new Error('업로드 실패');
       const data = await res.json();
 
-      setProfile((prev) => (prev ? { ...prev, profile_image: data.profile_image } : prev));
+      setProfile((prev) =>
+        prev ? { ...prev, profile_image: data.profile_image } : prev
+      );
       toast.success('프로필 이미지가 변경되었습니다.');
     } catch {
       toast.error('이미지 업로드 실패');
@@ -147,7 +149,9 @@ export function ProfilePage() {
   if (!profile) {
     return (
       <div className='flex items-center justify-center min-h-screen'>
-        <div className='text-lg text-red-500'>프로필 정보를 불러올 수 없습니다.</div>
+        <div className='text-lg text-red-500'>
+          프로필 정보를 불러올 수 없습니다.
+        </div>
       </div>
     );
   }
@@ -156,7 +160,9 @@ export function ProfilePage() {
     <div className='container mx-auto px-4 py-8 max-w-2xl'>
       <Card>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold text-center'>프로필</CardTitle>
+          <CardTitle className='text-2xl font-bold text-center'>
+            프로필
+          </CardTitle>
         </CardHeader>
         <CardContent className='space-y-6'>
           <ProfileAvatarSection
