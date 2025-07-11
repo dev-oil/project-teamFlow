@@ -23,7 +23,6 @@ export const useUpdateCardDate = () => {
           end: end.slice(0, 10),
         }),
       });
-      console.log('useupdate에서',start,end);
       if (!res.ok) throw new Error('일정 수정 실패');
       return res.json();
     },

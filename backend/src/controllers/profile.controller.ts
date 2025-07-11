@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 
 /** 프로필 조회 */
 export const getProfile = async (req: Request, res: Response) => {
-  
   try {
     const userId = req.user?.userId;
     console.log(userId);
@@ -34,11 +33,10 @@ export const getProfile = async (req: Request, res: Response) => {
       res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
       return;
     }
-
+    user.profile_image = `${user.profile_image}?timestamp=${Date.now()}`;
     res.status(200).json(user);
   } catch (err: unknown) {
-    if (err instanceof Error)
-      res.status(500).json({ message: err.message });
+    if (err instanceof Error) res.status(500).json({ message: err.message });
   }
 };
 
@@ -54,7 +52,6 @@ export const updateProfile = async (req: Request, res: Response) => {
     const { name, phone } = req.body;
 
     // 이메일 중복 확인 (자신의 이메일 제외)
-   
     const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: {
@@ -73,16 +70,17 @@ export const updateProfile = async (req: Request, res: Response) => {
         is_verified: true,
       },
     });
+    updatedUser.profile_image = `${
+      updatedUser.profile_image
+    }?timestamp=${Date.now()}`;
 
     res.status(200).json(updatedUser);
   } catch (err: unknown) {
-    if (err instanceof Error)
-      res.status(500).json({ message: err.message });
+    if (err instanceof Error) res.status(500).json({ message: err.message });
   }
 };
 
-/** 비밀번호 변경 */   
-//(비밀번호 재설정  resetPassword 이메일 발송 forgotPassword)
+/** 비밀번호 변경 */
 export const changePassword = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -104,7 +102,10 @@ export const changePassword = async (req: Request, res: Response) => {
     }
 
     // 현재 비밀번호 확인
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
     if (!isCurrentPasswordValid) {
       res.status(400).json({ message: '현재 비밀번호가 올바르지 않습니다.' });
       return;
@@ -124,8 +125,7 @@ export const changePassword = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
   } catch (err: unknown) {
-    if (err instanceof Error)
-      res.status(500).json({ message: err.message });
+    if (err instanceof Error) res.status(500).json({ message: err.message });
   }
 };
 
@@ -145,7 +145,6 @@ export const deleteAccount = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: '계정이 성공적으로 삭제되었습니다.' });
   } catch (err: unknown) {
-    if (err instanceof Error)
-      res.status(500).json({ message: err.message });
+    if (err instanceof Error) res.status(500).json({ message: err.message });
   }
 };

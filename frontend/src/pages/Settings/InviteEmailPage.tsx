@@ -51,9 +51,7 @@ export function InviteEmailPage() {
     if (res.ok) {
    
       toast.success('초대 수락 완료! 워크스페이스로 이동합니다.');
-      //navigate(`/workspaces/${data.workspaceId}`);
       window.location.href = '/';
-      //navigate(`/`, { replace: true });
     } else {
       toast.error(data.error || '초대 수락 실패');
     }

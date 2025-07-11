@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 
 import notesRouter from './routes/notes.routes';
 import authRouter from './routes/auth.routes';
@@ -11,7 +12,8 @@ import boardRouter from './routes/board.routes';
 import cardRouter from './routes/card.routes'; // 캘린더
 import boxRouter from './routes/box.routes'; // 캘린더 - 카테고리
 import holidaysRoutes from './routes/calendar.routes'; // 캘린더 - 공휴일
-import profileRouter from './routes/profile.routes';
+import profileRouter from './routes/profile.routes'; //프로필
+import uploadRoutes from './routes/upload.route'; //업로드
 
 const app = express();
 const PORT = 3001;
@@ -47,6 +49,10 @@ app.use('/api/holidays', holidaysRoutes);
 
 //프로필
 app.use('/api', profileRouter);
+
+//업로드
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'))); // 정적 파일 제공
+app.use('/api', uploadRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);

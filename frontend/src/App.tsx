@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { Toaster } from './components/ui/sonner';
 import { useAuth } from './hooks/useAuth';
 import { useAuthInitializer } from './hooks/useAuthInitializer';
+import { useProfileInit } from './hooks/useProfileInit';
 import { AuthLayout } from './pages/Auth/AuthLayout';
 import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { LoginPage } from './pages/Auth/LoginPage';
@@ -26,6 +27,7 @@ import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
   useAuthInitializer();
+  useProfileInit();
   const { isLoggedIn, isInitiailized } = useAuth();
   if (!isInitiailized) return null;
   if (!isLoggedIn) {
@@ -48,14 +50,13 @@ function App() {
     );
   }
 
-  
   return (
     <>
       {/* 사이드바 밖에 /invite 경로 추가 */}
       <Routes>
         <Route path='/invite' element={<InviteEmailPage />} />
       </Routes>
-      
+
       {/* 기존 사이드바 구조 */}
       <SidebarProvider className='overflow-hidden'>
         <AppSidebar />

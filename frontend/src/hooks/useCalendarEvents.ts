@@ -12,6 +12,19 @@ export function useCalendarEvents(
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
+  // DB 데이터를 react-big-calendar 표시용으로 변환
+  const convertToCalendarEvent = (event: any): CalendarEvent => {
+    const start = new Date(`${event.start}T00:00:00`);
+    const end = new Date(`${event.end}T00:00:00`);
+    end.setDate(end.getDate() + 1);
+
+    return {
+      ...event,
+      start,
+      end,
+    };
+  };
+
   useEffect(() => {
     if (!workspaceId || !accessToken) return;
 
@@ -36,21 +49,8 @@ export function useCalendarEvents(
     fetch(`/api/workspaces/${workspaceId}/cards`, { headers })
       .then((res) => res.json())
       .then((data) => {
-        //console.log('API 응답 데이터:', data);
         if (Array.isArray(data)) {
-          // API에서 받은 데이터의 start, end를 Date 객체로 변환
-          const eventsWithDateObjects = data.map((event) => {
-            const startDate = new Date(event.start);
-            const endDate = new Date(event.end);
-            //const adjustedEnd= new Date(endDate.getTime() + (24) * 60 * 60 * 1000);
-            const adjustedEnd= new Date(endDate.getTime() + (24-9) * 60 * 60 * 1000);
-            console.log(adjustedEnd);       
-            return {
-              ...event,
-              start: startDate,
-              end: adjustedEnd,
-            };
-          });
+          const eventsWithDateObjects = data.map(convertToCalendarEvent);
           setEvents(eventsWithDateObjects);
         } else {
           setEvents([]);
