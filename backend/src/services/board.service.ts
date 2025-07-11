@@ -1,4 +1,5 @@
 import { prisma } from '../db/prisma';
+import { redisClient } from '../utils/redis';
 
 /** 보드 데이터 가져오기 */
 export const findBoardWidthCard = async (
@@ -56,7 +57,7 @@ export const createBox = async (
 
   const newBox = await prisma.boxes.create({
     data: {
-      title,
+      title: '새 박스',
       order,
       workspaces_id: workspaceId,
     },
@@ -95,13 +96,71 @@ export const postCard = async (
       title: data.title,
       description: data.description,
       color: data.color,
-      start_date: data.start_date ? new Date(data.start_date) : undefined,
-      end_date: data.end_date ? new Date(data.end_date) : undefined,
+      start_date: new Date(data.start_date!),
+      end_date: new Date(data.end_date!),
       assignee: data.assignee,
       order: cardCount,
       file: [],
     },
   });
+};
+
+// 카드 수정
+export const updateCard = async (
+  userId: number,
+  workspaceId: number,
+  cardId: string,
+  data: {
+    title?: string;
+    description?: string;
+    color?: string;
+    start_date?: string;
+    end_date?: string;
+    assignee?: { id: string; name: string; profile_image: string }[];
+  }
+) => {
+  const card = await prisma.cards.findFirst({
+    where: {
+      id: cardId,
+      boxes: {
+        workspaces_id: workspaceId,
+        workspaces: { members: { some: { users_id: userId } } },
+      },
+    },
+    select: { id: true },
+  });
+  if (!card) throw new Error('권한이 없거나 카드가 존재하지 않습니다.');
+
+  return prisma.cards.update({
+    where: { id: cardId },
+    data: {
+      ...data,
+      start_date: data.start_date ? new Date(data.start_date) : undefined,
+      end_date: data.end_date ? new Date(data.end_date) : undefined,
+      assignee: data.assignee,
+    },
+  });
+};
+
+// 카드 삭제
+export const deleteCard = async (
+  userId: number,
+  workspaceId: number,
+  cardId: string
+) => {
+  const card = await prisma.cards.findFirst({
+    where: {
+      id: cardId,
+      boxes: {
+        workspaces_id: workspaceId,
+        workspaces: { members: { some: { users_id: userId } } },
+      },
+    },
+    select: { id: true },
+  });
+  if (!card) throw new Error('권한이 없거나 카드가 존재하지 않습니다.');
+
+  await prisma.cards.delete({ where: { id: cardId } });
 };
 
 export const uploadFilePath = async (
@@ -137,8 +196,30 @@ export const uploadFilePath = async (
   });
 };
 
-// 카드 수정 -> 날짜 수정 가능 / 통째로 저장버튼 클릭시
-// 	=> dnd order변경은 실시간(redis) 중간저장 텀을두고 db 저장 // 주요
-// 카드 삭제
+// 작업보드 순서
+type OrderItem = {
+  id: string;
+  order: number;
+};
 
-// 옵션) 박스 삭제 / 수정
+export const updateCardAndBoxOrder = async (
+  workspaceId: number,
+  cards?: OrderItem[],
+  boxes?: OrderItem[]
+) => {
+  const pipeline = redisClient.multi();
+
+  if (cards) {
+    for (const { id, order } of cards) {
+      pipeline.hSet(`card_orders:${workspaceId}`, id, order.toString());
+    }
+  }
+
+  if (boxes) {
+    for (const { id, order } of boxes) {
+      pipeline.hSet(`box_orders:${workspaceId}`, id, order.toString());
+    }
+  }
+
+  await pipeline.exec();
+};

@@ -46,7 +46,7 @@ export const createCard = async (
     start_date?: string;
     end_date?: string;
     color?: string;
-    assignees?: { id: string; name: string; profile_image: string }[];
+    assignee?: { id: string; name: string; profile_image: string }[];
     // file?: File[]
   }
 ): Promise<Cardtype> => {
@@ -61,6 +61,42 @@ export const createCard = async (
   if (!res.ok) throw new Error('카드 생성 실패');
 
   return res.json();
+};
+
+// 카드 수정
+export const updateCardApi = async (
+  workspaceId: number,
+  boxId: string,
+  cardId: string,
+  data: {
+    title?: string;
+    description?: string;
+    color?: string;
+    start_date?: string;
+    end_date?: string;
+    assignee?: { id: string; name: string; profile_image: string }[];
+  }
+) => {
+  const res = await customFetch(
+    `/api/workspace/${workspaceId}/board/${boxId}/${cardId}/edit`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }
+  );
+  return res.json();
+};
+
+// 카드 삭제
+export const deleteCardApi = async (
+  workspaceId: number,
+  boxId: string,
+  cardId: string
+) => {
+  await customFetch(`/api/workspace/${workspaceId}/board/${boxId}/${cardId}`, {
+    method: 'DELETE',
+  });
 };
 
 // 첨부파일 업로드
@@ -84,3 +120,39 @@ export const uploadCardFiles = async (
 
   if (!res.ok) throw new Error('파일 업로드 실패');
 };
+
+// 순서 저장
+export const persistOrder = async (
+  workspaceId: number,
+  cards?: { id: string; order: number }[],
+  boxes?: { id: string; order: number }[]
+) => {
+  try {
+    const payload: any = {};
+    if (cards) payload.cards = cards;
+    if (boxes) payload.boxes = boxes;
+
+    const res = await customFetch(`/api/workspace/${workspaceId}/board/order`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      console.error('순서 저장 실패', await res.text());
+    } else {
+      console.log('순서 저장 성공');
+    }
+  } catch (err) {
+    console.error('순서 저장 중 오류 발생:', err);
+  }
+};
+
+// const cardOrders = boxes.flatMap((box) => {
+//     const pinned = box.cards.filter((c) => c.pinned);
+//     const normal = box.cards.filter((c) => !c.pinned);
+//     const sorted = [...pinned, ...normal];
+
+//     return sorted.map((card, index) => ({
+//       id: card.id,
+//       order: index,
+//     }));

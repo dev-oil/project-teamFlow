@@ -29,7 +29,6 @@ type BoardlistProps = {
 };
 
 export function Boardlist({ page }: BoardlistProps) {
-  // const { boxes } = useBoardData();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollHeight =
@@ -87,9 +86,6 @@ export function Boardlist({ page }: BoardlistProps) {
     })
   );
 
-  // if (isLoading) return <div className='p-4'>불러오는 중...</div>;
-  // if (isError)
-  //   return <div className='p-4 text-red-500'>데이터 불러오기 실패</div>;
   if (isLoading) return <div>로딩 중...</div>;
 
   return (
@@ -174,8 +170,8 @@ export function Boardlist({ page }: BoardlistProps) {
                 </div>
               </SortableContext>
             </ScrollAreaViewport>
-            <ScrollBar orientation='horizontal' />
-            <ScrollBar orientation='vertical' />
+            <ScrollBar orientation='horizontal' className='z-10' />
+            <ScrollBar orientation='vertical' className='z-10' />
           </ScrollArea>
 
           <ScrollTopBtn targetRef={scrollRef} />

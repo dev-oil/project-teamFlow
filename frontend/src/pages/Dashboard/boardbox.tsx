@@ -5,12 +5,13 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Loader2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { useModalStore } from '@/stores/useModalStore';
 import { Input } from '@/components/ui/input';
 import { customFetch } from '@/lib/customFetch';
+import { useModalStore } from '@/stores/useModalStore';
 import type { BoxtypeWithCards } from '@/types/board';
 
 import { Boardcard } from './boardcard';
@@ -153,20 +154,20 @@ export function Boardbox({
                     </Button>
                   </>
                 ) : (
-                  <Button onClick={() => setIsEdit(!isEdit)}>📝</Button>
+                  <button onClick={() => setIsEdit(!isEdit)}>
+                    <Pencil className='w-5 h-5' />
+                  </button>
                 )}
               </div>
-              <div>
-                <CardAction>
-                  <Button
-                    className='text-m w-full'
-                    variant='outline'
-                    onClick={() => openModal('create', box)}
-                  >
-                    + 카드 생성
-                  </Button>
-                </CardAction>
-              </div>
+              <CardAction className='w-full'>
+                <Button
+                  className='text-m w-full'
+                  variant='outline'
+                  onClick={() => openModal('create', box)}
+                >
+                  + 카드 생성
+                </Button>
+              </CardAction>
             </CardTitle>
           </CardHeader>
           <CardContent className=' flex flex-col gap-6'>
