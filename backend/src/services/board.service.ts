@@ -119,7 +119,7 @@ export const uploadFilePath = async (
     return file;
   });
 
-  await prisma.cards.update({
+  await prisma.cards.updateMany({
     where: {
       id: cardId,
       boxes: {

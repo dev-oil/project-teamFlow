@@ -24,11 +24,7 @@ export type Cardtype = {
         profile_image: string;
       }[]
     | null;
-  file?: {
-    path: string;
-    filename: string;
-    originalName: string;
-  } | null;
+  file?: File | undefined;
   created_at: string;
   updated_at: string;
 };

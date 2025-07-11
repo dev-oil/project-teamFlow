@@ -46,7 +46,7 @@ app.use('/api/workspaces/:workspaceId/cards', cardRouter);
 app.use('/api/holidays', holidaysRoutes);
 
 //프로필
-app.use('/api', profileRouter); 
+app.use('/api', profileRouter);
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
