@@ -4,23 +4,25 @@ import { useEffect, useState } from 'react';
 
 import { customFetch } from '@/lib/customFetch';
 
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
+
 type MeetingNote = {
-  id: number; // 실제 API 데이터에 id 있으면
+  id: number; 
   title: string;
-  created_at: string; // YYYY-MM-DD
+  created_at: string; 
 };
 
 export function HomeMeetingList() {
   const [meetingNotes, setMeetingNotes] = useState<MeetingNote[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { workspace } = useWorkspaceStore();
+
   useEffect(() => {
+    if (!workspace?.id) return;
     const fetchMeetingNotes = async () => {
       try {
-        // const res = await customFetch('/api/workspaces/:workspaceId/notes');
-        const res = await customFetch(
-          'http://localhost:3001/api/51/workspace/5/notes/'
-        );
+        const res = await customFetch(`/api/workspace/${workspace.id}/notes`);
         if (!res.ok) throw new Error('데이터를 가져오지 못했습니다.');
         const data: MeetingNote[] = await res.json();
         // 최신순 정렬
