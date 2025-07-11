@@ -18,8 +18,17 @@ const upload = multer({ storage });
 
 router.get('/', verifyAccessToken, boardController.getBoard);
 router.post('/', verifyAccessToken, boardController.createBox);
-
 router.post('/:boxId/card', verifyAccessToken, boardController.createCard);
+
+router.put(
+  '/:boxId/:cardId/edit',
+  verifyAccessToken,
+  boardController.patchCard
+);
+router.delete('/:boxId/:cardId', verifyAccessToken, boardController.deleteCard);
+
+// 작업보드 순서
+router.post('/order', verifyAccessToken, boardController.createBox);
 
 router.post(
   '/:cardId/files',

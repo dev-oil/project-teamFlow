@@ -1,31 +1,52 @@
 import { arrayMove } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
 
-import { createBox, createCard, fetchBoard } from '@/api/board';
+import {
+  createBox,
+  createCard,
+  deleteCardApi,
+  fetchBoard,
+  persistOrder,
+  updateCardApi,
+} from '@/api/board';
+import {
+  getOrderedBoxesForRedis,
+  getOrderedCardsForRedis,
+} from '@/lib/orderHelper';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useBoardStore } from '@/stores/useBoardStore';
+import { useModalStore } from '@/stores/useModalStore';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
-import type { BoxtypeWithCards } from '@/types/board';
 
 export function useBoardData() {
-  const [boxes, setBoxes] = useState<BoxtypeWithCards[]>([]);
+  const { boxes, setBoxes } = useBoardStore();
+
   const [isLoading, setIsLoading] = useState(false);
+  const { closeModal } = useModalStore();
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const { workspace } = useWorkspaceStore();
 
-  useEffect(() => {
+  const getBoardData = async () => {
     if (!accessToken || !workspace?.id) return;
 
-    fetchBoard(workspace?.id)
-      .then(setBoxes)
-      .catch((err) => {
-        console.error('보드 데이터를 불러오지 못했습니다:', err);
-      })
-      .finally(() => setIsLoading(false));
+    setIsLoading(true);
+    try {
+      const data = await fetchBoard(workspace.id);
+      setBoxes(data);
+    } catch (err) {
+      console.error('보드 데이터를 불러오지 못했습니다:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getBoardData();
   }, [accessToken, workspace?.id]);
 
   const moveCard = useCallback(
-    (activeId: string, overId: string) => {
+    async (activeId: string, overId: string) => {
       if (!boxes) return;
       const updated = [...boxes];
 
@@ -74,12 +95,15 @@ export function useBoardData() {
         })
       );
       setBoxes(updated);
+
+      const cardOrders = getOrderedCardsForRedis(updated);
+      await persistOrder(workspace.id, cardOrders);
     },
     [boxes]
   );
 
   const moveBox = useCallback(
-    (activeId: string, overId: string) => {
+    async (activeId: string, overId: string) => {
       if (!boxes) return;
 
       const fromIndex = boxes.findIndex((b) => b.id === activeId);
@@ -92,20 +116,26 @@ export function useBoardData() {
       }));
       setBoxes(moved);
 
-      return moved;
+      const boxOrders = getOrderedBoxesForRedis(moved);
+      await persistOrder(workspace.id, undefined, boxOrders);
+
+      // return moved;
     },
     [boxes]
   );
 
-  const togglePin = (cardId: string) => {
-    setBoxes((prev) =>
-      prev.map((box) => ({
-        ...box,
-        cards: box.cards.map((card) =>
-          card.id === cardId ? { ...card, pinned: !card.pinned } : card
-        ),
-      }))
-    );
+  const togglePin = async (cardId: string) => {
+    const updated = boxes.map((box) => ({
+      ...box,
+      cards: box.cards.map((card) =>
+        card.id === cardId ? { ...card, pinned: !card.pinned } : card
+      ),
+    }));
+
+    setBoxes(updated);
+
+    const cardOrders = getOrderedCardsForRedis(updated);
+    await persistOrder(workspace.id, cardOrders);
     // console.log('업데이트');
   };
 
@@ -132,7 +162,9 @@ export function useBoardData() {
 
   const deleteBox = async (deletedBoxId: string) => {
     if (!accessToken || !workspace?.id) return;
-    setBoxes((prev) => prev.filter((b) => b.id !== deletedBoxId));
+
+    const updated = boxes.filter((b) => b.id !== deletedBoxId);
+    setBoxes(updated);
   };
 
   const addCard = async (
@@ -144,6 +176,7 @@ export function useBoardData() {
       start_date?: string;
       end_date?: string;
       assignee?: { id: string; name: string; profile_image: string }[];
+      // assignee?: any;
     }
   ) => {
     if (!accessToken) return;
@@ -153,6 +186,7 @@ export function useBoardData() {
 
       const updatedBoxes = await fetchBoard(workspace.id);
       setBoxes(updatedBoxes);
+      closeModal();
       return newCard;
     } catch (err) {
       console.error('카드 생성 중 오류 발생:', err);
@@ -160,9 +194,72 @@ export function useBoardData() {
     }
   };
 
+  const editCard = async (
+    cardId: string,
+    boxId: string,
+    cardData: {
+      title?: string;
+      description?: string;
+      color?: string;
+      start_date?: string;
+      end_date?: string;
+      assignee?: { id: string; name: string; profile_image: string }[];
+    }
+  ) => {
+    try {
+      const updatedCard = await updateCardApi(
+        workspace.id,
+        boxId,
+        cardId,
+        cardData
+      );
+
+      const updated = boxes.map((box) =>
+        box.id === boxId
+          ? {
+              ...box,
+              cards: box.cards.map((c) =>
+                c.id === cardId ? { ...c, ...updatedCard } : c
+              ),
+            }
+          : box
+      );
+
+      setBoxes(updated);
+      closeModal();
+
+      return updatedCard;
+    } catch (err) {
+      alert('카드 수정 실패');
+      throw err;
+    }
+  };
+
+  const deleteCard = async (boxId: string, cardId: string) => {
+    try {
+      await deleteCardApi(workspace.id, boxId, cardId);
+
+      const updated = boxes.map((box) =>
+        box.id === boxId
+          ? {
+              ...box,
+              cards: box.cards.filter((c) => c.id !== cardId),
+            }
+          : box
+      );
+
+      setBoxes(updated);
+      closeModal();
+    } catch (err) {
+      alert('카드 삭제 실패');
+      throw err;
+    }
+  };
+
   return {
     boxes: boxes ?? [],
     isLoading,
+    getBoardData,
     moveCard,
     moveBox,
     togglePin,
@@ -170,5 +267,7 @@ export function useBoardData() {
     addCard,
     deleteBox,
     editBox,
+    deleteCard,
+    editCard,
   };
 }

@@ -92,7 +92,16 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
     }
     return undefined;
   });
-  const formatDate = (date: Date) => date.toISOString().slice(0, 10); // '2025-06-20'
+  // const formatDate = (date: Date) => date.toISOString().slice(0, 10); // '2025-06-20'
+  const formatDate = (date: Date) => {
+    return (
+      date.getFullYear() +
+      '-' +
+      String(date.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(date.getDate()).padStart(2, '0')
+    );
+  };
   // 설명
   const [description, setDescription] = useState(card?.description ?? '');
   // 담당자
@@ -100,7 +109,6 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
 
   const [users, setUsers] = useState<Usertype[]>([]); // user state 정의
 
-  useEffect(() => console.log(box?.workspaces_id), [box?.workspaces_id]);
   useEffect(() => {
     if (!open) return;
 
@@ -157,58 +165,86 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
   };
 
   // 카드 생성
-  const { addCard } = useBoardData();
+  const { getBoardData, addCard, editCard, deleteCard } = useBoardData();
+
+  const createNewCard = async () => {
+    if (!box?.id) throw new Error('박스 정보가 없습니다.');
+    if (!cardtitle.trim()) throw new Error('카드 제목을 입력해주세요.');
+    if (!selectedColor) throw new Error('색상을 선택해주세요.');
+    if (!range?.from || !range?.to)
+      throw new Error('시작일과 종료일을 모두 선택해주세요.');
+
+    const selectedAssignees = users
+      .filter((u) => selectedUserid.includes(u.id))
+      .map(({ id, name, profile_image }) => ({ id, name, profile_image }));
+
+    const newCard = await addCard(box.id, {
+      title: cardtitle.trim(),
+      description: description.trim() || undefined,
+      color: selectedColor,
+      start_date: formatDate(range.from),
+      end_date: formatDate(range.to),
+      assignee: selectedAssignees,
+    });
+
+    if (attachedFiles.length > 0 && newCard) {
+      await uploadCardFiles(box.workspaces_id, newCard.id, attachedFiles);
+    }
+
+    return newCard;
+  };
+
+  const updatedCard = async () => {
+    if (!box?.id) throw new Error('박스 정보가 없습니다.');
+    if (!card) throw new Error('수정할 카드 정보가 없습니다.');
+    if (!cardtitle.trim()) throw new Error('카드 제목을 입력해주세요.');
+    if (!selectedColor) throw new Error('색상을 선택해주세요.');
+    if (!range?.from || !range?.to)
+      throw new Error('시작일과 종료일을 모두 선택해주세요.');
+
+    const selectedAssignees = users
+      .filter((u) => selectedUserid.includes(u.id))
+      .map(({ id, name, profile_image }) => ({ id, name, profile_image }));
+
+    const updatedCard = await editCard(card.id, box.id, {
+      title: cardtitle.trim(),
+      description: description.trim() || undefined,
+      color: selectedColor,
+      start_date: formatDate(range.from),
+      end_date: formatDate(range.to),
+      assignee: selectedAssignees,
+    });
+
+    if (attachedFiles.length > 0) {
+      await uploadCardFiles(box.workspaces_id, card.id, attachedFiles);
+    }
+
+    return updatedCard;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!box?.id) {
-      alert('박스 정보가 없습니다.');
-      return;
-    }
-    console.log(box.id);
-
-    if (!cardtitle.trim()) {
-      alert('카드 제목을 입력해주세요.');
-      return;
-    }
-
-    if (!selectedColor) {
-      alert('색상을 선택해주세요.');
-      return;
-    }
-
-    if (!range?.from || !range?.to) {
-      alert('시작일과 종료일을 모두 선택해주세요.');
-      return;
-    }
-
     try {
-      console.log('addCard 호출 전');
-      const selectedAssignees = users
-        .filter((u) => selectedUserid.includes(u.id))
-        .map(({ id, name, profile_image }) => ({
-          id,
-          name,
-          profile_image: profile_image,
-        }));
-      const newCard = await addCard(box.id, {
-        title: cardtitle.trim(),
-        description: description.trim() || undefined,
-        color: selectedColor ?? undefined,
-        start_date: range?.from ? formatDate(range.from) : undefined,
-        end_date: range?.to ? formatDate(range.to) : undefined,
-        assignee: selectedAssignees,
-      });
-      console.log('addCard 호출 후');
-      // 성공 후 상태 반영은 useBoardData에서 이미 처리함
-
-      // 2️⃣ 첨부파일 업로드 (파일이 있을 때만)
-      if (attachedFiles.length > 0 && newCard) {
-        await uploadCardFiles(box.workspaces_id, newCard.id, attachedFiles);
+      if (mode === 'create') {
+        await createNewCard();
+      } else if (mode === 'edit') {
+        await updatedCard();
       }
+      await getBoardData();
     } catch {
       alert('카드 생성에 실패했습니다.');
+    }
+  };
+
+  const handleDelteCard = async () => {
+    if (!box || !card) return;
+
+    try {
+      await deleteCard(box.id, card.id);
+      await getBoardData();
+    } catch {
+      alert('삭제 실패');
     }
   };
 
@@ -246,9 +282,11 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
               </Label>
               <div className='flex items-center gap-2'>
                 {colorOptions.map((color) => (
-                  <div className='flex flex-col content-center gap-1'>
+                  <div
+                    className='flex flex-col content-center gap-1'
+                    key={color.code}
+                  >
                     <button
-                      key={color.code}
                       className={`w-6 h-6 rounded-full border-2 transition-colors ${
                         selectedColor === color.code
                           ? 'border-black scale-110'
@@ -424,7 +462,9 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant='outline'>삭제하기</Button>
+            <Button variant='outline' onClick={handleDelteCard}>
+              삭제하기
+            </Button>
           </DialogClose>
           <Button type='submit'>저장하기</Button>
         </DialogFooter>
