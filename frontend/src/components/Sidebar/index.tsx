@@ -36,7 +36,7 @@ const navMain = [
       { title: '작업보드', routes: 'dashboard' },
       { title: '회의록', routes: 'notes' },
       { title: '달력', routes: 'calendar' },
-      { title: '워크스페이스 설정', routes: 'settings' },
+      { title: '워크스페이스 정보', routes: 'settings' },
     ],
   },
 ];

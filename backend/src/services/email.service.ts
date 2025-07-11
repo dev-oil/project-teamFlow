@@ -58,7 +58,7 @@ export async function sendInvitationEmail({
     title: 'TeamFlow 워크스페이스 초대',
     description: `<strong>${fromName} </strong> (${fromEmail}) 님이 당신을 워크스페이스에 초대했습니다.`,
     buttonUrl: invitationLink,
-    buttonText: '초대',
+    buttonText: '초대 수락하기',
   });
   await sendMail({
     to: toEmail,
