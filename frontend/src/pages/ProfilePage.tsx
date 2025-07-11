@@ -32,6 +32,9 @@ export function ProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
 
+  // 리렌더링
+  const [, forceRender] = useState(0);
+
   const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);
   const { clearAccessToken } = useAuthStore();
@@ -72,6 +75,7 @@ export function ProfilePage() {
       setProfile(updated);
       useUserStore.getState().setProfile(updated);
       setIsEditing(false);
+      forceRender((n) => n + 1);
       toast.success('프로필이 성공적으로 수정되었습니다.');
     } catch {
       toast.error('프로필 수정에 실패했습니다.');
