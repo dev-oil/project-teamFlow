@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import formidable from 'express-formidable';
 import path from 'path';
 
 import notesRouter from './routes/notes.routes';
@@ -28,6 +29,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(formidable());
 
 // 워크스페이스
 app.use('/api/workspaces', workspaceRouter); // 워크스페이스
