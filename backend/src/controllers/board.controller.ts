@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-
 import * as boardService from '../services/board.service';
 
 export const getBoard = async (req: Request, res: Response) => {
@@ -23,6 +22,7 @@ export const createBox = async (req: Request, res: Response) => {
 
   if (!title || typeof title !== 'string') {
     res.status(400).json({ error: '박스 제목이 필요합니다.' });
+    return;
   }
 
   try {
@@ -101,19 +101,23 @@ export const deleteCard = async (req: Request, res: Response) => {
   }
 };
 
+/** 첨부파일 업로드 */
 export const uploadFiles = async (req: Request, res: Response) => {
   try {
-    const { workspaceId, cardId } = req.params;
+    const { cardId } = req.params;
     const userId = req.user!.userId;
-    const files = req.files as Express.Multer.File[];
+    const filesMap = req.files as Express.Multer.File[];
+    console.log(filesMap);
+    console.log('=========================');
+    console.log(userId);
+    console.log('=========================');
+    console.log('=========================');
+    console.log(req.body);
+    console.log('=========================');
+    console.log(req.body.currentFiles);
+    const currentFiles = JSON.parse(req.body.currentFiles || '[]'); // 기존 파일
 
-    await boardService.uploadFilePath(
-      files,
-      Number(workspaceId),
-      cardId,
-      userId
-    );
-
+    await boardService.uploadFilePath(filesMap, currentFiles, cardId, userId);
     res.status(200).json({ message: '파일 업로드 완료' });
   } catch (error) {
     console.error('파일 업로드 오류:', error);

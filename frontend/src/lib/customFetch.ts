@@ -8,11 +8,18 @@ export const customFetch = async (
   const accessToken = useAuthStore.getState().accessToken;
 
   const headers = {
-    ...(init?.headers || {}),
     Authorization: `Bearer ${accessToken}`,
-    'Content-Type': 'application/json',
-  };
+    ...(init?.headers || {}),
+  } as Record<string, string>;
 
+  if (!headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  console.log({
+    ...init,
+    headers,
+  });
   const response = await fetch(input, {
     ...init,
     headers,

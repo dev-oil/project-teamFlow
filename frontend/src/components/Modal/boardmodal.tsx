@@ -128,7 +128,14 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
     fetchUsers();
   }, [open, box?.workspaces_id]);
 
-  // 첨부파일
+  // 현재 첨부파일
+  const [currentFiles, setCurrentFiles] = useState(
+    card?.file?.map((file) => ({
+      filename: file.filename,
+      originalName: file.originalName,
+    })) ?? []
+  );
+  // 추가할 첨부파일
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   // 첨부파일 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,8 +143,6 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
       const newFiles = Array.from(e.target.files);
 
       const filteredFiles = newFiles.filter((file) => {
-        console.log(typeof file);
-        console.log(file);
         const ext = file.name.split('.').pop()?.toLowerCase();
         if (!ext || !allowedExtensions.includes(ext)) {
           toast.warning('허용되지 않은 파일 형식입니다', {
@@ -160,8 +165,14 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
     }
   };
   // 첨부파일 삭제
-  const handleRemoveFile = (index: number) => {
-    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveFile = (filename: string) => {
+    // 새로 추가한 파일이면 attachedFiles에서 제거
+    setAttachedFiles((prev) => prev.filter((file) => file.name !== filename));
+
+    // 기존 파일이면 currentFiles에서 제거
+    setCurrentFiles((prev) =>
+      prev.filter((file) => file.filename !== filename)
+    );
   };
 
   // 카드 생성
@@ -187,11 +198,7 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
       assignee: selectedAssignees,
     });
 
-    if (attachedFiles.length > 0 && newCard) {
-      await uploadCardFiles(box.workspaces_id, newCard.id, attachedFiles);
-    }
-
-    return newCard;
+    await updateAttachment(newCard, box.workspaces_id);
   };
 
   const updatedCard = async () => {
@@ -215,11 +222,18 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
       assignee: selectedAssignees,
     });
 
-    if (attachedFiles.length > 0) {
-      await uploadCardFiles(box.workspaces_id, card.id, attachedFiles);
-    }
+    await updateAttachment(updatedCard, box.workspaces_id);
+  };
 
-    return updatedCard;
+  const updateAttachment = async (
+    card: Cardtype | undefined,
+    workspaces_id: string
+  ) => {
+    if (!card) return;
+    const formData = new FormData();
+    attachedFiles.forEach((file) => formData.append('newFiles', file));
+    formData.append('currentFiles', JSON.stringify(currentFiles));
+    await uploadCardFiles(workspaces_id, card.id, formData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -432,6 +446,7 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
               <Input
                 id='file-upload'
                 type='file'
+                name='newFiles'
                 accept={acceptExtension}
                 multiple // 다중 업로드
                 className='hidden'
@@ -440,15 +455,31 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
             </div>
             <div>
               <ul className='mt-2 space-y-2 text-sm'>
+                {/* 기존 파일 */}
+                {currentFiles.map((file, index) => (
+                  <li
+                    key={`existing-${index}`}
+                    className='flex justify-between items-center border px-3 py-2 rounded-md bg-gray-50'
+                  >
+                    <span className='truncate'>{file.originalName}</span>
+                    <button
+                      type='button'
+                      onClick={() => handleRemoveFile(file.filename)}
+                      className='text-red-500 text-xs ml-2'
+                    >
+                      ✕
+                    </button>
+                  </li>
+                ))}
                 {attachedFiles.map((file, index) => (
                   <li
-                    key={index}
+                    key={`new-${index}`}
                     className='flex justify-between items-center border px-3 py-2 rounded-md bg-gray-50'
                   >
                     <span className='truncate'>{file.name}</span>
                     <button
                       type='button'
-                      onClick={() => handleRemoveFile(index)}
+                      onClick={() => handleRemoveFile(file.name)}
                       className='text-red-500 text-xs ml-2'
                     >
                       ✕
