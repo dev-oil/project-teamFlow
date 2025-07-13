@@ -61,9 +61,18 @@ export const createNote = async (req: NoteFormRequest, res: Response) => {
   }
 };
 
-export const updateNote = async (req: Request, res: Response) => {
+export const updateNote = async (req: NoteFormRequest, res: Response) => {
   const noteId = Number(req.params.noteId);
-  const { title, content, participant, file } = req.body;
+
+  const {
+    title,
+    content,
+    participant: participantStr,
+    file: fileStr,
+  } = req.fields;
+
+  const participant = JSON.parse(participantStr || '[]');
+  const file = fileStr ? JSON.parse(fileStr) : [];
 
   try {
     const updatedNote = await notesService.updateNote(noteId, {

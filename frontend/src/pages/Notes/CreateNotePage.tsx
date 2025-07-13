@@ -1,28 +1,18 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-
-import { createNote } from '@/api/notes';
 import { MeetingNoteEditor } from '@/components/Notes/MeetingNoteEditor';
+import { useCreateNote } from '@/hooks/notes/useCreateNote';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 export function CreateNotePage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const { accessToken } = useAuthStore();
   const { workspace } = useWorkspaceStore();
-  const workspaceId = workspace.id;
 
-  const handleSubmit = async (form: FormData) => {
-    try {
-      await createNote(accessToken!, workspaceId, form);
-      await queryClient.invalidateQueries({ queryKey: ['notes'] });
-      navigate('/notes');
-    } catch (err) {
-      alert('회의록 작성 실패');
-      console.error(err);
-    }
-  };
+  const mutation = useCreateNote(accessToken!, workspace.id);
 
-  return <MeetingNoteEditor mode='create' onSubmit={handleSubmit} />;
+  return (
+    <MeetingNoteEditor
+      mode='create'
+      onSubmit={(form) => mutation.mutate(form)}
+    />
+  );
 }
