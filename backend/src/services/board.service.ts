@@ -68,7 +68,7 @@ export const createBox = async (
 
   const newBox = await prisma.boxes.create({
     data: {
-      title: '새 박스',
+      title,
       order,
       workspaces_id: workspaceId,
     },
@@ -245,4 +245,75 @@ export const updateCardPin = async (cardId: string, pinned: boolean) => {
     where: { id: cardId },
     data: { pinned: pinned ? 1 : 0 },
   });
+};
+
+export const OrderFromRedisToDB = async (workspaceId: number) => {
+  // const [cardOrders, boxOrders] = await Promise.all([
+  //   redisClient.hGetAll(`card_orders:${workspaceId}`),
+  //   redisClient.hGetAll(`box_orders:${workspaceId}`),
+  // ]);
+
+  // const cardOps = Object.entries(cardOrders).map(([id, order]) =>
+  //   prisma.cards.update({
+  //     where: { id },
+  //     data: { order: Number(order) },
+  //   })
+  // );
+
+  // const boxOps = Object.entries(boxOrders).map(([id, order]) =>
+  //   prisma.boxes.update({
+  //     where: { id },
+  //     data: { order: Number(order) },
+  //   })
+  // );
+
+  // await Promise.all([...cardOps, ...boxOps]);
+
+  // console.log(`[SYNC] workspace ${workspaceId} 동기화 완료`);
+
+  // Redis 데이터 읽기
+  const [cardOrders, boxOrders] = await Promise.all([
+    redisClient.hGetAll(`card_orders:${workspaceId}`),
+    redisClient.hGetAll(`box_orders:${workspaceId}`),
+  ]);
+
+  const boxes = await prisma.boxes.findMany({
+    where: { workspaces_id: workspaceId },
+    select: { id: true },
+  });
+  const boxIds = boxes.map((b) => b.id);
+
+  const cards = await prisma.cards.findMany({
+    where: { boxes_id: { in: boxIds } },
+    select: { id: true },
+  });
+  const existingCardIds = new Set(cards.map((c) => c.id));
+  const existingBoxIds = new Set(boxes.map((b) => b.id));
+
+  // 카드 업데이트
+  const cardOps = Object.entries(cardOrders)
+    .filter(([id]) => existingCardIds.has(id))
+    .map(([id, order]) =>
+      prisma.cards.update({ where: { id }, data: { order: Number(order) } })
+    );
+
+  // 박스 업데이트
+  const boxOps = Object.entries(boxOrders)
+    .filter(([id]) => existingBoxIds.has(id))
+    .map(([id, order]) =>
+      prisma.boxes.update({ where: { id }, data: { order: Number(order) } })
+    );
+
+  await Promise.all([...cardOps, ...boxOps]);
+
+  const staleBoxIds = Object.keys(boxOrders).filter(
+    (id) => !existingBoxIds.has(id)
+  );
+
+  if (staleBoxIds.length) {
+    await redisClient.hDel(`box_orders:${workspaceId}`, ...staleBoxIds);
+    console.log(`[SYNC] 고아 박스 ${staleBoxIds.length}개 Redis에서 제거`);
+  }
+
+  console.log(`[SYNC] WS ${workspaceId} 동기화 완료`);
 };

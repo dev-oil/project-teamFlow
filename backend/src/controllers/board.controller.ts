@@ -188,3 +188,15 @@ export const togglePin = async (req: Request, res: Response) => {
     res.status(500).json({ error: '핀 상태 업데이트 중 오류 발생' });
   }
 };
+
+export const manualSync = async (req: Request, res: Response) => {
+  const workspaceId = Number(req.params.workspaceId);
+
+  try {
+    await boardService.OrderFromRedisToDB(workspaceId);
+    res.status(200).json({ message: '동기화 성공' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '동기화 실패' });
+  }
+};
