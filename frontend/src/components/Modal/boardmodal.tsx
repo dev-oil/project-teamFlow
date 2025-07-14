@@ -271,7 +271,8 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
   const downloadFile = async (
     workspaces_id: string,
     cardId: string,
-    filename: string
+    filename: string,
+    originalName: string
   ) => {
     try {
       const res = await customFetch(
@@ -283,12 +284,25 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
 
       const link = document.createElement('a');
       link.href = objectUrl;
-      link.download = fileName;
+      link.download = originalName;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(objectUr);
-    } catch (error) {}
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch {
+      toast.error('다운로드 실패');
+    }
+  };
+
+  const downloadAllFiles = async (cardId: string, workspaces_id: string) => {
+    for (const file of currentFiles) {
+      await downloadFile(
+        workspaces_id,
+        cardId,
+        file.filename,
+        file.originalName
+      );
+    }
   };
 
   return (
@@ -458,7 +472,12 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
           <div className='grid gap-3'>
             <div className='flex flex-row justify-between items-center'>
               <Label className='font-semibold'>첨부파일</Label>
-              <Button variant='ghost' className='text-gray-400 text-xs'>
+              <Button
+                type='button'
+                variant='ghost'
+                className='text-gray-400 text-xs'
+                onClick={() => downloadAllFiles(card!.id, box!.workspaces_id)}
+              >
                 모두 다운받기 +
               </Button>
             </div>
@@ -491,12 +510,13 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
                     className='flex justify-between items-center border px-3 py-2 rounded-md bg-gray-50'
                   >
                     <span
-                      className='truncate w-full mr-4'
+                      className='truncate w-full mr-4 cursor-pointer'
                       onClick={() =>
                         downloadFile(
                           box!.workspaces_id,
                           card!.id,
-                          file.filename
+                          file.filename,
+                          file.originalName
                         )
                       }
                     >
