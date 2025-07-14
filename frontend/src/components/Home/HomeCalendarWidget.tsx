@@ -2,10 +2,12 @@ import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
 import { Calendar } from '@/components/ui/calendar';
-
-const events = ['2025-07-19', '2025-07-22', '2025-07-28'];
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 export function HomeCalendarWidget() {
+  const { workspace } = useWorkspaceStore();
+
+  const events = ['2025-07-19', '2025-07-22', '2025-07-28'];
   const eventDates = events.map((date) => new Date(date));
   const formatCaption = (date: Date) =>
     format(date, 'yyyy년 M월', { locale: ko });

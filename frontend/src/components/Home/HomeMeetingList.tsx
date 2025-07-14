@@ -41,7 +41,7 @@ export function HomeMeetingList() {
     };
 
     fetchMeetingNotes();
-  }, []);
+  }, [workspace]);
 
   return (
     <div>
