@@ -7,6 +7,7 @@ import {
   deleteCardApi,
   fetchBoard,
   persistOrder,
+  togglePinApi,
   updateCardApi,
 } from '@/api/board';
 import {
@@ -17,6 +18,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useBoardStore } from '@/stores/useBoardStore';
 import { useModalStore } from '@/stores/useModalStore';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
+import type { BoxtypeWithCards } from '@/types/board';
 
 export function useBoardData() {
   const { boxes, setBoxes } = useBoardStore();
@@ -124,19 +126,46 @@ export function useBoardData() {
     [boxes]
   );
 
-  const togglePin = async (cardId: string) => {
-    const updated = boxes.map((box) => ({
+  // 핀 상태
+  const pinToggled = (boxes: BoxtypeWithCards[], cardId: string) => {
+    return boxes.map((box) => ({
       ...box,
       cards: box.cards.map((card) =>
         card.id === cardId ? { ...card, pinned: !card.pinned } : card
       ),
     }));
+  };
+
+  const togglePin = async (cardId: string) => {
+    const prev = boxes;
+    const updated = pinToggled(prev, cardId);
 
     setBoxes(updated);
 
-    const cardOrders = getOrderedCardsForRedis(updated);
-    await persistOrder(workspace.id, cardOrders);
-    // console.log('업데이트');
+    try {
+      const targetCard = prev
+        .flatMap((b) => b.cards)
+        .find((c) => c.id === cardId);
+      const newPinned = !targetCard?.pinned;
+
+      await togglePinApi(workspace.id, cardId, newPinned);
+
+      await persistOrder(workspace.id, getOrderedCardsForRedis(updated));
+    } catch (err) {
+      console.error('핀 업데이트 실패', err);
+      setBoxes(prev);
+    }
+    // const updated = boxes.map((box) => ({
+    //   ...box,
+    //   cards: box.cards.map((card) =>
+    //     card.id === cardId ? { ...card, pinned: !card.pinned } : card
+    //   ),
+    // }));
+
+    // setBoxes(updated);
+
+    // const cardOrders = getOrderedCardsForRedis(updated);
+    // await persistOrder(workspace.id, cardOrders);
   };
 
   const addBox = async (title: string) => {

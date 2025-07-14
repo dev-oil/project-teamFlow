@@ -28,7 +28,8 @@ router.put(
 router.delete('/:boxId/:cardId', verifyAccessToken, boardController.deleteCard);
 
 // 작업보드 순서
-router.post('/order', verifyAccessToken, boardController.createBox);
+router.put('/order', verifyAccessToken, boardController.updateOrder);
+router.put('/:cardId/pin', verifyAccessToken, boardController.togglePin);
 
 router.post(
   '/:cardId/files',

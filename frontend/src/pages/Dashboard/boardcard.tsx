@@ -81,7 +81,6 @@ export function Boardcard({ box, card, togglePin }: BoardcardProps) {
                   e.stopPropagation();
                   // setPinned((prev) => !prev);
                   togglePin(card.id);
-                  console.log(card.pinned);
                 }}
               >
                 {card.pinned ? (

@@ -122,37 +122,45 @@ export const uploadCardFiles = async (
 };
 
 // 순서 저장
+type OrderPayload = {
+  cards?: { id: string; order: number }[];
+  boxes?: { id: string; order: number }[];
+};
+
 export const persistOrder = async (
   workspaceId: number,
   cards?: { id: string; order: number }[],
   boxes?: { id: string; order: number }[]
 ) => {
   try {
-    const payload: any = {};
+    const payload: OrderPayload = {};
     if (cards) payload.cards = cards;
     if (boxes) payload.boxes = boxes;
 
     const res = await customFetch(`/api/workspace/${workspaceId}/board/order`, {
-      method: 'POST',
+      method: 'PUT',
       body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
       console.error('순서 저장 실패', await res.text());
-    } else {
-      console.log('순서 저장 성공');
     }
   } catch (err) {
     console.error('순서 저장 중 오류 발생:', err);
   }
 };
 
-// const cardOrders = boxes.flatMap((box) => {
-//     const pinned = box.cards.filter((c) => c.pinned);
-//     const normal = box.cards.filter((c) => !c.pinned);
-//     const sorted = [...pinned, ...normal];
-
-//     return sorted.map((card, index) => ({
-//       id: card.id,
-//       order: index,
-//     }));
+// 핀 상태
+export const togglePinApi = async (
+  workspaceId: number,
+  cardId: string,
+  pinned: boolean
+) => {
+  return await customFetch(
+    `/api/workspace/${workspaceId}/board/${cardId}/pin`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({ pinned }),
+    }
+  );
+};

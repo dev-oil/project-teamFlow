@@ -6,7 +6,7 @@ export const findBoardWidthCard = async (
   userId: number,
   workspaceId: number
 ) => {
-  return prisma.boxes.findMany({
+  const boxes = await prisma.boxes.findMany({
     where: {
       workspaces_id: workspaceId,
       workspaces: {
@@ -26,6 +26,17 @@ export const findBoardWidthCard = async (
       },
     },
   });
+
+  // pinned boolean 변환
+  const boxesWithBooleanPinned = boxes.map((box) => ({
+    ...box,
+    cards: box.cards.map((card) => ({
+      ...card,
+      pinned: card.pinned === 1,
+    })),
+  }));
+
+  return boxesWithBooleanPinned;
 };
 
 /** 박스 생성 */
@@ -222,4 +233,16 @@ export const updateCardAndBoxOrder = async (
   }
 
   await pipeline.exec();
+  // const result = await pipeline.exec();
+  // console.log('redis result', result);
+
+  // const cardresult = await redisClient.hGetAll(`card_orders:${workspaceId}`);
+  // console.log('Redis에 저장된 카드 순서:', cardresult);
+};
+
+export const updateCardPin = async (cardId: string, pinned: boolean) => {
+  return prisma.cards.update({
+    where: { id: cardId },
+    data: { pinned: pinned ? 1 : 0 },
+  });
 };

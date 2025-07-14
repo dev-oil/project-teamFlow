@@ -1,4 +1,4 @@
-import type { BoxtypeWithCards } from '@/types/board'; // ← 너 타입 정의 기준에 따라 import 수정
+import type { BoxtypeWithCards } from '@/types/board';
 
 export const getOrderedCardsForRedis = (boxes: BoxtypeWithCards[]) => {
   return boxes.flatMap((box) => {
