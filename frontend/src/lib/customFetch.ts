@@ -16,10 +16,6 @@ export const customFetch = async (
     headers['Content-Type'] = 'application/json';
   }
 
-  console.log({
-    ...init,
-    headers,
-  });
   const response = await fetch(input, {
     ...init,
     headers,

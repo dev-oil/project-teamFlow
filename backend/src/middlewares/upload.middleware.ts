@@ -16,7 +16,7 @@ export const uploadProfile = multer({ storage: profileStorage });
 // 파일 업로드 multer 설정
 export const uploadAttachment = multer({
   storage: multer.diskStorage({
-    destination: 'uploads/attachments/',
+    destination: path.resolve('uploads/attachments/'),
     filename: (req, file, cb) => {
       const allowed = [
         '.jpg',
@@ -36,7 +36,10 @@ export const uploadAttachment = multer({
       const ext = path.extname(file.originalname).toLowerCase();
       if (!allowed.includes(ext))
         cb(new Error('허용되지 않은 파일 형식입니다.'), '');
-      cb(null, file.originalname + '-' + Date.now() + ext); // 파일이름 + 날짜 + 확장자 이름으로 저장
+      const safeName = Buffer.from(
+        path.basename(file.originalname, ext)
+      ).toString('hex');
+      cb(null, safeName + '-' + Date.now() + ext); // 파일이름 + 날짜 + 확장자 이름으로 저장
     },
   }),
   limits: { fileSize: 30 * 1024 * 1024 }, // 30MB

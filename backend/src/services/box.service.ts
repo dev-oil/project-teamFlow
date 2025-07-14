@@ -1,5 +1,8 @@
 //box.service.ts
+import fs from 'fs';
+import path from 'path';
 import { prisma } from '../db/prisma';
+import { Attachments } from '../types/board';
 
 /** 박스 리스트 가져오기 (캘린더 - 카테고리) */
 export const findBoxes = (userId: number, workspaceId: number) => {
@@ -54,6 +57,17 @@ export const updateBox = async (
 
 export const deleteBoxById = async (boxId: string, userId: number) => {
   try {
+    const cards = await prisma.cards.findMany({ where: { boxes_id: boxId } });
+    for (const card of cards) {
+      if (!card.file) continue;
+      const attachments = card.file as Attachments;
+      attachments.forEach((f) => {
+        const filePath = path.resolve('uploads/attachments', f.filename);
+        fs.unlink(filePath, (err) => {
+          if (err) console.error(`파일 삭제 실패: ${filePath}`, err);
+        });
+      });
+    }
     await prisma.boxes.delete({
       where: {
         id: boxId,

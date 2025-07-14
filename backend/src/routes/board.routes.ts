@@ -10,7 +10,7 @@ router.post(
   uploadAttachment.array('newFiles', 5), // ✅ 파일만 multer로 처리
   boardController.uploadFiles
 );
-router.use(express.json({ limit: '100mb' }));
+router.use(express.json());
 
 router.get('/', verifyAccessToken, boardController.getBoard);
 router.post('/', verifyAccessToken, boardController.createBox);

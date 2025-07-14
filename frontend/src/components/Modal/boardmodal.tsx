@@ -240,14 +240,22 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
     e.preventDefault();
 
     try {
+      console.log(`mode`);
+      console.log(mode);
       if (mode === 'create') {
         await createNewCard();
       } else if (mode === 'edit') {
         await updatedCard();
       }
       await getBoardData();
-    } catch {
-      alert('카드 생성에 실패했습니다.');
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.warning(err.name, {
+          description: err.message,
+        });
+      } else {
+        alert('카드 생성에 실패했습니다.');
+      }
     }
   };
 

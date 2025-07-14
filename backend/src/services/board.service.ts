@@ -1,8 +1,8 @@
 import fs from 'fs';
-
 import path from 'path';
 import { prisma } from '../db/prisma';
 import { redisClient } from '../utils/redis';
+import { Attachments } from '../types/board';
 
 /** 보드 데이터 가져오기 */
 export const findBoardWidthCard = async (
@@ -159,9 +159,19 @@ export const deleteCard = async (
         workspaces: { members: { some: { users_id: userId } } },
       },
     },
-    select: { id: true },
+    select: { id: true, file: true },
   });
   if (!card) throw new Error('권한이 없거나 카드가 존재하지 않습니다.');
+
+  if (card.file) {
+    const attachments = card.file as Attachments;
+    attachments.forEach((f) => {
+      const filePath = path.resolve('uploads/attachments', f.filename);
+      fs.unlink(filePath, (err) => {
+        if (err) console.error(`파일 삭제 실패: ${filePath}`, err);
+      });
+    });
+  }
 
   await prisma.cards.delete({ where: { id: cardId } });
 };
@@ -210,14 +220,7 @@ export const uploadFilePath = async (
   }
 
   // 기존 DB files
-  const existingFiles =
-    (card.file as {
-      filename: string;
-      originalName: string;
-      path: string;
-      size: number;
-      type: string;
-    }[]) ?? [];
+  const existingFiles = (card.file as Attachments) ?? [];
 
   // 🗑️ 삭제할 파일 계산
   const filesToDelete = existingFiles.filter(
@@ -227,14 +230,16 @@ export const uploadFilePath = async (
 
   // 🗑️ 서버에서 실제 파일 삭제
   for (const file of filesToDelete) {
-    fs.unlink(path.join(__dirname, '..', file.path), (err) => {
+    const absolutePath = path.resolve('uploads/attachments', file.filename);
+    fs.unlink(absolutePath, (err) => {
       if (err) console.error('파일 삭제 실패:', err);
     });
   }
 
   // 📥 새 파일 메타데이터 추가
   const newFileData = newFiles.map((file) => ({
-    name: file.originalname,
+    filename: file.filename,
+    originalName: Buffer.from(file.originalname, 'latin1').toString('utf8'),
     path: `/uploads/attachments/${file.filename}`,
     size: file.size,
     type: file.mimetype,
