@@ -117,6 +117,23 @@ export const uploadFiles = async (req: Request, res: Response) => {
   }
 };
 
+/** 첨부파일 다운로드 */
+export const downloadAttachment = async (req: Request, res: Response) => {
+  const { cardId, filename } = req.params;
+  const userId = req.user!.userId;
+
+  try {
+    const { filePath, originalName } = await boardService.downloadFile(
+      cardId,
+      filename,
+      userId
+    );
+    res.download(filePath, originalName);
+  } catch (error) {
+    res.status(500).json({ message: '파일 다운로드 실패' });
+  }
+};
+
 // 작업보드 순서
 export const updateOrder = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);

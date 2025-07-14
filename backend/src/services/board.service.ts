@@ -258,6 +258,38 @@ export const uploadFilePath = async (
     data: { file: updatedFiles },
   });
 };
+
+export const downloadFile = async (
+  cardId: string,
+  filename: string,
+  userId: number
+) => {
+  // IDOR 방지: 카드 워크스페이스 멤버 검사
+  const card = await prisma.cards.findFirst({
+    where: {
+      id: cardId,
+      boxes: {
+        workspaces: {
+          members: { some: { users_id: userId } },
+        },
+      },
+    },
+  });
+
+  if (!card) {
+    throw new Error('권한 없음');
+  }
+
+  const cardFile = card.file as Attachments;
+  const file = cardFile.find((f) => f.filename === filename);
+  if (!file) {
+    throw new Error('파일 없음');
+  }
+
+  const filePath = path.resolve('uploads/attachments', file.filename);
+  return { filePath, originalName: file.originalName };
+};
+
 // 작업보드 순서
 type OrderItem = {
   id: string;

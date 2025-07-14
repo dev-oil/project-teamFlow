@@ -26,4 +26,11 @@ router.delete('/:boxId/:cardId', verifyAccessToken, boardController.deleteCard);
 // 작업보드 순서
 router.post('/order', verifyAccessToken, boardController.createBox);
 
+// 첨부파일 다운로드
+router.get(
+  '/cards/:cardId/files/:filename',
+  verifyAccessToken,
+  boardController.downloadAttachment
+);
+
 export default router;

@@ -268,7 +268,28 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
     }
   };
 
-  const downloadFile = async () => {};
+  const downloadFile = async (
+    workspaces_id: string,
+    cardId: string,
+    filename: string
+  ) => {
+    try {
+      const res = await customFetch(
+        `/api/workspace/${workspaces_id}/board/cards/${cardId}/files/${encodeURIComponent(filename)}`
+      );
+      if (!res.ok) throw new Error('다운로드 실패');
+      const blob = await res.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(objectUr);
+    } catch (error) {}
+  };
 
   return (
     <>
@@ -471,7 +492,13 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
                   >
                     <span
                       className='truncate w-full mr-4'
-                      onClick={downloadFile}
+                      onClick={() =>
+                        downloadFile(
+                          box!.workspaces_id,
+                          card!.id,
+                          file.filename
+                        )
+                      }
                     >
                       {file.originalName}
                     </span>
