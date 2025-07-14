@@ -7,19 +7,20 @@ import { customFetch } from '@/lib/customFetch';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 type MeetingNote = {
-  id: number; 
+  id: number;
   title: string;
-  created_at: string; 
+  created_at: string;
 };
 
 export function HomeMeetingList() {
   const [meetingNotes, setMeetingNotes] = useState<MeetingNote[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const { workspace } = useWorkspaceStore();
 
   useEffect(() => {
     if (!workspace?.id) return;
+    setLoading(true);
     const fetchMeetingNotes = async () => {
       try {
         const res = await customFetch(`/api/workspace/${workspace.id}/notes`);
