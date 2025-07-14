@@ -16,13 +16,13 @@ import { ScrollAreaViewport } from '@radix-ui/react-scroll-area';
 import { useCallback, useRef, useState } from 'react';
 
 import BoardModalProvider from '@/components/Modal/boardmodalprovider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useBoardData } from '@/hooks/useBoardData';
 import { Boardbox } from '@/pages/Dashboard/boardbox';
 import { ScrollTopBtn } from '@/pages/Dashboard/scrolltop';
 import type { Cardtype } from '@/types/board';
+
+import { AddBoxForm } from './addboxform';
 
 type BoardlistProps = {
   page: 'dashpage' | 'mainpage';
@@ -32,7 +32,7 @@ export function Boardlist({ page }: BoardlistProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollHeight =
-    page === 'dashpage' ? 'h-[calc(100vh-172px)]' : 'h-[calc(500px-172px)]';
+    page === 'dashpage' ? 'h-[calc(100vh-172px)]' : 'h-[calc(70vh-172px)]';
 
   const {
     boxes,
@@ -47,8 +47,6 @@ export function Boardlist({ page }: BoardlistProps) {
 
   const [activeCard, setActiveCard] = useState<Cardtype | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
-
-  const [title, setTitle] = useState('');
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -89,33 +87,8 @@ export function Boardlist({ page }: BoardlistProps) {
   if (isLoading) return <div>로딩 중...</div>;
 
   return (
-    <div className='p-6'>
-      <div className='mb-6 flex justify-end'>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            if (!title.trim()) {
-              alert('박스 이름을 입력해주세요.');
-              return;
-            }
-
-            addBox(title);
-            setTitle('');
-          }}
-          className='flex w-full max-w-sm items-center gap-2'
-        >
-          <Input
-            type='text'
-            placeholder='박스이름'
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <Button type='submit' variant='default'>
-            + 박스 추가하기
-          </Button>
-        </form>
-      </div>
+    <div>
+      <AddBoxForm page={page} onAdd={addBox} />
       <DndContext
         sensors={sensors}
         // collisionDetection={closestCenter}
