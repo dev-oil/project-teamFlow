@@ -240,8 +240,6 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
     e.preventDefault();
 
     try {
-      console.log(`mode`);
-      console.log(mode);
       if (mode === 'create') {
         await createNewCard();
       } else if (mode === 'edit') {
@@ -269,6 +267,8 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
       alert('삭제 실패');
     }
   };
+
+  const downloadFile = async () => {};
 
   return (
     <>
@@ -469,7 +469,12 @@ export function Boardmodal({ mode, box, card, open }: BoardmodalProps) {
                     key={`existing-${index}`}
                     className='flex justify-between items-center border px-3 py-2 rounded-md bg-gray-50'
                   >
-                    <span className='truncate'>{file.originalName}</span>
+                    <span
+                      className='truncate w-full mr-4'
+                      onClick={downloadFile}
+                    >
+                      {file.originalName}
+                    </span>
                     <button
                       type='button'
                       onClick={() => handleRemoveFile(file.filename)}

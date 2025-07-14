@@ -10,7 +10,7 @@ export function Home() {
       <h1 className='text-2xl font-bold'>작업 보드</h1>
 
       {/* 작업 보드 영역 */}
-      <section className='h-[50vh] overflow-auto mb-8'>
+      <section className='h-[65vh] overflow-auto mb-8'>
         <DashboardPage />
       </section>
 
