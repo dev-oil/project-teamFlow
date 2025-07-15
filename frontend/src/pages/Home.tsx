@@ -1,17 +1,14 @@
 import { HomeCalendarWidget } from '@/components/Home/HomeCalendarWidget';
 import { HomeMeetingList } from '@/components/Home/HomeMeetingList';
 
-import { DashboardPage } from './DashboardPage';
+import { Boardlist } from './Dashboard/boardlist';
 
 export function Home() {
   return (
-    <main className='flex flex-col p-6 w-full'>
-      {/* 상단 제목 */}
-      <h1 className='text-2xl font-bold'>작업 보드</h1>
-
+    <main className='flex flex-col p-6 w-full gap-6'>
       {/* 작업 보드 영역 */}
-      <section className='h-[65vh] overflow-auto mb-8'>
-        <DashboardPage />
+      <section>
+        <Boardlist page='mainpage' />
       </section>
 
       {/* 회의록 + 달력 영역 */}
