@@ -28,7 +28,7 @@ RUN npx prisma generate
 RUN npm prune --production
 
 # 컨테이너 포트 설정
-EXPOSE 3000
+EXPOSE 1004
 
 # 앱 실행
 CMD ["npm", "start"]
