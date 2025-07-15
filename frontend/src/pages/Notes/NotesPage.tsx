@@ -166,6 +166,13 @@ export function NotesPage() {
               </p>
             </div>
 
+            <div className='space-y-1'>
+              <p className='text-xs text-gray-500'>참석자</p>
+              <p className='font-medium'>
+                {selectedNote?.participant?.join(', ') || '없음'}
+              </p>
+            </div>
+
             <div className='space-y-2'>
               <p className='text-xs text-gray-500'>본문 내용</p>
               <div className='bg-gray-100 p-3 rounded-md whitespace-pre-wrap leading-relaxed text-[15px] text-gray-900 max-h-[55vh] overflow-y-auto'>

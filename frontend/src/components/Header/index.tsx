@@ -31,7 +31,11 @@ export function Header() {
     '/settings': '워크스페이스 정보',
   };
 
-  const currentPageName = pageNameMap[pathname];
+  const matchedEntry = Object.entries(pageNameMap).find(
+    ([key]) => pathname === key || pathname.startsWith(key + '/')
+  );
+
+  const currentPageName = matchedEntry?.[1] ?? '페이지 없음';
 
   return (
     <header className='flex justify-between items-center h-16 border-b px-4'>
@@ -59,8 +63,8 @@ export function Header() {
         </Breadcrumb>
       </div>
 
-      <Avatar>
-        <Link to='/profile'>
+      <Link to='/profile'>
+        <Avatar>
           <AvatarImage
             src={profile?.profile_image || undefined}
             alt={profile?.name ?? '사용자'}
@@ -68,8 +72,8 @@ export function Header() {
           <AvatarFallback>
             {profile?.name?.charAt(0).toUpperCase() ?? 'U'}
           </AvatarFallback>
-        </Link>
-      </Avatar>
+        </Avatar>
+      </Link>
     </header>
   );
 }

@@ -1,13 +1,14 @@
 // components/MeetingNoteEditor.tsx
-import { ko } from 'date-fns/locale';
+// import { ko } from 'date-fns/locale';
 import { TrashIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar'; // 예시
+// import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea'; // 기본 Textarea
 import type { Note } from '@/types/note';
+import { useNavigate } from 'react-router-dom';
 
 type Mode = 'create' | 'edit';
 
@@ -23,28 +24,32 @@ export function MeetingNoteEditor({
   onSubmit,
 }: MeetingNoteEditorProps) {
   const [title, setTitle] = useState(defaultValue?.title ?? '');
+  const [participantInput, setParticipantInput] = useState('');
   const [participant, setParticipant] = useState<string[]>(
     defaultValue?.participant ?? []
   );
-  const [date, setDate] = useState<Date | undefined>(
-    defaultValue?.created_at ? new Date(defaultValue.created_at) : undefined
-  );
-  const [fileList, setFileList] = useState<File[]>([]);
-  const [content, setContent] = useState(defaultValue?.content ?? '');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFileList(Array.from(e.target.files));
-    }
-  };
+  // const [date, setDate] = useState<Date | undefined>(
+  //   defaultValue?.created_at ? new Date(defaultValue.created_at) : undefined
+  // );
+
+  // const [fileList, setFileList] = useState<File[]>([]);
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files) {
+  //     setFileList(Array.from(e.target.files));
+  //   }
+  // };
+
+  const [content, setContent] = useState(defaultValue?.content ?? '');
+  const navigate = useNavigate();
 
   const handleSubmit = () => {
     const form = new FormData();
     form.append('title', title);
     form.append('participant', JSON.stringify(participant));
     form.append('content', content);
-    if (date) form.append('date', date.toISOString());
-    fileList.forEach((file) => form.append('files', file));
+    // if (date) form.append('date', date.toISOString());
+    // fileList.forEach((file) => form.append('files', file));
 
     onSubmit(form);
   };
@@ -70,12 +75,16 @@ export function MeetingNoteEditor({
         <label className='block text-sm mb-1 font-medium'>참석자</label>
         <Input
           placeholder='이름을 입력하거나 선택하여 참석자를 추가하세요'
-          value=''
+          value={participantInput}
+          onChange={(e) => setParticipantInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+            if (e.key === 'Enter' && participantInput.trim()) {
               e.preventDefault();
-              setParticipant([...participant, e.currentTarget.value.trim()]);
-              e.currentTarget.value = '';
+              const trimmed = participantInput.trim();
+              if (!participant.includes(trimmed)) {
+                setParticipant([...participant, trimmed]);
+              }
+              setParticipantInput('');
             }
           }}
         />
@@ -99,7 +108,7 @@ export function MeetingNoteEditor({
       </div>
 
       {/* 회의 일시 */}
-      <div>
+      {/* <div>
         <label className='block text-sm mb-1 font-medium'>회의 일시</label>
         <Calendar
           mode='single'
@@ -107,10 +116,10 @@ export function MeetingNoteEditor({
           onSelect={setDate}
           locale={ko}
         />
-      </div>
+      </div> */}
 
       {/* 파일 업로드 */}
-      <div>
+      {/* <div>
         <label className='block text-sm mb-1 font-medium'>첨부 파일</label>
         <Input type='file' multiple onChange={handleFileChange} />
         {fileList.length > 0 && (
@@ -122,7 +131,7 @@ export function MeetingNoteEditor({
             ))}
           </ul>
         )}
-      </div>
+      </div> */}
 
       {/* 본문 */}
       <div>
@@ -137,7 +146,10 @@ export function MeetingNoteEditor({
 
       {/* 저장 버튼 */}
       <div className='text-right'>
-        <Button onClick={handleSubmit}>
+        <Button onClick={() => navigate('/notes')} variant='outline'>
+          취소하기
+        </Button>
+        <Button onClick={handleSubmit} className='ml-3'>
           {mode === 'create' ? '저장하기' : '수정 완료'}
         </Button>
       </div>
