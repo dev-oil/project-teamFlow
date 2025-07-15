@@ -1,15 +1,15 @@
 // routes/upload.route.ts
 import express from 'express';
-import { upload } from '../middlewares/upload.middleware';
-import { verifyAccessToken } from '../middlewares/auth.middleware';
 import { uploadProfileImage } from '../controllers/upload.controller';
+import { verifyAccessToken } from '../middlewares/auth.middleware';
+import { uploadProfile } from '../middlewares/upload.middleware';
 
 const router = express.Router();
 
 router.post(
   '/profile/upload',
   verifyAccessToken,
-  upload.single('file'),
+  uploadProfile.single('file'),
   uploadProfileImage
 );
 
