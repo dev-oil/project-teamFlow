@@ -12,7 +12,7 @@ export function VerifyEmailPage() {
 
   useEffect(() => {
     const token = searchParams.get('token');
-    console.log(token);
+
     if (!token) {
       setStatus('error');
       return;
@@ -20,7 +20,6 @@ export function VerifyEmailPage() {
 
     fetch(`/api/auth/verify?token=${token}`)
       .then((res) => {
-        console.log(`res.ok : ${res.ok}`);
         if (!res.ok) throw new Error('Invalid token');
         setStatus('success');
       })

@@ -71,14 +71,11 @@ async function setupAutoSync() {
       setInterval(async () => {
         try {
           await OrderFromRedisToDB(ws.id);
-          console.log(`[SYNC] Workspace ${ws.id} 동기화 완료`);
         } catch (err) {
           console.error(`[SYNC] Workspace ${ws.id} 동기화 실패`, err);
         }
       }, SYNC_INTERVAL);
     });
-
-    console.log(`${workspaces.length}개 workspace 자동 동기화 스케줄러 등록됨`);
   } catch (err) {
     console.error('워크스페이스 조회 실패:', err);
   }

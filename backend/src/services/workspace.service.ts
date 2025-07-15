@@ -67,8 +67,6 @@ export const renameWorkspace = async (workspaceId: number, name: string) => {
 
 /**  워크스페이스 삭제 */
 export const deleteWorkspace = async (workspaceId: number, userId: number) => {
-  console.log('삭제 요청 userId:', userId); // 🔍 확인
-
   // 1. 워크스페이스 개수 체크
   const hostMemberships = await prisma.members.findMany({
     where: {
@@ -79,9 +77,6 @@ export const deleteWorkspace = async (workspaceId: number, userId: number) => {
       workspaces_id: true,
     },
   });
-
-  console.log('host로 참여한 워크스페이스 목록:', hostMemberships);
-  console.log('host 워크스페이스 수:', hostMemberships.length);
 
   if (hostMemberships.length <= 1) {
     throw new Error('워크스페이스가 1개만 남았습니다. 삭제할 수 없습니다.');

@@ -132,7 +132,6 @@ export function Boardlist({ page }: BoardlistProps) {
                     boxes.map((box) => (
                       <Boardbox
                         key={box.id}
-                        // box={{ ...box, cards: [...box.cards] }}
                         box={box}
                         togglePin={togglePin}
                         deleteBox={deleteBox}
@@ -151,9 +150,6 @@ export function Boardlist({ page }: BoardlistProps) {
         </div>
         <DragOverlay>
           {activeId && activeCard ? (
-            // <div className='bg-white border rounded-md p-2 shadow-lg'>
-            //   {activeCard.title}
-            // </div>
             <div className='bg-white border-2 border-dashed rounded-md p-3 shadow-2xl scale-105'>
               {activeCard.title}
             </div>

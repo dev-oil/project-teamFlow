@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 export const getProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
-    console.log(userId);
+
     if (!userId) {
       res.status(403).json({ message: '인증되지 않은 요청입니다.' });
       return;

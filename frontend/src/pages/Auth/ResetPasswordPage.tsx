@@ -53,7 +53,7 @@ export function ResetPasswordPage() {
 
   const onSubmit = async (data: ResetForm) => {
     if (!token) return;
-    console.log(data);
+
     setIsLoading(true);
     try {
       const response = await fetch('/api/auth/reset-password', {
