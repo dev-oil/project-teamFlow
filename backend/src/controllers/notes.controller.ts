@@ -1,6 +1,6 @@
-// controllers/notes.controller.ts
 import { Request, Response } from 'express';
 import * as notesService from '../services/notes.service';
+import { NoteFormRequest } from '../types/note';
 
 export const getNotes = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
@@ -26,14 +26,23 @@ export const getNoteById = async (req: Request, res: Response) => {
   }
 };
 
-export const createNote = async (req: Request, res: Response) => {
+export const createNote = async (req: NoteFormRequest, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
   const userId = req.user!.userId;
-  const { title, content, participant, file } = req.body;
 
-  if (!userId || !workspaceId) {
-    res.status(400).json({ error: '필수 정보 누락' });
+  const {
+    title,
+    content,
+    participant: participantStr,
+    file: fileStr,
+  } = req.fields;
+
+  if (!userId || !workspaceId || !title || !participantStr) {
+    return res.status(400).json({ error: '필수 정보 누락' });
   }
+
+  const participant = JSON.parse(participantStr || '[]');
+  const file = fileStr ? JSON.parse(fileStr) : [];
 
   try {
     const newNote = await notesService.createNote({
@@ -44,15 +53,26 @@ export const createNote = async (req: Request, res: Response) => {
       participant,
       file,
     });
+
     res.status(201).json(newNote);
   } catch (error) {
+    console.error('노트 생성 실패:', error);
     res.status(500).json({ error: '노트 생성 실패' });
   }
 };
 
-export const updateNote = async (req: Request, res: Response) => {
+export const updateNote = async (req: NoteFormRequest, res: Response) => {
   const noteId = Number(req.params.noteId);
-  const { title, content, participant, file } = req.body;
+
+  const {
+    title,
+    content,
+    participant: participantStr,
+    file: fileStr,
+  } = req.fields;
+
+  const participant = JSON.parse(participantStr || '[]');
+  const file = fileStr ? JSON.parse(fileStr) : [];
 
   try {
     const updatedNote = await notesService.updateNote(noteId, {

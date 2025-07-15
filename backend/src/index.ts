@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import formidable from 'express-formidable';
 import path from 'path';
 
 import authRouter from './routes/auth.routes';
@@ -35,7 +36,7 @@ app.use(express.json());
 
 // 워크스페이스
 app.use('/api/workspaces', workspaceRouter); // 워크스페이스
-app.use('/api/workspace/:workspaceId/notes', notesRouter); // 워크스페이스 내 노트
+app.use('/api/workspace/:workspaceId/notes', formidable(), notesRouter); // 워크스페이스 내 노트
 
 // 초대
 app.use('/api/invite', invitationRouter);
