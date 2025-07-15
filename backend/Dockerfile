@@ -1,6 +1,10 @@
 # Node.js 이미지 사용
 FROM node:22.14.0
 
+# DATABASE_URL을 build-time에 주입
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 # 앱 디렉토리 생성
 WORKDIR /app
 
@@ -29,5 +33,13 @@ EXPOSE 3000
 # 앱 실행
 CMD ["npm", "start"]
 
-# Dockerfile, .dockerignore 작성 후
-# docker build -t teamflow-backend .
+# 1. Dockerfile, .dockerignore 작성 후
+# 2. docker build \
+#   --build-arg DATABASE_URL="DB URL" \
+#   -t teamflow-backend .
+# 3. 도커 hub 로그인
+#    docker login
+# 4. 태그 지정
+#    docker tag teamflow-backend yourdockerhubusername/teamflow-backend:latest
+# 5. 푸시
+#    docker push yourdockerhubusername/teamflow-backend:latest
