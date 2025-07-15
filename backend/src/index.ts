@@ -25,7 +25,11 @@ const PORT = 1004;
 
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'teamflow-gold.vercel.app',
+    ],
     credentials: true,
   })
 );
