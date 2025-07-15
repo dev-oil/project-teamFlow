@@ -1,5 +1,6 @@
 // api/board.ts
 import { customFetch } from '@/lib/customFetch';
+import { useAuthStore } from '@/stores/useAuthStore';
 import type { BoxtypeWithCards, Cardtype } from '@/types/board';
 
 export const fetchBoard = async (
@@ -76,7 +77,7 @@ export const updateCardApi = async (
     end_date?: string;
     assignee?: { id: string; name: string; profile_image: string }[];
   }
-) => {
+): Promise<Cardtype> => {
   const res = await customFetch(
     `/api/workspace/${workspaceId}/board/${boxId}/${cardId}/edit`,
     {
@@ -103,17 +104,18 @@ export const deleteCardApi = async (
 export const uploadCardFiles = async (
   workspaceId: string,
   cardId: string,
-  files: File[]
+  formData: FormData
 ) => {
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('files', file);
-  });
-
-  const res = await customFetch(
+  for (const [key, value] of formData.entries()) {
+    console.log(key, value);
+  }
+  const res = await fetch(
     `/api/workspace/${workspaceId}/board/${cardId}/files`,
     {
       method: 'POST',
+      headers: {
+        Authorization: `Bearer ${useAuthStore.getState().accessToken}`,
+      },
       body: formData,
     }
   );
@@ -128,7 +130,10 @@ export const persistOrder = async (
   boxes?: { id: string; order: number }[]
 ) => {
   try {
-    const payload: any = {};
+    const payload: {
+      cards?: { id: string; order: number }[];
+      boxes?: { id: string; order: number }[];
+    } = {};
     if (cards) payload.cards = cards;
     if (boxes) payload.boxes = boxes;
 

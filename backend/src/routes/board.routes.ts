@@ -1,20 +1,16 @@
 import express from 'express';
-import multer from 'multer';
 import * as boardController from '../controllers/board.controller';
 import { verifyAccessToken } from '../middlewares/auth.middleware';
+import { uploadAttachment } from '../middlewares/upload.middleware';
 
 const router = express.Router({ mergeParams: true });
-
-// 파일 업로드 multer 설정
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-const upload = multer({ storage });
+router.post(
+  '/:cardId/files',
+  verifyAccessToken,
+  uploadAttachment.array('newFiles', 5), // ✅ 파일만 multer로 처리
+  boardController.uploadFiles
+);
+router.use(express.json());
 
 router.get('/', verifyAccessToken, boardController.getBoard);
 router.post('/', verifyAccessToken, boardController.createBox);
@@ -30,11 +26,11 @@ router.delete('/:boxId/:cardId', verifyAccessToken, boardController.deleteCard);
 // 작업보드 순서
 router.post('/order', verifyAccessToken, boardController.createBox);
 
-router.post(
-  '/:cardId/files',
+// 첨부파일 다운로드
+router.get(
+  '/cards/:cardId/files/:filename',
   verifyAccessToken,
-  upload.array('files', 5),
-  boardController.uploadFiles
+  boardController.downloadAttachment
 );
 
 export default router;

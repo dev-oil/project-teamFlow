@@ -1,5 +1,8 @@
+import fs from 'fs';
+import path from 'path';
 import { prisma } from '../db/prisma';
 import { redisClient } from '../utils/redis';
+import { Attachments } from '../types/board';
 
 /** 보드 데이터 가져오기 */
 export const findBoardWidthCard = async (
@@ -156,44 +159,135 @@ export const deleteCard = async (
         workspaces: { members: { some: { users_id: userId } } },
       },
     },
-    select: { id: true },
+    select: { id: true, file: true },
   });
   if (!card) throw new Error('권한이 없거나 카드가 존재하지 않습니다.');
+
+  if (card.file) {
+    const attachments = card.file as Attachments;
+    attachments.forEach((f) => {
+      const filePath = path.resolve('uploads/attachments', f.filename);
+      fs.unlink(filePath, (err) => {
+        if (err) console.error(`파일 삭제 실패: ${filePath}`, err);
+      });
+    });
+  }
 
   await prisma.cards.delete({ where: { id: cardId } });
 };
 
 export const uploadFilePath = async (
-  files: Express.Multer.File[],
-  workspaceId: number,
+  newFiles: Express.Multer.File[],
+  currentFiles: {
+    filename: string;
+    originalName: string;
+  }[],
   cardId: string,
   userId: number
 ) => {
-  const filePaths = files.map((f) => {
-    const file = {
-      path: f.path,
-      filename: f.filename,
-      originalName: f.originalname,
-    };
-    return file;
-  });
+  const totalFilesCount = currentFiles.length + newFiles.length;
 
-  await prisma.cards.updateMany({
+  if (totalFilesCount > 5) {
+    // 업로드 취소
+    // multer가 이미 파일을 저장했다면 삭제 필요
+    newFiles.forEach((file) => {
+      fs.unlink(file.path, (err) => {
+        if (err) console.error('파일 삭제 실패:', file.path, err);
+      });
+    });
+
+    throw new Error(
+      `총 첨부파일은 최대 5개까지 허용됩니다. 현재: ${totalFilesCount}개`
+    );
+  }
+
+  // ✅ IDOR 방지: 워크스페이스 멤버 검사
+  const card = await prisma.cards.findFirst({
     where: {
       id: cardId,
       boxes: {
         workspaces: {
-          id: workspaceId,
           members: {
             some: { users_id: userId },
           },
         },
       },
     },
-    data: {
-      file: { push: filePaths },
+  });
+
+  if (!card) {
+    throw new Error('권한 없음 또는 카드가 존재하지 않음');
+  }
+
+  // 기존 DB files
+  const existingFiles = (card.file as Attachments) ?? [];
+
+  // 🗑️ 삭제할 파일 계산
+  const filesToDelete = existingFiles.filter(
+    (existing) =>
+      !currentFiles.some((current) => current.filename === existing.filename)
+  );
+
+  // 🗑️ 서버에서 실제 파일 삭제
+  for (const file of filesToDelete) {
+    const absolutePath = path.resolve('uploads/attachments', file.filename);
+    fs.unlink(absolutePath, (err) => {
+      if (err) console.error('파일 삭제 실패:', err);
+    });
+  }
+
+  // 📥 새 파일 메타데이터 추가
+  const newFileData = newFiles.map((file) => ({
+    filename: file.filename,
+    originalName: Buffer.from(file.originalname, 'latin1').toString('utf8'),
+    path: `/uploads/attachments/${file.filename}`,
+    size: file.size,
+    type: file.mimetype,
+  }));
+
+  const updatedFiles = [
+    ...existingFiles.filter((existing) =>
+      currentFiles.some((current) => current.filename === existing.filename)
+    ), // 기존 유지할 파일
+    ...newFileData, // 새로 추가된 파일
+  ];
+
+  // DB 업데이트
+  await prisma.cards.update({
+    where: { id: cardId },
+    data: { file: updatedFiles },
+  });
+};
+
+export const downloadFile = async (
+  cardId: string,
+  filename: string,
+  userId: number
+) => {
+  // IDOR 방지: 카드 워크스페이스 멤버 검사
+  const card = await prisma.cards.findFirst({
+    where: {
+      id: cardId,
+      boxes: {
+        workspaces: {
+          members: { some: { users_id: userId } },
+        },
+      },
     },
   });
+
+  if (!card) {
+    throw new Error('권한 없음');
+  }
+
+  const cardFile = card.file as Attachments;
+  const file = cardFile.find((f) => f.filename === filename);
+  if (!file) {
+    throw new Error('파일 없음');
+  }
+
+  const filePath = path.resolve('uploads/attachments', file.filename);
+  return { filePath, originalName: file.originalName };
 };
 
 // 작업보드 순서
