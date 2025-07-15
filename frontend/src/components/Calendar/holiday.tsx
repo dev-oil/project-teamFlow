@@ -15,13 +15,12 @@ export function usePublicHolidays(year: number) {
     if (!year) return;
     setLoading(true);
     fetch(`/api/holidays?year=${year}`)
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch holidays');
         return res.json();
       })
       .then((data: HolidayItem[]) => {
         setHolidays(data);
-        //console.log(data);
         setLoading(false);
       })
       .catch((e) => {

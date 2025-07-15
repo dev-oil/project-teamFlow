@@ -47,9 +47,8 @@ export function InviteEmailPage() {
     });
 
     const data = await res.json();
-    console.log(data);
+
     if (res.ok) {
-   
       toast.success('초대 수락 완료! 워크스페이스로 이동합니다.');
       window.location.href = '/';
     } else {

@@ -131,7 +131,7 @@ export const uploadFiles = async (req: Request, res: Response) => {
   try {
     const { cardId } = req.params;
     const userId = req.user!.userId;
-    const filesMap = req.files as Express.Multer.File[];
+    const filesMap = req.files as unknown as Express.Multer.File[];
     const currentFiles = JSON.parse(req.body.currentFiles || '[]'); // 기존 파일
 
     await boardService.uploadFilePath(filesMap, currentFiles, cardId, userId);

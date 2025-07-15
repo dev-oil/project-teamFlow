@@ -106,9 +106,6 @@ export const uploadCardFiles = async (
   cardId: string,
   formData: FormData
 ) => {
-  for (const [key, value] of formData.entries()) {
-    console.log(key, value);
-  }
   const res = await fetch(
     `/api/workspace/${workspaceId}/board/${cardId}/files`,
     {

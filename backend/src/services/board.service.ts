@@ -327,11 +327,6 @@ export const updateCardAndBoxOrder = async (
   }
 
   await pipeline.exec();
-  // const result = await pipeline.exec();
-  // console.log('redis result', result);
-
-  // const cardresult = await redisClient.hGetAll(`card_orders:${workspaceId}`);
-  // console.log('Redis에 저장된 카드 순서:', cardresult);
 };
 
 export const updateCardPin = async (cardId: string, pinned: boolean) => {
@@ -342,29 +337,6 @@ export const updateCardPin = async (cardId: string, pinned: boolean) => {
 };
 
 export const OrderFromRedisToDB = async (workspaceId: number) => {
-  // const [cardOrders, boxOrders] = await Promise.all([
-  //   redisClient.hGetAll(`card_orders:${workspaceId}`),
-  //   redisClient.hGetAll(`box_orders:${workspaceId}`),
-  // ]);
-
-  // const cardOps = Object.entries(cardOrders).map(([id, order]) =>
-  //   prisma.cards.update({
-  //     where: { id },
-  //     data: { order: Number(order) },
-  //   })
-  // );
-
-  // const boxOps = Object.entries(boxOrders).map(([id, order]) =>
-  //   prisma.boxes.update({
-  //     where: { id },
-  //     data: { order: Number(order) },
-  //   })
-  // );
-
-  // await Promise.all([...cardOps, ...boxOps]);
-
-  // console.log(`[SYNC] workspace ${workspaceId} 동기화 완료`);
-
   // Redis 데이터 읽기
   const [cardOrders, boxOrders] = await Promise.all([
     redisClient.hGetAll(`card_orders:${workspaceId}`),
@@ -405,7 +377,7 @@ export const OrderFromRedisToDB = async (workspaceId: number) => {
   );
 
   if (staleBoxIds.length) {
-    await redisClient.hDel(`box_orders:${workspaceId}`, ...staleBoxIds);
+    await redisClient.hDel(`box_orders:${workspaceId}`, staleBoxIds);
     console.log(`[SYNC] 고아 박스 ${staleBoxIds.length}개 Redis에서 제거`);
   }
 

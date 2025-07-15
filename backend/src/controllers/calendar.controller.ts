@@ -4,7 +4,10 @@ import { Holidays } from '../services/calendar.service';
 
 export const getHolidays = async (req: Request, res: Response) => {
   const year = req.query.year?.toString();
-  if (!year) return res.status(400).json({ error: 'Year is required' });
+  if (!year) {
+    res.status(400).json({ error: 'Year is required' });
+    return;
+  }
 
   try {
     const holidays = await Holidays(year);

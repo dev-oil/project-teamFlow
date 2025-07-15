@@ -45,7 +45,6 @@ export const verifyInvitationToken = async (req: Request, res: Response) => {
   const token = req.query.token as string;
 
   if (!token || typeof token !== 'string') {
-    console.log(`토큰 없음`);
     res.status(400).json({ error: '토큰이 필요합니다.' });
     return;
   }
