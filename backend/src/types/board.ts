@@ -32,3 +32,11 @@ export type Card = {
   created_at: string;
   updated_at: string;
 };
+
+export type Attachments = {
+  filename: string;
+  originalName: string;
+  path: string;
+  size: number;
+  type: string;
+}[];
