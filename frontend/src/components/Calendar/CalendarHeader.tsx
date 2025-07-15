@@ -8,7 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-
 import { colorOptions } from '@/types/colors';
 type Props = {
   date: Date;
@@ -39,20 +38,23 @@ export const CalendarHeader = ({
   };
 
   return (
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex-1" />
-      <div className="flex items-center gap-2 justify-center">
-        <Button variant="outline" onClick={() => handleNavigate('PREV')}>
+    <div className='flex items-center justify-between mb-4'>
+      <div className='flex-1' />
+      <div className='flex items-center gap-2 justify-center'>
+        <Button variant='outline' onClick={() => handleNavigate('PREV')}>
           {'<'}
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost">{date.getFullYear()}년</Button>
+            <Button variant='ghost'>{date.getFullYear()}년</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {years.map((y) => (
-              <DropdownMenuItem key={y} onClick={() => onDateChange(new Date(y, date.getMonth(), 1))}>
+              <DropdownMenuItem
+                key={y}
+                onClick={() => onDateChange(new Date(y, date.getMonth(), 1))}
+              >
                 {y}년
               </DropdownMenuItem>
             ))}
@@ -61,35 +63,51 @@ export const CalendarHeader = ({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost">{date.getMonth() + 1}월</Button>
+            <Button variant='ghost'>{date.getMonth() + 1}월</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {months.map((m) => (
-              <DropdownMenuItem key={m} onClick={() => onDateChange(new Date(date.getFullYear(), m - 1, 1))}>
+              <DropdownMenuItem
+                key={m}
+                onClick={() =>
+                  onDateChange(new Date(date.getFullYear(), m - 1, 1))
+                }
+              >
                 {m}월
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="outline" onClick={() => handleNavigate('NEXT')}>
+        <Button variant='outline' onClick={() => handleNavigate('NEXT')}>
           {'>'}
         </Button>
       </div>
 
-      <div className="flex gap-2 flex-1 justify-end">
+      <div className='flex gap-2 flex-1 justify-end'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">카테고리별 <ChevronDown /></Button>
+            <Button variant='outline'>
+              카테고리별 <ChevronDown />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setCategory('')}>
-             전체보기 {category === '' && <span><Check /></span>} 
+              전체보기{' '}
+              {category === '' && (
+                <span>
+                  <Check />
+                </span>
+              )}
             </DropdownMenuItem>
             {categories.map((cat) => (
               <DropdownMenuItem key={cat} onClick={() => setCategory(cat)}>
                 {cat}
-                {category === cat && <span><Check /></span>}
+                {category === cat && (
+                  <span>
+                    <Check />
+                  </span>
+                )}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -97,16 +115,24 @@ export const CalendarHeader = ({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">색상별 <ChevronDown /></Button>
+            <Button variant='outline'>
+              색상별 <ChevronDown />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setSelectedColor(null)}>
-             전체보기 {selectedColor === null && <span><Check /> </span>} 
+              전체보기{' '}
+              {selectedColor === null && (
+                <span>
+                  <Check />{' '}
+                </span>
+              )}
             </DropdownMenuItem>
             {colorOptions.map((col) => (
-              
-              <DropdownMenuItem key={col.code} onClick={() => setSelectedColor(col.code)}>
-                
+              <DropdownMenuItem
+                key={col.code}
+                onClick={() => setSelectedColor(col.code)}
+              >
                 <span
                   style={{
                     display: 'inline-block',
@@ -117,7 +143,11 @@ export const CalendarHeader = ({
                   }}
                 />
                 {col.name}
-                {selectedColor === col.code && <span><Check /></span>}
+                {selectedColor === col.code && (
+                  <span>
+                    <Check />
+                  </span>
+                )}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

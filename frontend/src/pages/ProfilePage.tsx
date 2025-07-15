@@ -8,10 +8,8 @@ import {
   changePassword,
   deleteAccount,
 } from '@/api/user';
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useUserStore } from '@/stores/useUserStore';
 import {

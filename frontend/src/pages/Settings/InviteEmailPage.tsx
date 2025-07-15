@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-
 import { customFetch } from '@/lib/customFetch';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export function InviteEmailPage() {
   const [searchParams] = useSearchParams();
@@ -21,6 +20,24 @@ export function InviteEmailPage() {
       setStatus('error');
       return;
     }
+    const fetchLogout = async () => {
+      try {
+        const res = await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+
+        if (!res.ok) throw new Error('로그아웃 실패');
+        useAuthStore.getState().clearAccessToken();
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast.warning('로그아웃 실패', {
+            description: '잠시후 다시 시도해주세요',
+          });
+        }
+      }
+    };
+    fetchLogout();
 
     // 초대 토큰 유효성 검사
     fetch(`/api/invite/verify?token=${token}`)

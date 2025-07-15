@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
 import { customFetch } from '@/lib/customFetch';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -62,10 +61,9 @@ const TabInviteGuest = ({
 
   //워크스페이스 이동 시 메시지 초기화
   useEffect(() => {
-  setInviteMessage('');
-  setInviteError(false);
-}, [workspaceId]);
-
+    setInviteMessage('');
+    setInviteError(false);
+  }, [workspaceId]);
 
   const handleInvite = async () => {
     const trimmedEmail = inviteEmail.trim();
@@ -111,10 +109,10 @@ const TabInviteGuest = ({
         throw new Error(data.message || '초대 처리 중 오류 발생');
       }
 
-        setPendingGuests((prev) => [
+      setPendingGuests((prev) => [
         {
           id: Date.now(),
-          email:trimmedEmail,
+          email: trimmedEmail,
           invited_at: new Date().toLocaleDateString('ko-KR'),
           expires_at: new Date(data.expires_at).toLocaleDateString('ko-KR'),
           token: data.token,

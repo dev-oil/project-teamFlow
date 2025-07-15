@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 import { customFetch } from '@/lib/customFetch';
 
 import TabInviteGuest from './TabInviteGuest';
@@ -80,7 +79,7 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
     fetchPendingGuests();
   }, [workspaceId]);
 
- /**초대 삭제 */
+  /**초대 삭제 */
   const handleDeleteInvitation = async (token: string) => {
     try {
       await customFetch(`/api/invite/${token}`, {
@@ -100,10 +99,10 @@ const MembersCard = ({ isHost, workspaceId }: Props) => {
       const fromEmail = hostMember?.user?.email;
       const fromName = hostMember?.user?.name;
 
-       const res = await customFetch('/api/invite/resend', {
-      method: 'POST',
-      body: JSON.stringify({ email, workspaceId, fromName, fromEmail }),
-    });
+      const res = await customFetch('/api/invite/resend', {
+        method: 'POST',
+        body: JSON.stringify({ email, workspaceId, fromName, fromEmail }),
+      });
 
       if (!res.ok) throw new Error('다시 초대 실패');
 

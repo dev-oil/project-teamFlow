@@ -28,7 +28,7 @@ export function HomeCalendarWidget() {
       setLoading(true);
       try {
         const res = await customFetch(
-          `/api/workspaces/${workspace.id}/cards/end_dates`
+          `/api/workspaces/${workspace.id}/cards/events/end_dates`
         );
         const data: CardEvent[] = await res.json();
         const dates = data

@@ -1,12 +1,12 @@
 import { IconCirclePlusFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 import * as React from 'react';
-
-import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-// import { fetchWorkspaces } from '@/api/workspaces';
+import { fetchWorkspaces } from '@/api/workspaces';
 import { VersionSwitcher } from '@/components/Sidebar/version-switcher';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,13 +22,10 @@ import {
   SidebarRail,
   SidebarFooter,
 } from '@/components/ui/sidebar';
+import { customFetch } from '@/lib/customFetch';
 import { useAuthStore } from '@/stores/useAuthStore';
-
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { WorkspaceListItem } from '@/types/workspace';
-import { fetchWorkspaces } from '@/api/workspaces';
-import { customFetch } from '@/lib/customFetch';
-import { Loader2 } from 'lucide-react';
 
 const navMain = [
   {

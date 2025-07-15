@@ -26,19 +26,16 @@ export const getNoteById = async (req: Request, res: Response) => {
   }
 };
 
-export const createNote = async (req: NoteFormRequest, res: Response) => {
+export const createNote = async (req: Request, res: Response) => {
   const workspaceId = Number(req.params.workspaceId);
   const userId = req.user!.userId;
 
-  const {
-    title,
-    content,
-    participant: participantStr,
-    file: fileStr,
-  } = req.fields;
+  const { fields } = req as NoteFormRequest;
+  const { title, content, participant: participantStr, file: fileStr } = fields;
 
   if (!userId || !workspaceId || !title || !participantStr) {
-    return res.status(400).json({ error: '필수 정보 누락' });
+    res.status(400).json({ error: '필수 정보 누락' });
+    return;
   }
 
   const participant = JSON.parse(participantStr || '[]');
@@ -61,15 +58,10 @@ export const createNote = async (req: NoteFormRequest, res: Response) => {
   }
 };
 
-export const updateNote = async (req: NoteFormRequest, res: Response) => {
+export const updateNote = async (req: Request, res: Response) => {
   const noteId = Number(req.params.noteId);
-
-  const {
-    title,
-    content,
-    participant: participantStr,
-    file: fileStr,
-  } = req.fields;
+  const { fields } = req as NoteFormRequest;
+  const { title, content, participant: participantStr, file: fileStr } = fields;
 
   const participant = JSON.parse(participantStr || '[]');
   const file = fileStr ? JSON.parse(fileStr) : [];

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 // import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea'; // 기본 Textarea
-
 import type { Note } from '@/types/note';
 import { useNavigate } from 'react-router-dom';
 

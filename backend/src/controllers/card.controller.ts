@@ -24,6 +24,7 @@ export const getCardById = async (req: Request, res: Response) => {
     const card = await cardService.findCardById(userId, cardId);
     if (!card) {
       res.status(404).json({ error: '카드를 찾을 수 없습니다.' });
+      return;
     }
     res.json(card);
   } catch (error) {
@@ -38,6 +39,7 @@ export const updateCard = async (req: Request, res: Response) => {
 
   if (!start || !end) {
     res.status(400).json({ error: '시작일과 종료일이 필요합니다.' });
+    return;
   }
 
   const startDate = new Date(start);
@@ -45,6 +47,7 @@ export const updateCard = async (req: Request, res: Response) => {
 
   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
     res.status(400).json({ error: '날짜 형식이 올바르지 않습니다.' });
+    return;
   }
 
   try {
