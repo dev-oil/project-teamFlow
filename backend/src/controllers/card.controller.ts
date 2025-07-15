@@ -48,10 +48,24 @@ export const updateCard = async (req: Request, res: Response) => {
   }
 
   try {
-    const updated = await cardService.updateCardDate(cardId, startDate, endDate);
+    const updated = await cardService.updateCardDate(
+      cardId,
+      startDate,
+      endDate
+    );
     res.json(updated);
   } catch (err) {
     console.error('카드 수정 오류:', err);
     res.status(500).json({ error: '일정 수정 실패' });
+  }
+};
+
+export const getEndDates = async (req: Request, res: Response) => {
+  const { workspaceId } = req.params;
+  try {
+    const cards = await cardService.getCardsEndDates(Number(workspaceId));
+    res.json(cards);
+  } catch {
+    res.status(500).json({ message: '일정 데이터를 가져올 수 없습니다' });
   }
 };

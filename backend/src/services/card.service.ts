@@ -30,7 +30,7 @@ export const findCards = async (userId: number, workspaceId: number) => {
   return cards.map((card) => ({
     id: card.id,
     title: card.title,
-    start: card.start_date.toISOString().slice(0, 10), 
+    start: card.start_date.toISOString().slice(0, 10),
     end: card.end_date.toISOString().slice(0, 10),
     color: card.color,
     category: card.boxes.title,
@@ -78,8 +78,8 @@ export const findCardById = async (userId: number, cardId: string) => {
 /** 카드 수정 */
 export const updateCardDate = async (
   cardId: string,
-  start: Date, 
-  end: Date 
+  start: Date,
+  end: Date
 ) => {
   return prisma.cards.update({
     where: { id: cardId },
@@ -88,4 +88,23 @@ export const updateCardDate = async (
       end_date: end,
     },
   });
+};
+
+export const getCardsEndDates = async (workspaceId: number) => {
+  try {
+    const cards = await prisma.cards.findMany({
+      where: {
+        boxes: {
+          workspaces_id: workspaceId,
+        },
+      },
+      select: {
+        id: true,
+        end_date: true,
+      },
+    });
+    return cards;
+  } catch (error) {
+    throw new Error('마감일 가져오기 실패');
+  }
 };
