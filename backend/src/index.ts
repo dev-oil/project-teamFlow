@@ -28,7 +28,7 @@ app.use(
     origin: [
       'http://localhost:5173',
       'http://localhost:5174',
-      'teamflow-gold.vercel.app',
+      'https://teamflow-gold.vercel.app',
     ],
     credentials: true,
   })
