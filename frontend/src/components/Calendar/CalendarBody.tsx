@@ -1,4 +1,4 @@
- //components/Calendar/CalendarBody
+//components/Calendar/CalendarBody
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -64,6 +64,8 @@ export const CalendarBody = ({
   };
 
   return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     <DragAndDropCalendar
       localizer={localizer}
       events={events}
