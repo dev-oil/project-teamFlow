@@ -1,12 +1,12 @@
 // components/MeetingNoteEditor.tsx
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea'; // 기본 Textarea
-import { Calendar } from '@/components/ui/calendar'; // 예시
-import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { PlusIcon, TrashIcon } from 'lucide-react';
+import { TrashIcon } from 'lucide-react';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar'; // 예시
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea'; // 기본 Textarea
 import type { Note } from '@/types/note';
 
 type Mode = 'create' | 'edit';

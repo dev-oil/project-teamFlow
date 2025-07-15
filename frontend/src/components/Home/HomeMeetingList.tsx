@@ -3,7 +3,6 @@ import { ko } from 'date-fns/locale';
 import { useEffect, useState } from 'react';
 
 import { customFetch } from '@/lib/customFetch';
-
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 type MeetingNote = {

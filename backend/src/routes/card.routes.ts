@@ -12,5 +12,5 @@ router.get('/', verifyAccessToken, cardController.getCards);
 router.get('/:cardId', verifyAccessToken, cardController.getCardById);
 router.put('/:cardId', verifyAccessToken, cardController.updateCard);
 
-router.get('/end_dates', verifyAccessToken, cardController.getEndDates);
+router.get('/events/end_dates', verifyAccessToken, cardController.getEndDates);
 export default router;

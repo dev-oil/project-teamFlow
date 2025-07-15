@@ -82,6 +82,6 @@ async function setupAutoSync() {
 }
 
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
   setupAutoSync();
+  console.log(`Backend running on http://localhost:${PORT}`);
 });
