@@ -7,7 +7,7 @@ export function useAuthInitializer() {
   useEffect(() => {
     const tryRefresh = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/auth/refresh', {
+        const res = await fetch('/api/auth/refresh', {
           method: 'POST',
           credentials: 'include',
         });

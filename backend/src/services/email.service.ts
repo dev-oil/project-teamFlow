@@ -7,7 +7,7 @@ import { getEmailTemplate } from '../utils/mailTemplate';
  * @param token Verification Token(uuid)
  */
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const verifyUrl = `http://localhost:5173/verify?token=${token}`;
+  const verifyUrl = `https://teamflow-gold.vercel.app/verify?token=${token}`;
   const html = getEmailTemplate({
     title: 'TeamFlow 이메일 인증',
     description: '이메일 인증을 위해 아래 버튼을 클릭하세요',
@@ -27,7 +27,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
  * @param token 재설정 토큰
  */
 export const sendResetEmail = async (email: string, token: string) => {
-  const resetUrl = `http://localhost:5173/reset-password?token=${token}`;
+  const resetUrl = `https://teamflow-gold.vercel.app/reset-password?token=${token}`;
   const html = getEmailTemplate({
     title: 'TeamFlow 비밀번호 재설정',
     description: '비밀번호 재설정을 위해 아래 버튼을 클릭하세요',
@@ -53,7 +53,7 @@ export async function sendInvitationEmail({
   toEmail: string;
   token: string;
 }) {
-  const invitationLink = `http://localhost:5173/invite?token=${token}`;
+  const invitationLink = `https://teamflow-gold.vercel.app/invite?token=${token}`;
   const html = getEmailTemplate({
     title: 'TeamFlow 워크스페이스 초대',
     description: `<strong>${fromName} </strong> (${fromEmail}) 님이 당신을 워크스페이스에 초대했습니다.`,
