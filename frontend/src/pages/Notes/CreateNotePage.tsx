@@ -1,19 +1,18 @@
-import { createNote } from '@/api/notes';
 import { MeetingNoteEditor } from '@/components/Notes/MeetingNoteEditor';
-import { useNavigate } from 'react-router-dom';
+import { useCreateNote } from '@/hooks/notes/useCreateNote';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 
 export function CreateNotePage() {
-  const navigate = useNavigate();
+  const { accessToken } = useAuthStore();
+  const { workspace } = useWorkspaceStore();
 
-  const handleSubmit = async (form: FormData) => {
-    try {
-      const note = await createNote(form);
-      navigate('/notes'); // 작성 후 목록으로 이동
-    } catch (err) {
-      alert('회의록 작성 실패');
-      console.error(err);
-    }
-  };
+  const mutation = useCreateNote(accessToken!, workspace.id);
 
-  return <MeetingNoteEditor mode='create' onSubmit={handleSubmit} />;
+  return (
+    <MeetingNoteEditor
+      mode='create'
+      onSubmit={(form) => mutation.mutate(form)}
+    />
+  );
 }

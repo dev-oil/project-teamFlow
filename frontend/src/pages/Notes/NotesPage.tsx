@@ -1,7 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import { fetchNotes } from '@/api/notes';
+import { deleteNote } from '@/api/notes';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,12 +20,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore';
 import type { Note } from '@/types/note';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { deleteNote } from '@/api/notes';
-import { useQueryClient } from '@tanstack/react-query';
 
 export function NotesPage() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -168,7 +169,7 @@ export function NotesPage() {
 
             <div className='space-y-2'>
               <p className='text-xs text-gray-500'>본문 내용</p>
-              <div className='bg-gray-100 p-3 rounded-md whitespace-pre-wrap leading-relaxed text-[15px] text-gray-900'>
+              <div className='bg-gray-100 p-3 rounded-md whitespace-pre-wrap leading-relaxed text-[15px] text-gray-900 max-h-[55vh] overflow-y-auto'>
                 {selectedNote?.content || '내용이 없습니다.'}
               </div>
             </div>
