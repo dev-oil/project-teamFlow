@@ -19,7 +19,7 @@ import workspaceRouter from './routes/workspace.routes'; //워크스페이스 �
 import { connRedis } from './utils/redis';
 
 const app = express();
-const PORT = 3001;
+const PORT = 3000;
 
 (async () => await connRedis())();
 
